@@ -1,37 +1,20 @@
-import { DefaultSession, DefaultUser } from 'next-auth'
-import { JWT } from 'next-auth/jwt'
-
 export interface Role {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
-// Make sure required fields are marked as required
-export interface CustomUser extends Omit<DefaultUser, 'email' | 'name'> {
-  id: string
-  email: string
-  name: string
-  roles?: Role[]
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  roles: Role[];
+  emailVerified: boolean;
+  lastLogin?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-declare module 'next-auth' {
-  interface User extends CustomUser {}
-  
-  interface Session extends Omit<DefaultSession, 'user'> {
-    user: {
-      id: string
-      email: string
-      name: string
-      roles?: Role[]
-    }
-  }
-}
-
-declare module 'next-auth/jwt' {
-  interface JWT {
-    id: string
-    email: string
-    name: string
-    roles?: Role[]
-  }
+export interface Session {
+  user: AuthUser;
+  expires: Date;
 }
