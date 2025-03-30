@@ -140,3 +140,31 @@ textarea:focus {
   outline: none;
   box-shadow: 0 0 0 1px hsl(var(--ring));
 }
+
+/* Fix for popover components */
+[data-radix-popper-content-wrapper] {
+  z-index: 50 !important;
+  position: absolute !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure calendar is visible */
+.rdp {
+  position: relative;
+  z-index: 50;
+}
+
+/* Fix for select and dropdown issues */
+.select-content,
+.dropdown-content,
+.popover-content,
+.dialog-content {
+  z-index: 50 !important;
+}
+
+/* Make sure calendar is clickable */
+.calendar-root {
+  pointer-events: auto !important;
+  z-index: 50 !important;
+  position: relative !important;
+}
