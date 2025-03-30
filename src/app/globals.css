@@ -148,23 +148,120 @@ textarea:focus {
   pointer-events: auto !important;
 }
 
-/* Ensure calendar is visible */
+/* Calendar styles for light and dark mode */
 .rdp {
   position: relative;
   z-index: 50;
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  color: #000;
 }
 
-/* Fix for select and dropdown issues */
+.dark .rdp {
+  background-color: #1e1e2a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* Select, dropdown, and popover styling */
+[role="listbox"],
+[role="menu"],
 .select-content,
 .dropdown-content,
 .popover-content,
 .dialog-content {
   z-index: 50 !important;
+  background-color: white !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  color: #000 !important;
 }
 
-/* Make sure calendar is clickable */
-.calendar-root {
+.dark [role="listbox"],
+.dark [role="menu"],
+.dark .select-content,
+.dark .dropdown-content,
+.dark .popover-content,
+.dark .dialog-content {
+  background-color: #1e1e2a !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+/* Fix for radix select content */
+[data-radix-select-content] {
+  background-color: white !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  color: #000 !important;
+}
+
+.dark [data-radix-select-content] {
+  background-color: #1e1e2a !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+/* Fix for radix popover content */
+[data-radix-popper-content-wrapper] > div {
+  background-color: white !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.dark [data-radix-popper-content-wrapper] > div {
+  background-color: #1e1e2a !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+/* Direct styling for calendar-specific elements */
+.calendar-root,
+.calendar-content {
   pointer-events: auto !important;
   z-index: 50 !important;
   position: relative !important;
+  background-color: white !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.dark .calendar-root,
+.dark .calendar-content {
+  background-color: #1e1e2a !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+/* Stronger targeting for react-day-picker */
+.rdp-months {
+  background-color: white !important;
+}
+
+.dark .rdp-months {
+  background-color: #1e1e2a !important;
+}
+
+/* Target all popover content with a stronger selector */
+div[data-radix-popper-content-wrapper] [role="dialog"],
+div[data-radix-popper-content-wrapper] [role="menu"],
+div[data-radix-popper-content-wrapper] [role="listbox"] {
+  background-color: white !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.dark div[data-radix-popper-content-wrapper] [role="dialog"],
+.dark div[data-radix-popper-content-wrapper] [role="menu"],
+.dark div[data-radix-popper-content-wrapper] [role="listbox"] {
+  background-color: #1e1e2a !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
 }
