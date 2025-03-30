@@ -5,12 +5,13 @@ import Providers from './providers';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import GradientBackground from '@/components/GradientBackground';
+import { Toaster } from 'sonner';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'SaaS Boilerplate',
-  description: 'A streamlined SaaS application boilerplate',
+  title: 'Casino Liga - Padel League Management',
+  description: 'Organize, manage, and track your padel leagues with ease',
 };
 
 export default async function RootLayout({
@@ -26,6 +27,7 @@ export default async function RootLayout({
         <Providers session={session}>
           <GradientBackground />
           {children}
+          <Toaster position="top-right" />
         </Providers>
       </body>
     </html>
