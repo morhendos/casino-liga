@@ -2,7 +2,7 @@
 
 import { SessionProvider } from 'next-auth/react'
 import { type Session } from 'next-auth'
-import { ThemeProvider } from 'next-themes'
+import { ThemeProvider } from '@/components/layout/ThemeProvider'
 
 export default function Providers({ 
   children,
@@ -12,7 +12,7 @@ export default function Providers({
   session: Session | null
 }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark">
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <SessionProvider session={session}>
         {children}
       </SessionProvider>
