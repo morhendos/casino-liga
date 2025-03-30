@@ -1,0 +1,136 @@
+subscription-tracker/
+├── README.md
+├── REFACTORING-PLAN.md
+├── docs
+├── next-env.d.ts
+├── next.config.js
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── public
+│   └── logo-placeholder-image.png
+├── scripts
+│   └── tree.js
+├── src
+│   ├── app
+│   │   ├── actions.ts
+│   │   ├── api
+│   │   │   ├── auth
+│   │   │   │   └── [...nextauth]
+│   │   │   │       └── route.ts
+│   │   │   ├── check-environment
+│   │   │   │   └── route.ts
+│   │   │   ├── health
+│   │   │   │   └── db
+│   │   │   │       ├── __tests__
+│   │   │   │       │   └── route.test.ts
+│   │   │   │       └── route.ts
+│   │   │   └── healthz
+│   │   │       └── route.ts
+│   │   ├── auth
+│   │   │   ├── error
+│   │   │   │   ├── loading.tsx
+│   │   │   │   └── page.tsx
+│   │   │   └── signout
+│   │   │       └── page.tsx
+│   │   ├── auth-actions.ts
+│   │   ├── auth-diagnostic.ts
+│   │   ├── dashboard
+│   │   │   └── page.tsx
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   ├── login
+│   │   │   └── page.tsx
+│   │   ├── page.tsx
+│   │   ├── providers.tsx
+│   │   └── signup
+│   │       └── page.tsx
+│   ├── components
+│   │   ├── GradientBackground.tsx
+│   │   ├── ThemeToggle.tsx
+│   │   ├── auth
+│   │   │   ├── AuthLogo.tsx
+│   │   │   ├── AuthProvider.tsx
+│   │   │   ├── AuthenticatingSpinner.tsx
+│   │   │   ├── LogoutButton.tsx
+│   │   │   └── withAuth.tsx
+│   │   ├── common
+│   │   │   └── Section.tsx
+│   │   ├── error
+│   │   │   └── DatabaseErrorBoundary.tsx
+│   │   ├── error-boundary.tsx
+│   │   ├── layout
+│   │   │   └── PageHeader.tsx
+│   │   ├── loading.tsx
+│   │   ├── settings
+│   │   │   └── HeaderControls.tsx
+│   │   └── ui
+│   │       ├── IconButton.tsx
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       ├── sheet.tsx
+│   │       ├── toast.tsx
+│   │       ├── toaster.tsx
+│   │       └── use-toast.ts
+│   ├── config
+│   │   ├── database
+│   │   │   ├── config.ts
+│   │   │   ├── index.ts
+│   │   │   ├── loader.ts
+│   │   │   └── types.ts
+│   │   ├── environment-utils.ts
+│   │   ├── environment.ts
+│   │   └── index.ts
+│   ├── hooks
+│   │   ├── useLocalStorage.ts
+│   │   └── useTheme.ts
+│   ├── lib
+│   │   ├── auth
+│   │   │   ├── auth-options.ts
+│   │   │   ├── auth-service.ts
+│   │   │   ├── config.ts
+│   │   │   ├── index.ts
+│   │   │   └── validation.ts
+│   │   ├── db
+│   │   │   ├── ERROR_HANDLING.md
+│   │   │   ├── atlas-config.ts
+│   │   │   ├── config.ts
+│   │   │   ├── error-handler.ts
+│   │   │   ├── index.ts
+│   │   │   ├── mock-connection.ts
+│   │   │   ├── mongodb.ts
+│   │   │   ├── simplified-connection.ts
+│   │   │   ├── test-connection.ts
+│   │   │   ├── unified-error-handler.ts
+│   │   │   └── utils
+│   │   │       ├── connection-helpers.ts
+│   │   │       ├── index.ts
+│   │   │       └── serialization.ts
+│   │   ├── logger.ts
+│   │   ├── monitoring
+│   │   │   └── index.ts
+│   │   ├── services
+│   │   │   ├── SERVICE_PATTERN.md
+│   │   │   ├── auth-debug-service.ts
+│   │   │   └── health-service.ts
+│   │   └── utils.ts
+│   ├── middleware
+│   │   └── rate-limit.ts
+│   ├── middleware.ts
+│   ├── models
+│   │   ├── __tests__
+│   │   │   └── user.test.ts
+│   │   └── user.ts
+│   ├── types
+│   │   ├── auth.ts
+│   │   ├── next-auth.d.ts
+│   │   └── user.ts
+│   └── utils
+│       ├── format.ts
+│       ├── mongodb-uri.ts
+│       └── mongodb-utils.ts
+├── tailwind.config.js
+├── tree.txt
+└── tsconfig.json

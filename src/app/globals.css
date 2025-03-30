@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+ 
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --primary: 43 74% 49%;
+    --primary-foreground: 0 0% 100%;
+ 
+    --secondary: 222.2 84% 4.9%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --accent: 43 84% 85%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+ 
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 43 74% 49%;
+ 
+    --radius: 0.5rem;
+  }
+ 
+  .dark {
+    --background: 240 23% 9%;
+    --foreground: 0 0% 100%;
+ 
+    --card: 240 23% 12%;
+    --card-foreground: 0 0% 98%;
+ 
+    --popover: 240 23% 9%;
+    --popover-foreground: 0 0% 98%;
+ 
+    --primary: 43 74% 49%;
+    --primary-foreground: 0 0% 100%;
+ 
+    --secondary: 240 21% 12%;
+    --secondary-foreground: 0 0% 98%;
+ 
+    --muted: 240 21% 12%;
+    --muted-foreground: 210 40% 80%;
+ 
+    --accent: 43 74% 49%;
+    --accent-foreground: 0 0% 100%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+ 
+    --border: 240 21% 15%;
+    --input: 240 21% 15%;
+    --ring: 43 74% 49%;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.text-muted {
+  color: hsl(var(--muted-foreground));
+}
+
+/* Light mode section backgrounds */
+.bg-paper {
+  background-color: rgba(255, 250, 245, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Dark mode section backgrounds */
+.dark .bg-paper {
+  background-color: rgba(15, 15, 25, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.dark .bg-card {
+  background-color: rgba(15, 15, 25, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.dark .Section {
+  background-color: rgba(15, 15, 25, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Input styles */
+input,
+select,
+textarea {
+  border-color: hsl(var(--ring)) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: hsl(var(--ring)) !important;
+  outline: none;
+  box-shadow: 0 0 0 1px hsl(var(--ring));
+}
+
+/* Dark mode input styles */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: rgba(15, 15, 25, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: hsl(var(--ring)) !important;
+  outline: none;
+  box-shadow: 0 0 0 1px hsl(var(--ring));
+}
