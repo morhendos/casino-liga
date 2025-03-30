@@ -1,38 +1,39 @@
-'use client';
+"use client";
 
-import { useSession } from 'next-auth/react';
-import { redirect } from 'next/navigation';
-import { AUTH_CONFIG } from '@/lib/auth/config';
-import { useEffect, useState } from 'react';
-import { AuthenticatingSpinner } from './AuthenticatingSpinner';
+import { useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Loader2 } from "lucide-react";
 
-/**
- * Higher-order component that protects routes by requiring authentication
- * Redirects to login page if user is not authenticated
- */
-export default function withAuth<P extends object>(
-  Component: React.ComponentType<P>
-): React.FC<P> {
-  return function ProtectedRoute(props: P) {
+export default function withAuth<T>(Component: React.ComponentType<T>) {
+  return function AuthenticatedComponent(props: T) {
     const { data: session, status } = useSession();
-    const [isClient, setIsClient] = useState(false);
+    const router = useRouter();
+    const pathname = usePathname();
 
-    // Use useEffect to ensure we're on the client before redirecting
     useEffect(() => {
-      setIsClient(true);
-    }, []);
+      // If the user is not authenticated, redirect to login
+      if (status === "unauthenticated") {
+        router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+      }
+    }, [status, router, pathname]);
 
-    // Show loading spinner while checking authentication
-    if (status === 'loading' || !isClient) {
-      return <AuthenticatingSpinner />;
+    // Show loading state while checking authentication
+    if (status === "loading") {
+      return (
+        <div className="flex h-screen items-center justify-center">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          <span className="ml-2 text-xl">Loading...</span>
+        </div>
+      );
     }
 
-    // Redirect to login if not authenticated
-    if (status === 'unauthenticated') {
-      redirect(AUTH_CONFIG.ROUTES.signIn);
+    // If authenticated, render the protected component
+    if (status === "authenticated") {
+      return <Component {...props} />;
     }
 
-    // User is authenticated, render the protected component
-    return <Component {...props} />;
+    // Return null while redirecting
+    return null;
   };
 }
