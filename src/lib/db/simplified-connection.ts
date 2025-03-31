@@ -6,7 +6,7 @@
  */
 
 import mongoose from "mongoose";
-import { normalizeMongoURI } from "@/utils/mongodb-utils";
+import { normalizeMongoURI, getSanitizedURI } from "@/utils/mongodb-utils";
 import { createLogger } from "@/lib/logger";
 import { getReadyStateDescription } from "./utils/connection-helpers";
 
@@ -31,11 +31,31 @@ export async function getConnection(): Promise<mongoose.Connection> {
     return connectionPromise;
   }
 
-  // Get MongoDB URI from environment
-  const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/saas_db";
+  // Get MongoDB URI from environment, with stricter validation
+  const uri = process.env.MONGODB_URI;
+  
+  // Check if URI is missing entirely
+  if (!uri) {
+    const error = new Error("MONGODB_URI environment variable is not set");
+    dbLogger.error(error.message);
+    
+    // In development, we could fall back to a default, but we're making it stricter now
+    if (process.env.NODE_ENV === 'development') {
+      dbLogger.warn("Development fallback: Using default MongoDB URI");
+      process.env.MONGODB_URI = "mongodb://localhost:27017/casino_liga";
+    } else {
+      throw error;
+    }
+  }
+  
+  // Get the database name from environment or use default
+  const dbName = process.env.MONGODB_DATABASE || "casino_liga";
 
   // Normalize the URI to ensure correct database name
-  const normalizedUri = normalizeMongoURI(uri);
+  const normalizedUri = normalizeMongoURI(uri || "mongodb://localhost:27017/casino_liga", dbName);
+  
+  // Log connection attempt (sanitized to hide credentials)
+  dbLogger.info(`Connecting to database: ${getSanitizedURI(normalizedUri)}`);
 
   // Start a new connection
   connectionPromise = mongoose
@@ -43,7 +63,7 @@ export async function getConnection(): Promise<mongoose.Connection> {
     .then(() => {
       connection = mongoose.connection;
 
-      // Log database name for debugging - use optional chaining to avoid TypeScript errors
+      // Log database name
       dbLogger.info(
         `Connected to database: ${connection?.db?.databaseName || "unknown"}`
       );

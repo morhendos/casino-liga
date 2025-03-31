@@ -19,9 +19,6 @@
  * -----------------------------------------
  * - simplified-connection.ts: Used for normal application database access
  * - mongodb.ts (this file): Used for monitoring, health checks, and diagnostics
- *
- * The application has been refactored to consolidate connection logic in the
- * simplified-connection.ts module, but this file is maintained for specialized use cases.
  */
 
 import mongoose from "mongoose";
@@ -88,7 +85,7 @@ const validateEnv = () => {
     // In development mode, use a fallback value as a last resort
     if (isDev) {
       logger.warn("Using fallback connection string for development");
-      process.env.MONGODB_URI = "mongodb://127.0.0.1:27017/saas_db";
+      process.env.MONGODB_URI = "mongodb://127.0.0.1:27017/casino_liga";
     } else {
       throw new Error("MONGODB_URI environment variable is not defined");
     }
@@ -239,7 +236,7 @@ async function connectWithRetry(retryCount = 0): Promise<mongoose.Connection> {
     validateEnv();
 
     const uri = process.env.MONGODB_URI as string;
-    const dbName = process.env.MONGODB_DATABASE || "saas_db";
+    const dbName = process.env.MONGODB_DATABASE || "casino_liga";
 
     // Normalize the URI to ensure it has a valid database name
     const normalizedUri = normalizeMongoURI(uri, dbName);
