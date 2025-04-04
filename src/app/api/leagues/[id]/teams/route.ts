@@ -2,6 +2,15 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { withConnection } from '@/lib/db';
 import { LeagueModel, TeamModel } from '@/models';
+import { PlayerDocument } from '@/models/player';
+import { ObjectId } from 'mongoose';
+
+// Define a type for the player item that might be in the team.players array
+interface TeamPlayer {
+  userId?: string | ObjectId;
+  _id?: string | ObjectId;
+  [key: string]: any; // For other potential properties
+}
 
 // GET /api/leagues/[id]/teams - Get all teams in a league
 export async function GET(
@@ -112,9 +121,8 @@ export async function POST(
       }
       
       // Check if user is authorized (must be a team member or league organizer)
-      const isTeamMember = team.players.some(playerId => {
-        const player = team.players.find(p => p.userId && p.userId.toString() === session.user.id);
-        return player !== undefined;
+      const isTeamMember = team.players.some((player: TeamPlayer) => {
+        return player.userId && player.userId.toString() === session.user.id;
       });
       
       const isLeagueOrganizer = league.organizer.toString() === session.user.id;
@@ -223,9 +231,8 @@ export async function DELETE(
       }
       
       // Check if user is authorized (must be a team member or league organizer)
-      const isTeamMember = team.players.some(playerId => {
-        const player = team.players.find(p => p.userId && p.userId.toString() === session.user.id);
-        return player !== undefined;
+      const isTeamMember = team.players.some((player: TeamPlayer) => {
+        return player.userId && player.userId.toString() === session.user.id;
       });
       
       const isLeagueOrganizer = league.organizer.toString() === session.user.id;
