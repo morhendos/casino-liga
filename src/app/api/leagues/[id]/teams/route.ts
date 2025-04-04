@@ -242,7 +242,7 @@ export async function DELETE(
       }
       
       // Remove the team from the league
-      league.teams = league.teams.filter(id => id.toString() !== teamId);
+      league.teams = league.teams.filter((id: ObjectId | string) => id.toString() !== teamId);
       await league.save();
       
       return LeagueModel.findById(leagueId)
