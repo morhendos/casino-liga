@@ -14,6 +14,18 @@ export interface AuthUser {
   updatedAt: Date;
 }
 
+/**
+ * Simplified user interface for authentication purposes
+ * This is used during the login/registration process before
+ * the full user profile is loaded
+ */
+export interface CustomUser {
+  id: string;
+  name: string;
+  email: string;
+  roles: Role[];
+}
+
 export interface Session {
   user: AuthUser;
   expires: Date;
