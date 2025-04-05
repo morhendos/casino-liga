@@ -1,6 +1,12 @@
 import mongoose from 'mongoose';
 import { type ObjectId } from 'mongoose';
 
+// Define interface for mongoose validator props
+interface ValidatorProps {
+  value: any;
+  path: string;
+}
+
 export interface PlayerDocument extends mongoose.Document {
   userId: ObjectId;
   nickname: string;
@@ -59,7 +65,7 @@ const playerSchema = new mongoose.Schema({
       validator: function(v: string) {
         return !v || /^\+?[\d\s-]+$/.test(v);
       },
-      message: props => `${props.value} is not a valid phone number`
+      message: (props: ValidatorProps) => `${props.value} is not a valid phone number`
     }
   },
   bio: {
