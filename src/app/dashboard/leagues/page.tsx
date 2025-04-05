@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import withAuth from "@/components/auth/withAuth";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -11,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Trophy, Calendar, Users } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistance } from "date-fns";
+import withRoleAuth from "@/components/auth/withRoleAuth";
+import { ROLES } from "@/lib/auth/role-utils";
 
 interface League {
   id: string;
@@ -148,9 +149,6 @@ function LeaguesPage() {
     
     // Ensure the league ID is available
     const leagueId = league.id || league._id;
-    
-    // Debug log
-    console.log(`League card for ${league.name}, ID: ${leagueId}`);
     
     return (
       <Card>
@@ -404,4 +402,5 @@ function LeaguesPage() {
   );
 }
 
-export default withAuth(LeaguesPage);
+// Use withRoleAuth instead of withAuth, requiring the admin role
+export default withRoleAuth(LeaguesPage, [ROLES.ADMIN]);
