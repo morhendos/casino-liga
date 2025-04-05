@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { LucideIcon, User, Users, Trophy, Calendar, BarChart, Award } from "lucide-react";
+import { LucideIcon, User, Users, Trophy, Calendar, BarChart, Award, Settings } from "lucide-react";
 import { isAdmin, isPlayer } from "@/lib/auth/role-utils";
 
 interface NavItem {
@@ -50,6 +50,12 @@ export function PadelNavigation() {
       label: "Rankings",
       href: "/dashboard/rankings",
       icon: BarChart
+    },
+    {
+      label: "Admin",
+      href: "/dashboard/admin",
+      icon: Settings,
+      adminOnly: true // Only show for admin users
     }
   ];
   
