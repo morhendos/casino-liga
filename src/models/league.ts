@@ -43,14 +43,18 @@ const leagueSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    maxlength: [1000, 'Description cannot be longer than 1000 characters']
+    maxlength: [1000, 'Description cannot be longer than 1000 characters'],
+    default: ""
   },
   startDate: {
     type: Date,
     required: [true, 'Start date is required'],
     validate: {
       validator: function(startDate: Date): boolean {
-        return startDate >= new Date();
+        const now = new Date();
+        // Allow dates from yesterday to allow for timezone differences
+        now.setDate(now.getDate() - 1);
+        return startDate >= now;
       },
       message: 'Start date must be in the future'
     }
@@ -79,13 +83,11 @@ const leagueSchema = new mongoose.Schema({
   },
   maxTeams: {
     type: Number,
-    required: [true, 'Maximum number of teams is required'],
     min: [2, 'There must be at least 2 teams'],
     default: 16
   },
   minTeams: {
     type: Number,
-    required: [true, 'Minimum number of teams is required'],
     min: [2, 'There must be at least 2 teams'],
     default: 4,
     validate: {
@@ -98,7 +100,8 @@ const leagueSchema = new mongoose.Schema({
   },
   teams: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Team'
+    ref: 'Team',
+    default: []
   }],
   matchFormat: {
     type: String,
@@ -110,7 +113,8 @@ const leagueSchema = new mongoose.Schema({
   },
   venue: {
     type: String,
-    trim: true
+    trim: true,
+    default: ""
   },
   status: {
     type: String,
@@ -121,7 +125,8 @@ const leagueSchema = new mongoose.Schema({
     default: 'draft'
   },
   banner: {
-    type: String
+    type: String,
+    default: ""
   },
   scheduleGenerated: {
     type: Boolean,
@@ -140,7 +145,7 @@ const leagueSchema = new mongoose.Schema({
   organizer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: [true, 'League organizer is required']
   }
 }, {
   timestamps: true
