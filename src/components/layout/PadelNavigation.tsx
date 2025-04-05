@@ -1,17 +1,21 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { LucideIcon, User, Users, Trophy, Calendar, BarChart } from "lucide-react";
+import { isAdmin } from "@/lib/auth/role-utils";
 
 interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
+  adminOnly?: boolean;
 }
 
 export function PadelNavigation() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   
   const navItems: NavItem[] = [
     {
@@ -27,7 +31,8 @@ export function PadelNavigation() {
     {
       label: "Leagues",
       href: "/dashboard/leagues",
-      icon: Trophy
+      icon: Trophy,
+      adminOnly: true // Only show for admin users
     },
     {
       label: "Matches",
@@ -41,9 +46,19 @@ export function PadelNavigation() {
     }
   ];
   
+  // Filter nav items based on user role
+  const filteredNavItems = navItems.filter(item => {
+    // If an item is marked as adminOnly, check if the user is an admin
+    if (item.adminOnly) {
+      return isAdmin(session);
+    }
+    // Otherwise show the item to all authenticated users
+    return true;
+  });
+  
   return (
     <nav className="space-y-1">
-      {navItems.map((item) => {
+      {filteredNavItems.map((item) => {
         const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
         
         return (
