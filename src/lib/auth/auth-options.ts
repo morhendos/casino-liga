@@ -93,6 +93,10 @@ export const authOptions: AuthOptions = {
         token.email = customUser.email
         token.name = customUser.name
         token.roles = customUser.roles || []
+        // Keep the picture/image if it exists (in case other providers like OAuth are added later)
+        if (customUser.image) {
+          token.picture = customUser.image
+        }
       }
       return token
     },
@@ -104,6 +108,8 @@ export const authOptions: AuthOptions = {
         session.user.email = token.email as string
         session.user.name = token.name as string
         session.user.roles = (token.roles as any) || []
+        // Pass the picture from token to image in session if available
+        session.user.image = token.picture as string || null
       }
       return session
     },
