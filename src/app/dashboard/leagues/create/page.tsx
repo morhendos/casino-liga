@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import withAuth from "@/components/auth/withAuth";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import withRoleAuth from "@/components/auth/withRoleAuth";
+import { ROLES } from "@/lib/auth/role-utils";
 
 function CreateLeaguePage() {
   const router = useRouter();
@@ -375,4 +376,5 @@ function CreateLeaguePage() {
   );
 }
 
-export default withAuth(CreateLeaguePage);
+// Use withRoleAuth instead of withAuth, requiring the admin role
+export default withRoleAuth(CreateLeaguePage, [ROLES.ADMIN]);
