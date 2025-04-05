@@ -1,6 +1,6 @@
 # Casino Liga
 
-A scorekeeper for our casual poker tournaments.
+A management system for padel leagues and tournaments.
 
 ## Installation
 
@@ -60,15 +60,11 @@ See `.env.local.template` for a complete list of available environment variables
 
 ## Database Models
 
-- `Player` - User profile information
-- `Game` - Game session information
+- `Player` - Player profile information
+- `Team` - Team of two players
 - `League` - League settings and metadata
-- `Standing` - Player standings in leagues
-- `Transaction` - Point transactions between players
-
-## Contributing
-
-See [REFACTORING-PLAN.md](REFACTORING-PLAN.md) for ongoing improvements.
+- `Match` - Match information and results
+- `Ranking` - Team standings in leagues
 
 ## License
 
