@@ -3,14 +3,15 @@
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { LucideIcon, User, Users, Trophy, Calendar, BarChart } from "lucide-react";
-import { isAdmin } from "@/lib/auth/role-utils";
+import { LucideIcon, User, Users, Trophy, Calendar, BarChart, Award } from "lucide-react";
+import { isAdmin, isPlayer } from "@/lib/auth/role-utils";
 
 interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
   adminOnly?: boolean;
+  playerOnly?: boolean;
 }
 
 export function PadelNavigation() {
@@ -35,6 +36,12 @@ export function PadelNavigation() {
       adminOnly: true // Only show for admin users
     },
     {
+      label: "My Leagues",
+      href: "/dashboard/my-leagues",
+      icon: Award,
+      playerOnly: true // Only show for player users
+    },
+    {
       label: "Matches",
       href: "/dashboard/matches",
       icon: Calendar
@@ -52,6 +59,12 @@ export function PadelNavigation() {
     if (item.adminOnly) {
       return isAdmin(session);
     }
+    
+    // If an item is marked as playerOnly, check if the user is a player (not admin-only)
+    if (item.playerOnly) {
+      return isPlayer(session);
+    }
+    
     // Otherwise show the item to all authenticated users
     return true;
   });
