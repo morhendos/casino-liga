@@ -1,9 +1,11 @@
-import mongoose, { Schema } from 'mongoose';
-import { type ObjectId } from 'mongoose';
+import mongoose from 'mongoose';
+import { ObjectId } from 'mongoose';
 
+// Type definitions
 type LeagueStatus = 'draft' | 'registration' | 'active' | 'completed' | 'canceled';
 type MatchFormat = 'bestOf3' | 'bestOf5' | 'singleSet';
 
+// Define the League Document interface
 export interface LeagueDocument extends mongoose.Document {
   name: string;
   description?: string;
@@ -12,7 +14,7 @@ export interface LeagueDocument extends mongoose.Document {
   registrationDeadline: Date;
   maxTeams: number;
   minTeams: number;
-  teams: ObjectId[];  // References to TeamDocuments
+  teams: ObjectId[];
   matchFormat: MatchFormat;
   venue?: string;
   status: LeagueStatus;
@@ -20,16 +22,17 @@ export interface LeagueDocument extends mongoose.Document {
   scheduleGenerated: boolean;
   pointsPerWin: number;
   pointsPerLoss: number;
-  organizer: ObjectId;  // Reference to the User who created this league
+  organizer: ObjectId;
   createdAt: Date;
   updatedAt: Date;
+  // Methods
   isRegistrationOpen(): boolean;
   isFull(): boolean;
   hasTeam(teamId: string | ObjectId): boolean;
 }
 
-// Define schema without directly typing the schema fields to avoid TypeScript errors
-const leagueSchema = new Schema({
+// Create the schema without type checking during definition
+const leagueSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'League name is required'],
@@ -44,33 +47,15 @@ const leagueSchema = new Schema({
   },
   startDate: {
     type: Date,
-    required: [true, 'Start date is required'],
-    validate: {
-      validator: function(this: LeagueDocument, startDate: Date) {
-        return startDate >= new Date();
-      },
-      message: 'Start date must be in the future'
-    }
+    required: [true, 'Start date is required']
   },
   endDate: {
     type: Date,
-    required: [true, 'End date is required'],
-    validate: {
-      validator: function(this: LeagueDocument, endDate: Date) {
-        return this.startDate && endDate > this.startDate;
-      },
-      message: 'End date must be after the start date'
-    }
+    required: [true, 'End date is required']
   },
   registrationDeadline: {
     type: Date,
-    required: [true, 'Registration deadline is required'],
-    validate: {
-      validator: function(this: LeagueDocument, deadline: Date) {
-        return this.startDate && deadline <= this.startDate;
-      },
-      message: 'Registration deadline must be before or on the start date'
-    }
+    required: [true, 'Registration deadline is required']
   },
   maxTeams: {
     type: Number,
@@ -82,24 +67,17 @@ const leagueSchema = new Schema({
     type: Number,
     required: [true, 'Minimum number of teams is required'],
     min: [2, 'There must be at least 2 teams'],
-    default: 4,
-    validate: {
-      validator: function(this: LeagueDocument, minTeams: number) {
-        return this.maxTeams && minTeams <= this.maxTeams;
-      },
-      message: 'Minimum teams must be less than or equal to maximum teams'
-    }
+    default: 4
   },
-  teams: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Team'
-  }],
+  teams: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Team'
+    }
+  ],
   matchFormat: {
     type: String,
-    enum: {
-      values: ['bestOf3', 'bestOf5', 'singleSet'],
-      message: '{VALUE} is not a valid match format'
-    },
+    enum: ['bestOf3', 'bestOf5', 'singleSet'],
     default: 'bestOf3'
   },
   venue: {
@@ -108,10 +86,7 @@ const leagueSchema = new Schema({
   },
   status: {
     type: String,
-    enum: {
-      values: ['draft', 'registration', 'active', 'completed', 'canceled'],
-      message: '{VALUE} is not a valid league status'
-    },
+    enum: ['draft', 'registration', 'active', 'completed', 'canceled'],
     default: 'draft'
   },
   banner: {
@@ -132,7 +107,7 @@ const leagueSchema = new Schema({
     min: [0, 'Points per loss must be at least 0']
   },
   organizer: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   }
@@ -140,31 +115,46 @@ const leagueSchema = new Schema({
   timestamps: true
 });
 
-// Add indexes for performance
+// Add custom validation after schema creation
+leagueSchema.path('startDate').validate(function(this: LeagueDocument, startDate: Date) {
+  return startDate >= new Date();
+}, 'Start date must be in the future');
+
+leagueSchema.path('endDate').validate(function(this: LeagueDocument, endDate: Date) {
+  return this.startDate && endDate > this.startDate;
+}, 'End date must be after the start date');
+
+leagueSchema.path('registrationDeadline').validate(function(this: LeagueDocument, deadline: Date) {
+  return this.startDate && deadline <= this.startDate;
+}, 'Registration deadline must be before or on the start date');
+
+leagueSchema.path('minTeams').validate(function(this: LeagueDocument, minTeams: number) {
+  return this.maxTeams && minTeams <= this.maxTeams;
+}, 'Minimum teams must be less than or equal to maximum teams');
+
+// Add indexes
 leagueSchema.index({ name: 'text' });
 leagueSchema.index({ status: 1 });
 leagueSchema.index({ startDate: 1 });
 leagueSchema.index({ organizer: 1 });
 
-// Method to check if registration is open
+// Instance methods
 leagueSchema.methods.isRegistrationOpen = function(): boolean {
   const now = new Date();
-  return this.status === 'registration' && 
-         now <= this.registrationDeadline;
+  return this.status === 'registration' && now <= this.registrationDeadline;
 };
 
-// Method to check if league is full
 leagueSchema.methods.isFull = function(): boolean {
   return this.teams.length >= this.maxTeams;
 };
 
-// Method to check if a team is part of this league
 leagueSchema.methods.hasTeam = function(teamId: string | ObjectId): boolean {
   return this.teams.some((team: ObjectId) => 
     team.toString() === teamId.toString()
   );
 };
 
-// Use type assertion to avoid TypeScript errors
-export const LeagueModel = (mongoose.models.League || 
-  mongoose.model<LeagueDocument>('League', leagueSchema)) as mongoose.Model<LeagueDocument>;
+// Create and export the model
+export const LeagueModel = mongoose.models.League ? 
+  mongoose.model<LeagueDocument>('League') : 
+  mongoose.model<LeagueDocument>('League', leagueSchema);
