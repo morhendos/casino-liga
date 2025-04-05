@@ -1,7 +1,8 @@
 subscription-tracker/
+├── README 2.md
 ├── README.md
 ├── REFACTORING-PLAN.md
-├── docs
+├── SETUP.md
 ├── next-env.d.ts
 ├── next.config.js
 ├── package-lock.json
@@ -25,7 +26,29 @@ subscription-tracker/
 │   │   │   │       ├── __tests__
 │   │   │   │       │   └── route.test.ts
 │   │   │   │       └── route.ts
-│   │   │   └── healthz
+│   │   │   ├── healthz
+│   │   │   │   └── route.ts
+│   │   │   ├── leagues
+│   │   │   │   ├── [id]
+│   │   │   │   │   ├── rankings
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   ├── schedule
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   └── teams
+│   │   │   │   │       └── route.ts
+│   │   │   │   └── route.ts
+│   │   │   ├── matches
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── route.ts
+│   │   │   ├── players
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── route.ts
+│   │   │   └── teams
+│   │   │       ├── [id]
+│   │   │       │   └── route.ts
 │   │   │       └── route.ts
 │   │   ├── auth
 │   │   │   ├── error
@@ -36,7 +59,22 @@ subscription-tracker/
 │   │   ├── auth-actions.ts
 │   │   ├── auth-diagnostic.ts
 │   │   ├── dashboard
-│   │   │   └── page.tsx
+│   │   │   ├── layout.tsx
+│   │   │   ├── leagues
+│   │   │   │   ├── create
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── matches
+│   │   │   │   └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── player-profile
+│   │   │   │   └── page.tsx
+│   │   │   ├── rankings
+│   │   │   │   └── page.tsx
+│   │   │   └── teams
+│   │   │       ├── create
+│   │   │       │   └── page.tsx
+│   │   │       └── page.tsx
 │   │   ├── globals.css
 │   │   ├── layout.tsx
 │   │   ├── login
@@ -53,6 +91,7 @@ subscription-tracker/
 │   │   │   ├── AuthProvider.tsx
 │   │   │   ├── AuthenticatingSpinner.tsx
 │   │   │   ├── LogoutButton.tsx
+│   │   │   ├── UserAccountNav.tsx
 │   │   │   └── withAuth.tsx
 │   │   ├── common
 │   │   │   └── Section.tsx
@@ -60,26 +99,39 @@ subscription-tracker/
 │   │   │   └── DatabaseErrorBoundary.tsx
 │   │   ├── error-boundary.tsx
 │   │   ├── layout
-│   │   │   └── PageHeader.tsx
+│   │   │   ├── PadelNavigation.tsx
+│   │   │   ├── PageHeader.tsx
+│   │   │   ├── ThemeProvider.tsx
+│   │   │   └── ThemeToggle.tsx
 │   │   ├── loading.tsx
 │   │   ├── settings
 │   │   │   └── HeaderControls.tsx
-│   │   └── ui
-│   │       ├── IconButton.tsx
-│   │       ├── button.tsx
-│   │       ├── card.tsx
-│   │       ├── input.tsx
-│   │       ├── label.tsx
-│   │       ├── sheet.tsx
-│   │       ├── toast.tsx
-│   │       ├── toaster.tsx
-│   │       └── use-toast.ts
+│   │   ├── ui
+│   │   │   ├── IconButton.tsx
+│   │   │   ├── badge.tsx
+│   │   │   ├── button.tsx
+│   │   │   ├── calendar.tsx
+│   │   │   ├── card.tsx
+│   │   │   ├── dropdown-menu.tsx
+│   │   │   ├── input.tsx
+│   │   │   ├── label.tsx
+│   │   │   ├── popover.tsx
+│   │   │   ├── select.tsx
+│   │   │   ├── sheet.tsx
+│   │   │   ├── tabs.tsx
+│   │   │   ├── textarea.tsx
+│   │   │   ├── toast.tsx
+│   │   │   ├── toaster.tsx
+│   │   │   └── use-toast.ts
+│   │   └── ui-provider.tsx
 │   ├── config
+│   │   ├── check-env.ts
 │   │   ├── database
 │   │   │   ├── config.ts
 │   │   │   ├── index.ts
 │   │   │   ├── loader.ts
 │   │   │   └── types.ts
+│   │   ├── env-validation.ts
 │   │   ├── environment-utils.ts
 │   │   ├── environment.ts
 │   │   └── index.ts
@@ -92,9 +144,11 @@ subscription-tracker/
 │   │   │   ├── auth-service.ts
 │   │   │   ├── config.ts
 │   │   │   ├── index.ts
+│   │   │   ├── types.ts
 │   │   │   └── validation.ts
 │   │   ├── db
 │   │   │   ├── ERROR_HANDLING.md
+│   │   │   ├── README.md
 │   │   │   ├── atlas-config.ts
 │   │   │   ├── config.ts
 │   │   │   ├── error-handler.ts
@@ -122,15 +176,23 @@ subscription-tracker/
 │   ├── models
 │   │   ├── __tests__
 │   │   │   └── user.test.ts
+│   │   ├── index.ts
+│   │   ├── league.ts
+│   │   ├── match.ts
+│   │   ├── player.ts
+│   │   ├── ranking.ts
+│   │   ├── team.ts
 │   │   └── user.ts
 │   ├── types
 │   │   ├── auth.ts
+│   │   ├── index.ts
 │   │   ├── next-auth.d.ts
+│   │   ├── padel.ts
 │   │   └── user.ts
 │   └── utils
 │       ├── format.ts
-│       ├── mongodb-uri.ts
-│       └── mongodb-utils.ts
+│       ├── mongodb-utils.ts
+│       └── scheduleGenerator.ts
 ├── tailwind.config.js
 ├── tree.txt
 └── tsconfig.json

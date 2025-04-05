@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prepare-env": "cp .env.local.template .env.local"
+    "prepare-env": "cp .env.local.template .env.local",
+    "tree": "node scripts/tree.js"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.0.4",
