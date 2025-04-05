@@ -48,9 +48,9 @@ First, we need to add role capabilities to the user model:
 
 ### 6. Admin Management Interface
 
-- **Task 6.1:** ⬜️ Create an admin dashboard for user management
-- **Task 6.2:** ⬜️ Add functionality to assign/change user roles
-- **Task 6.3:** ⬜️ Implement UI for associating players with leagues
+- **Task 6.1:** ✅ Create an admin dashboard for user management
+- **Task 6.2:** ✅ Add functionality to assign/change user roles
+- **Task 6.3:** ✅ Implement UI for associating players with leagues
 
 ### 7. Update UI/UX for Player-Focused Experience
 
@@ -190,6 +190,16 @@ export async function GET(request: Request) {
 }
 ```
 
+### Phase 6: Admin Management Interface
+
+```typescript
+// Create admin dashboard with user and league management - COMPLETED
+
+// admin/UserManagement.tsx - Provides UI for admins to search users and assign roles
+// admin/RoleManagement.tsx - Provides information about available roles
+// admin/LeagueManagement.tsx - Provides management interface for leagues
+```
+
 ## Migration Strategy
 
 We've created a script to add roles to existing users:
@@ -212,7 +222,7 @@ We've created a script to add roles to existing users:
 
 - [x] **UI Updates**
   - [x] Modify navigation component
-  - [ ] Create admin dashboard components
+  - [x] Create admin dashboard components
   - [x] Create player-focused dashboard view
 
 - [x] **Route Protection**
@@ -235,9 +245,8 @@ We've created a script to add roles to existing users:
 
 To complete the implementation, we should focus on:
 
-1. Creating the admin interface for user and role management
-2. Enhancing the rankings view to default to player's league
-3. Comprehensive testing of the role-based access control system
+1. Enhancing the rankings view to default to player's league
+2. Comprehensive testing of the role-based access control system
 
 ## Usage Documentation
 
