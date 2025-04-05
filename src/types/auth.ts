@@ -12,6 +12,7 @@ export interface AuthUser {
   lastLogin?: Date;
   createdAt: Date;
   updatedAt: Date;
+  image?: string | null;
 }
 
 /**
@@ -24,6 +25,7 @@ export interface CustomUser {
   name: string;
   email: string;
   roles: Role[];
+  image?: string | null;
 }
 
 export interface Session {
