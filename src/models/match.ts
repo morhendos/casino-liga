@@ -3,6 +3,12 @@ import { type ObjectId } from 'mongoose';
 
 type MatchStatus = 'scheduled' | 'in_progress' | 'completed' | 'canceled' | 'postponed';
 
+// Define interface for mongoose validator props
+interface ValidatorProps {
+  value: any;
+  path: string;
+}
+
 export interface MatchDocument extends mongoose.Document {
   league: ObjectId;
   teamA: ObjectId;
@@ -51,7 +57,7 @@ const matchSchema = new mongoose.Schema({
       validator: function(v: string) {
         return !v || /^([01]\d|2[0-3]):([0-5]\d)$/.test(v);
       },
-      message: props => `${props.value} is not a valid time format (HH:MM)`
+      message: (props: ValidatorProps) => `${props.value} is not a valid time format (HH:MM)`
     }
   },
   location: {
