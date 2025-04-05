@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { withConnection } from '@/lib/db';
 import { MatchModel, LeagueModel, TeamModel, RankingModel } from '@/models';
+import { LeagueDocument } from '@/models/league';
 import { SubmitMatchResultRequest } from '@/types';
-import { ObjectId } from 'mongoose';
+import { Document, ObjectId } from 'mongoose';
 
 // Define a type for the player item that might be in the team.players array
 interface TeamPlayer {
@@ -190,8 +191,8 @@ export async function POST(
         throw new Error('Match not found');
       }
       
-      // Get the league
-      const league = await LeagueModel.findById(match.league);
+      // Get the league with proper typing
+      const league = await LeagueModel.findById(match.league) as LeagueDocument;
       
       if (!league) {
         throw new Error('League not found');
@@ -275,9 +276,12 @@ export async function POST(
       // Save the match
       await match.save();
       
-      // Update rankings - Cast league._id to string to fix TypeScript error
+      // Use the league ID string directly
+      const leagueId = league.id;
+      
+      // Update rankings with the league ID string
       await updateRankings(
-        league._id.toString(), // Convert ObjectId to string
+        leagueId,
         match.teamA.toString(),
         match.teamB.toString(),
         winnerId,
