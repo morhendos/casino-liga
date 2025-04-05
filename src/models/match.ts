@@ -107,8 +107,10 @@ const matchSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Team',
       validate: {
-        validator: function(this: any, winner: ObjectId) {
-          return !winner || winner.equals(this.teamA) || winner.equals(this.teamB);
+        validator: function(this: any, winner: mongoose.Types.ObjectId) {
+          return !winner || 
+                 winner.toString() === this.teamA.toString() || 
+                 winner.toString() === this.teamB.toString();
         },
         message: 'Winner must be one of the participating teams'
       }
