@@ -7,6 +7,9 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import withRoleAuth from "@/components/auth/withRoleAuth";
 import { ROLES } from "@/lib/auth/role-utils";
 import { UserCircle, UsersRound, Trophy } from "lucide-react";
+import { UserManagement } from "@/components/admin/UserManagement";
+import { RoleManagement } from "@/components/admin/RoleManagement";
+import { LeagueManagement } from "@/components/admin/LeagueManagement";
 
 function AdminDashboard() {
   const { data: session } = useSession();
@@ -51,7 +54,7 @@ function AdminDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p>User management component will be implemented here</p>
+              <UserManagement />
             </CardContent>
           </Card>
         </TabsContent>
@@ -65,7 +68,7 @@ function AdminDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p>Role management component will be implemented here</p>
+              <RoleManagement />
             </CardContent>
           </Card>
         </TabsContent>
@@ -79,7 +82,7 @@ function AdminDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p>League management component will be implemented here</p>
+              <LeagueManagement />
             </CardContent>
           </Card>
         </TabsContent>
