@@ -42,9 +42,9 @@ First, we need to add role capabilities to the user model:
 
 ### 5. Create League Association for Normal Users
 
-- **Task 5.1:** ⬜️ Modify the Player model to include league associations
-- **Task 5.2:** ⬜️ Create API to fetch a player's leagues/teams
-- **Task 5.3:** ⬜️ Update front-end to show only relevant league data
+- **Task 5.1:** ✅ No changes required to Player model as we're using existing relationships
+- **Task 5.2:** ✅ Create API to fetch a player's leagues/teams
+- **Task 5.3:** ✅ Update front-end to show only relevant league data
 
 ### 6. Admin Management Interface
 
@@ -54,8 +54,8 @@ First, we need to add role capabilities to the user model:
 
 ### 7. Update UI/UX for Player-Focused Experience
 
-- **Task 7.1:** ⬜️ Create a player dashboard showing their leagues/teams
-- **Task 7.2:** ⬜️ Update matches view to filter by player's leagues
+- **Task 7.1:** ✅ Create a player dashboard showing their leagues/teams
+- **Task 7.2:** ✅ Update matches view to filter by player's leagues (already implemented)
 - **Task 7.3:** ⬜️ Redesign rankings view to default to player's league
 
 ### 8. Testing and Validation
@@ -98,6 +98,10 @@ function PadelNavigation() {
     // If an item is marked as adminOnly, check if the user is an admin
     if (item.adminOnly) {
       return isAdmin(session);
+    }
+    // If an item is marked as playerOnly, check if the user is a player
+    if (item.playerOnly) {
+      return isPlayer(session);
     }
     // Otherwise show the item to all authenticated users
     return true;
@@ -157,6 +161,35 @@ export async function POST(request: Request) {
 }
 ```
 
+### Phase 5: Player-League Association
+
+```typescript
+// Add API for player leagues (src/app/api/players/leagues/route.ts) - COMPLETED
+
+export async function GET(request: Request) {
+  // Get current user's session
+  const session = await getServerSession();
+  
+  if (!session?.user?.id) {
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    );
+  }
+  
+  // Find player profile for current user
+  const player = await PlayerModel.findOne({ userId: session.user.id });
+  
+  // Find teams where player is a member
+  const teams = await TeamModel.find({ players: player._id });
+  
+  // Find leagues where these teams are participating
+  const leagues = await LeagueModel.find({ teams: { $in: teamIds } });
+  
+  return NextResponse.json({ leagues });
+}
+```
+
 ## Migration Strategy
 
 We've created a script to add roles to existing users:
@@ -180,17 +213,17 @@ We've created a script to add roles to existing users:
 - [x] **UI Updates**
   - [x] Modify navigation component
   - [ ] Create admin dashboard components
-  - [ ] Create player-focused dashboard view
+  - [x] Create player-focused dashboard view
 
 - [x] **Route Protection**
   - [x] Create role-based HOC
   - [x] Protect admin routes
   - [x] Add API route protection
 
-- [ ] **Player League Association**
-  - [ ] Update Player model with league connection
-  - [ ] Create league membership system
-  - [ ] Add UI for league membership management
+- [x] **Player League Association**
+  - [x] Use existing Player model with team connections
+  - [x] Create API endpoint for player's leagues
+  - [x] Create a "My Leagues" dashboard view
 
 - [ ] **Testing**
   - [x] Create admin test account script
@@ -202,9 +235,9 @@ We've created a script to add roles to existing users:
 
 To complete the implementation, we should focus on:
 
-1. Building the player-focused experience that filters leagues based on player membership
-2. Creating the admin interface for user and role management
-3. Testing the system with both admin and player accounts
+1. Creating the admin interface for user and role management
+2. Enhancing the rankings view to default to player's league
+3. Comprehensive testing of the role-based access control system
 
 ## Usage Documentation
 
