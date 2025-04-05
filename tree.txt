@@ -1,7 +1,5 @@
 subscription-tracker/
-├── README 2.md
 ├── README.md
-├── REFACTORING-PLAN.md
 ├── SETUP.md
 ├── next-env.d.ts
 ├── next.config.js
