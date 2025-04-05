@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/providers';
 import { withConnection } from '@/lib/db';
 import { LeagueModel } from '@/models';
 import { CreateLeagueRequest } from '@/types';
+import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { getServerSession as getServerSessionAuthJs } from 'next-auth';
 
 // GET /api/leagues - Get all leagues with optional filtering
 export async function GET(request: Request) {
@@ -77,17 +76,24 @@ export async function GET(request: Request) {
 // POST /api/leagues - Create a new league
 export async function POST(request: Request) {
   try {
-    // Use the proper method for Next-Auth in App Router
-    const session = await getServerSessionAuthJs(authOptions);
+    // Get the session
+    const session = await getServerSession(authOptions);
     
-    if (!session?.user) {
+    console.log("Session in league creation:", session); // Debug log
+    
+    if (!session?.user?.id) {
+      console.log("Missing user ID in session:", session);
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized: Missing user ID' },
         { status: 401 }
       );
     }
     
     const data: CreateLeagueRequest = await request.json();
+    console.log("League data:", data); // Debug log
+    
+    const organizerId = session.user.id;
+    console.log("Organizer ID:", organizerId); // Debug log
     
     const newLeague = await withConnection(async () => {
       // Check if league with the same name already exists
@@ -100,21 +106,26 @@ export async function POST(request: Request) {
       // Create the league
       const league = new LeagueModel({
         name: data.name,
-        description: data.description,
+        description: data.description || "",
         startDate: new Date(data.startDate),
         endDate: new Date(data.endDate),
         registrationDeadline: new Date(data.registrationDeadline),
-        maxTeams: data.maxTeams,
-        minTeams: data.minTeams,
-        matchFormat: data.matchFormat,
-        venue: data.venue,
+        maxTeams: data.maxTeams || 16,
+        minTeams: data.minTeams || 4,
+        matchFormat: data.matchFormat || "bestOf3",
+        venue: data.venue || "",
         status: 'draft', // New leagues start in draft mode
-        banner: data.banner,
+        banner: data.banner || "",
         scheduleGenerated: false,
-        pointsPerWin: data.pointsPerWin,
-        pointsPerLoss: data.pointsPerLoss,
-        organizer: session.user.id,
+        pointsPerWin: data.pointsPerWin || 3,
+        pointsPerLoss: data.pointsPerLoss || 0,
+        organizer: organizerId, // Use the extracted ID directly
         teams: []
+      });
+      
+      console.log("League to be saved:", {
+        ...league.toObject(),
+        organizer: organizerId // Log the organizer ID separately
       });
       
       const savedLeague = await league.save();
@@ -152,6 +163,11 @@ export async function POST(request: Request) {
           { status: 409 }
         );
       }
+      
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
     }
     
     return NextResponse.json(
