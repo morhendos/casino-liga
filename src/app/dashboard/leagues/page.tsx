@@ -14,6 +14,7 @@ import { formatDistance } from "date-fns";
 
 interface League {
   id: string;
+  _id: string;
   name: string;
   description?: string;
   startDate: string;
@@ -67,7 +68,12 @@ function LeaguesPage() {
         const activeData = await activeResponse.json();
         
         if (activeData.leagues) {
-          setActiveLeagues(activeData.leagues);
+          // Ensure each league has an id property
+          const processedActiveLeagues = activeData.leagues.map((league: any) => ({
+            ...league,
+            id: league._id || league.id
+          }));
+          setActiveLeagues(processedActiveLeagues);
         }
         
         // Fetch past leagues (completed status)
@@ -75,7 +81,12 @@ function LeaguesPage() {
         const pastData = await pastResponse.json();
         
         if (pastData.leagues) {
-          setPastLeagues(pastData.leagues);
+          // Ensure each league has an id property
+          const processedPastLeagues = pastData.leagues.map((league: any) => ({
+            ...league,
+            id: league._id || league.id
+          }));
+          setPastLeagues(processedPastLeagues);
         }
         
         // Fetch leagues where the user is organizer
@@ -83,7 +94,12 @@ function LeaguesPage() {
         const myData = await myResponse.json();
         
         if (myData.leagues) {
-          setMyLeagues(myData.leagues);
+          // Ensure each league has an id property
+          const processedMyLeagues = myData.leagues.map((league: any) => ({
+            ...league,
+            id: league._id || league.id
+          }));
+          setMyLeagues(processedMyLeagues);
         }
         
         // Fetch user's teams
@@ -91,14 +107,19 @@ function LeaguesPage() {
         const playerData = await playerResponse.json();
         
         if (playerData.players && playerData.players.length > 0) {
-          const playerId = playerData.players[0].id;
+          const playerId = playerData.players[0].id || playerData.players[0]._id;
           
           // Fetch teams for this player
           const teamsResponse = await fetch(`/api/teams?playerId=${playerId}`);
           const teamsData = await teamsResponse.json();
           
           if (teamsData.teams) {
-            setMyTeams(teamsData.teams);
+            // Ensure each team has an id property
+            const processedTeams = teamsData.teams.map((team: any) => ({
+              ...team,
+              id: team._id || team.id
+            }));
+            setMyTeams(processedTeams);
           }
         }
       } catch (error) {
@@ -124,6 +145,12 @@ function LeaguesPage() {
     
     // Check if league is full
     const isLeagueFull = league.teams.length >= league.maxTeams;
+    
+    // Ensure the league ID is available
+    const leagueId = league.id || league._id;
+    
+    // Debug log
+    console.log(`League card for ${league.name}, ID: ${leagueId}`);
     
     return (
       <Card>
@@ -180,7 +207,7 @@ function LeaguesPage() {
             size="sm" 
             asChild
           >
-            <Link href={`/dashboard/leagues/${league.id}`}>
+            <Link href={`/dashboard/leagues/${leagueId}`}>
               View Details
             </Link>
           </Button>
@@ -190,7 +217,7 @@ function LeaguesPage() {
               size="sm"
               asChild
             >
-              <Link href={`/dashboard/leagues/${league.id}/join?teamId=${selectedTeamId}`}>
+              <Link href={`/dashboard/leagues/${leagueId}/join?teamId=${selectedTeamId}`}>
                 Join League
               </Link>
             </Button>
@@ -202,7 +229,7 @@ function LeaguesPage() {
               variant="outline"
               asChild
             >
-              <Link href={`/dashboard/leagues/${league.id}/schedule`}>
+              <Link href={`/dashboard/leagues/${leagueId}/schedule`}>
                 <Calendar className="w-4 h-4 mr-1" />
                 Schedule
               </Link>
@@ -215,7 +242,7 @@ function LeaguesPage() {
               variant="outline"
               asChild
             >
-              <Link href={`/dashboard/leagues/${league.id}/manage`}>
+              <Link href={`/dashboard/leagues/${leagueId}/manage`}>
                 Manage
               </Link>
             </Button>
@@ -291,7 +318,7 @@ function LeaguesPage() {
           ) : activeLeagues.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {activeLeagues.map(league => (
-                <LeagueCard key={league.id} league={league} />
+                <LeagueCard key={league.id || league._id} league={league} />
               ))}
             </div>
           ) : (
@@ -323,7 +350,7 @@ function LeaguesPage() {
           ) : myLeagues.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {myLeagues.map(league => (
-                <LeagueCard key={league.id} league={league} />
+                <LeagueCard key={league.id || league._id} league={league} />
               ))}
             </div>
           ) : (
@@ -355,7 +382,7 @@ function LeaguesPage() {
           ) : pastLeagues.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {pastLeagues.map(league => (
-                <LeagueCard key={league.id} league={league} />
+                <LeagueCard key={league.id || league._id} league={league} />
               ))}
             </div>
           ) : (
