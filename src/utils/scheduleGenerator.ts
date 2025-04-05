@@ -82,7 +82,10 @@ export async function generateRoundRobinSchedule(
     }
     
     // Rotate teams for the next round (keeping team[0] fixed)
-    teams.splice(1, 0, teams.pop());
+    const lastTeam = teams.pop();
+    if (lastTeam !== undefined) {
+      teams.splice(1, 0, lastTeam);
+    }
   }
   
   return matches;
