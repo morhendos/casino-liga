@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/providers';
 import { withConnection } from '@/lib/db';
 import { LeagueModel } from '@/models';
 import { CreateLeagueRequest } from '@/types';
+import { authOptions } from '@/lib/auth';
+import { getServerSession as getServerSessionAuthJs } from 'next-auth';
 
 // GET /api/leagues - Get all leagues with optional filtering
 export async function GET(request: Request) {
@@ -75,7 +77,8 @@ export async function GET(request: Request) {
 // POST /api/leagues - Create a new league
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession();
+    // Use the proper method for Next-Auth in App Router
+    const session = await getServerSessionAuthJs(authOptions);
     
     if (!session?.user) {
       return NextResponse.json(
@@ -114,7 +117,28 @@ export async function POST(request: Request) {
         teams: []
       });
       
-      return await league.save();
+      const savedLeague = await league.save();
+      
+      // Return a plain object with an id property that can be directly accessed in the frontend
+      return {
+        id: savedLeague._id.toString(),
+        name: savedLeague.name,
+        description: savedLeague.description,
+        startDate: savedLeague.startDate,
+        endDate: savedLeague.endDate,
+        registrationDeadline: savedLeague.registrationDeadline,
+        maxTeams: savedLeague.maxTeams,
+        minTeams: savedLeague.minTeams,
+        matchFormat: savedLeague.matchFormat,
+        venue: savedLeague.venue,
+        status: savedLeague.status,
+        banner: savedLeague.banner,
+        scheduleGenerated: savedLeague.scheduleGenerated,
+        pointsPerWin: savedLeague.pointsPerWin,
+        pointsPerLoss: savedLeague.pointsPerLoss,
+        organizer: savedLeague.organizer.toString(),
+        teams: []
+      };
     });
     
     return NextResponse.json(newLeague, { status: 201 });
