@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import { type ObjectId } from 'mongoose';
 
 type LeagueStatus = 'draft' | 'registration' | 'active' | 'completed' | 'canceled';
@@ -23,9 +23,13 @@ export interface LeagueDocument extends mongoose.Document {
   organizer: ObjectId;  // Reference to the User who created this league
   createdAt: Date;
   updatedAt: Date;
+  isRegistrationOpen(): boolean;
+  isFull(): boolean;
+  hasTeam(teamId: string | ObjectId): boolean;
 }
 
-const leagueSchema = new mongoose.Schema({
+// Define schema without directly typing the schema fields to avoid TypeScript errors
+const leagueSchema = new Schema({
   name: {
     type: String,
     required: [true, 'League name is required'],
@@ -86,13 +90,10 @@ const leagueSchema = new mongoose.Schema({
       message: 'Minimum teams must be less than or equal to maximum teams'
     }
   },
-  teams: {
-    type: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Team'
-    }],
-    default: []
-  },
+  teams: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Team'
+  }],
   matchFormat: {
     type: String,
     enum: {
@@ -131,7 +132,7 @@ const leagueSchema = new mongoose.Schema({
     min: [0, 'Points per loss must be at least 0']
   },
   organizer: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
   }
@@ -164,4 +165,6 @@ leagueSchema.methods.hasTeam = function(teamId: string | ObjectId): boolean {
   );
 };
 
-export const LeagueModel = mongoose.models.League || mongoose.model<LeagueDocument>('League', leagueSchema);
+// Use type assertion to avoid TypeScript errors
+export const LeagueModel = (mongoose.models.League || 
+  mongoose.model<LeagueDocument>('League', leagueSchema)) as mongoose.Model<LeagueDocument>;
