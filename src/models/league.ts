@@ -49,7 +49,7 @@ const leagueSchema = new mongoose.Schema({
     type: Date,
     required: [true, 'Start date is required'],
     validate: {
-      validator: function(startDate: Date) {
+      validator: function(startDate: Date): boolean {
         return startDate >= new Date();
       },
       message: 'Start date must be in the future'
@@ -59,7 +59,7 @@ const leagueSchema = new mongoose.Schema({
     type: Date,
     required: [true, 'End date is required'],
     validate: {
-      validator: function(endDate: Date) {
+      validator: function(endDate: Date): boolean {
         // @ts-ignore - TypeScript doesn't understand 'this' in Mongoose validators
         return this.startDate && endDate > this.startDate;
       },
@@ -70,7 +70,7 @@ const leagueSchema = new mongoose.Schema({
     type: Date,
     required: [true, 'Registration deadline is required'],
     validate: {
-      validator: function(deadline: Date) {
+      validator: function(deadline: Date): boolean {
         // @ts-ignore - TypeScript doesn't understand 'this' in Mongoose validators
         return this.startDate && deadline <= this.startDate;
       },
@@ -89,7 +89,7 @@ const leagueSchema = new mongoose.Schema({
     min: [2, 'There must be at least 2 teams'],
     default: 4,
     validate: {
-      validator: function(minTeams: number) {
+      validator: function(minTeams: number): boolean {
         // @ts-ignore - TypeScript doesn't understand 'this' in Mongoose validators
         return this.maxTeams && minTeams <= this.maxTeams;
       },
@@ -153,16 +153,16 @@ leagueSchema.index({ startDate: 1 });
 leagueSchema.index({ organizer: 1 });
 
 // Instance methods
-leagueSchema.methods.isRegistrationOpen = function() {
+leagueSchema.methods.isRegistrationOpen = function(): boolean {
   const now = new Date();
   return this.status === 'registration' && now <= this.registrationDeadline;
 };
 
-leagueSchema.methods.isFull = function() {
+leagueSchema.methods.isFull = function(): boolean {
   return this.teams.length >= this.maxTeams;
 };
 
-leagueSchema.methods.hasTeam = function(teamId: string | ObjectId) {
+leagueSchema.methods.hasTeam = function(teamId: string | ObjectId): boolean {
   return this.teams.some((team: ObjectId) => 
     team.toString() === teamId.toString()
   );
