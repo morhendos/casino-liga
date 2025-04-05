@@ -9,6 +9,7 @@ declare module 'next-auth' {
       name: string;
       email: string;
       roles: Role[];
+      image?: string | null; // Add image property to match usage in dashboard
     }
   }
 }
@@ -20,5 +21,6 @@ declare module 'next-auth/jwt' {
     name: string;
     email: string;
     roles: Role[];
+    picture?: string; // JWT uses 'picture' for the image
   }
 }
