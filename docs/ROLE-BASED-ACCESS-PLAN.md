@@ -56,7 +56,7 @@ First, we need to add role capabilities to the user model:
 
 - **Task 7.1:** ✅ Create a player dashboard showing their leagues/teams
 - **Task 7.2:** ✅ Update matches view to filter by player's leagues (already implemented)
-- **Task 7.3:** ⬜️ Redesign rankings view to default to player's league
+- **Task 7.3:** ✅ Redesign rankings view to default to player's league
 
 ### 8. Testing and Validation
 
@@ -200,6 +200,17 @@ export async function GET(request: Request) {
 // admin/LeagueManagement.tsx - Provides management interface for leagues
 ```
 
+### Phase 7: Player Experience
+
+```typescript
+// my-leagues and my-rankings pages - COMPLETED
+
+// Created custom views for players to:
+// - View only their leagues
+// - See rankings for leagues they participate in
+// - Customize their experience
+```
+
 ## Migration Strategy
 
 We've created a script to add roles to existing users:
@@ -235,6 +246,11 @@ We've created a script to add roles to existing users:
   - [x] Create API endpoint for player's leagues
   - [x] Create a "My Leagues" dashboard view
 
+- [x] **Player Experience**
+  - [x] Create "My Leagues" page for player-specific view
+  - [x] Create "My Rankings" page for player teams
+  - [x] Update navigation to show appropriate options
+
 - [ ] **Testing**
   - [x] Create admin test account script
   - [ ] Create player test account
@@ -245,8 +261,10 @@ We've created a script to add roles to existing users:
 
 To complete the implementation, we should focus on:
 
-1. Enhancing the rankings view to default to player's league
-2. Comprehensive testing of the role-based access control system
+1. Comprehensive testing of the role-based access control system:
+   - Test as admin user
+   - Test as regular player
+   - Verify security restrictions
 
 ## Usage Documentation
 
