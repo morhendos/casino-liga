@@ -2,27 +2,54 @@
  * Environment Variables Utilities
  * 
  * Provides functions for loading and validating environment variables.
- * This is a compatibility module to replace the old env-debug.ts file.
  */
 
 import { createLogger } from '@/lib/logger';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as dotenv from 'dotenv'; // You'll need to install this package
 
 // Initialize logger
 const logger = createLogger('Env');
 
 /**
- * Load environment variables from .env file
+ * Load environment variables from .env files with proper fallback hierarchy
  * 
- * This is primarily for development and tests, as production
- * environments should have environment variables set directly.
+ * Order of precedence:
+ * 1. Process environment variables (already set)
+ * 2. .env.local (overrides specific to this environment)
+ * 3. .env.{NODE_ENV} (environment-specific defaults)
+ * 4. .env (defaults)
  */
 export function loadEnvVars(): void {
   try {
     // Check if we're in a Node.js environment
     if (typeof process !== 'undefined' && process.env) {
-      // In development mode, log that we're loading environment variables
-      if (process.env.NODE_ENV === 'development') {
-        logger.debug('Loading environment variables');
+      const rootDir = process.cwd();
+      const nodeEnv = process.env.NODE_ENV || 'development';
+      
+      logger.debug(`Loading environment variables for ${nodeEnv} environment`);
+      
+      // Define env files in order of priority (less important to more important)
+      const envFiles = [
+        path.resolve(rootDir, '.env'),
+        path.resolve(rootDir, `.env.${nodeEnv}`),
+        path.resolve(rootDir, '.env.local'),
+      ];
+      
+      // Load each env file if it exists, with later files taking precedence
+      for (const file of envFiles) {
+        if (fs.existsSync(file)) {
+          logger.debug(`Loading env file: ${path.basename(file)}`);
+          const envConfig = dotenv.parse(fs.readFileSync(file));
+          
+          // Add any variables that aren't already defined in process.env
+          for (const key in envConfig) {
+            if (!process.env[key]) {
+              process.env[key] = envConfig[key];
+            }
+          }
+        }
       }
     }
   } catch (error) {
@@ -79,8 +106,8 @@ export function ensureEnvVars(): void {
         
         // Provide fallbacks for common variables in development
         if (!process.env.MONGODB_URI) {
-          process.env.MONGODB_URI = 'mongodb://localhost:27017/saas_db';
-          logger.info('Using default MongoDB URI: mongodb://localhost:27017/saas_db');
+          process.env.MONGODB_URI = 'mongodb://localhost:27017/casino_liga';
+          logger.info('Using default MongoDB URI: mongodb://localhost:27017/casino_liga');
         }
         
         if (!process.env.NEXTAUTH_SECRET) {

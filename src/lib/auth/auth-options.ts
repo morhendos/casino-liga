@@ -6,6 +6,9 @@ import { authenticateUser } from '@/app/auth-actions'
 import { CustomUser } from '@/types/auth'
 import { loadEnvVars, ensureEnvVars } from '@/config/environment'
 
+// Import types (already imported via index.ts, but adding here for clarity)
+import './types';
+
 // Load environment variables to ensure they're available
 loadEnvVars();
 ensureEnvVars();
@@ -90,16 +93,23 @@ export const authOptions: AuthOptions = {
         token.email = customUser.email
         token.name = customUser.name
         token.roles = customUser.roles || []
+        // Keep the picture/image if it exists (in case other providers like OAuth are added later)
+        if (customUser.image) {
+          token.picture = customUser.image
+        }
       }
       return token
     },
 
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id
-        session.user.email = token.email
-        session.user.name = token.name
-        session.user.roles = token.roles || []
+        // With our type extensions, TypeScript now knows these properties exist
+        session.user.id = token.id as string
+        session.user.email = token.email as string
+        session.user.name = token.name as string
+        session.user.roles = (token.roles as any) || []
+        // Pass the picture from token to image in session if available
+        session.user.image = token.picture as string || null
       }
       return session
     },

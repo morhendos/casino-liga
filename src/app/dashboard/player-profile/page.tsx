@@ -11,10 +11,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
+// Define interface for player data
+interface PlayerProfile {
+  id?: string;
+  nickname: string;
+  skillLevel: number;
+  handedness: string;
+  preferredPosition: string;
+  contactPhone?: string;
+  bio?: string;
+}
+
 function PlayerProfilePage() {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
-  const [playerData, setPlayerData] = useState<any>(null);
+  const [playerData, setPlayerData] = useState<PlayerProfile | null>(null);
   const [hasProfile, setHasProfile] = useState(false);
   
   // Form state
@@ -65,7 +76,7 @@ function PlayerProfilePage() {
     try {
       setIsLoading(true);
       
-      const playerData = {
+      const formData: PlayerProfile = {
         nickname,
         skillLevel: parseInt(skillLevel),
         handedness,
@@ -76,19 +87,19 @@ function PlayerProfilePage() {
       
       let response;
       
-      if (hasProfile) {
-        // Update existing profile
+      if (hasProfile && playerData?.id) {
+        // Update existing profile - use the id from the fetched playerData, not from formData
         response = await fetch(`/api/players/${playerData.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(playerData)
+          body: JSON.stringify(formData)
         });
       } else {
         // Create new profile
         response = await fetch("/api/players", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(playerData)
+          body: JSON.stringify(formData)
         });
       }
       

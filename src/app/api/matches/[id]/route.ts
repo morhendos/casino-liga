@@ -2,7 +2,16 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { withConnection } from '@/lib/db';
 import { MatchModel, LeagueModel, TeamModel, RankingModel } from '@/models';
+import { LeagueDocument } from '@/models/league';
 import { SubmitMatchResultRequest } from '@/types';
+import { Document, ObjectId } from 'mongoose';
+
+// Define a type for the player item that might be in the team.players array
+interface TeamPlayer {
+  userId?: string | ObjectId;
+  _id?: string | ObjectId;
+  [key: string]: any; // For other potential properties
+}
 
 // GET /api/matches/[id] - Get a specific match by ID
 export async function GET(
@@ -182,8 +191,8 @@ export async function POST(
         throw new Error('Match not found');
       }
       
-      // Get the league
-      const league = await LeagueModel.findById(match.league);
+      // Get the league with proper typing
+      const league = await LeagueModel.findById(match.league) as LeagueDocument;
       
       if (!league) {
         throw new Error('League not found');
@@ -204,14 +213,12 @@ export async function POST(
         throw new Error('One or both teams not found');
       }
       
-      const isTeamAMember = teamA.players.some(playerId => {
-        const player = teamA.players.find(p => p.userId && p.userId.toString() === session.user.id);
-        return player !== undefined;
+      const isTeamAMember = teamA.players.some((player: TeamPlayer) => {
+        return player.userId && player.userId.toString() === session.user.id;
       });
       
-      const isTeamBMember = teamB.players.some(playerId => {
-        const player = teamB.players.find(p => p.userId && p.userId.toString() === session.user.id);
-        return player !== undefined;
+      const isTeamBMember = teamB.players.some((player: TeamPlayer) => {
+        return player.userId && player.userId.toString() === session.user.id;
       });
       
       if (!isLeagueOrganizer && !isTeamAMember && !isTeamBMember) {
@@ -269,9 +276,12 @@ export async function POST(
       // Save the match
       await match.save();
       
-      // Update rankings
+      // Use the league ID string directly
+      const leagueId = league.id;
+      
+      // Update rankings with the league ID string
       await updateRankings(
-        league._id,
+        leagueId,
         match.teamA.toString(),
         match.teamB.toString(),
         winnerId,
