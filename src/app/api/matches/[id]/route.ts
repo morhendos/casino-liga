@@ -275,9 +275,9 @@ export async function POST(
       // Save the match
       await match.save();
       
-      // Update rankings
+      // Update rankings - Cast league._id to string to fix TypeScript error
       await updateRankings(
-        league._id,
+        league._id.toString(), // Convert ObjectId to string
         match.teamA.toString(),
         match.teamB.toString(),
         winnerId,
