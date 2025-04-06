@@ -67,12 +67,10 @@ function CreateLeaguePage() {
     try {
       setIsSubmitting(true);
       
-      const leagueData = {
+      // Create a base object without date fields
+      const leagueData: any = {
         name: name.trim(),
         description: description.trim(),
-        startDate,
-        endDate,
-        registrationDeadline,
         maxTeams,
         minTeams,
         matchFormat,
@@ -80,6 +78,19 @@ function CreateLeaguePage() {
         pointsPerWin,
         pointsPerLoss
       };
+      
+      // Only add date fields if they are valid dates
+      if (startDate) {
+        leagueData.startDate = startDate;
+      }
+      
+      if (endDate) {
+        leagueData.endDate = endDate;
+      }
+      
+      if (registrationDeadline) {
+        leagueData.registrationDeadline = registrationDeadline;
+      }
       
       const response = await fetch("/api/leagues", {
         method: "POST",
@@ -170,12 +181,24 @@ function CreateLeaguePage() {
                           !startDate && "text-muted-foreground"
                         )}
                         disabled={isSubmitting}
+                        type="button"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {startDate ? format(startDate, "PPP") : "Select date"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
+                      <div className="p-2 flex justify-between border-b">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => setStartDate(undefined)}
+                          disabled={!startDate}
+                          type="button"
+                        >
+                          Clear
+                        </Button>
+                      </div>
                       <Calendar
                         mode="single"
                         selected={startDate}
@@ -198,12 +221,24 @@ function CreateLeaguePage() {
                           !endDate && "text-muted-foreground"
                         )}
                         disabled={isSubmitting}
+                        type="button"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {endDate ? format(endDate, "PPP") : "Select date"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
+                      <div className="p-2 flex justify-between border-b">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => setEndDate(undefined)}
+                          disabled={!endDate}
+                          type="button"
+                        >
+                          Clear
+                        </Button>
+                      </div>
                       <Calendar
                         mode="single"
                         selected={endDate}
@@ -226,12 +261,24 @@ function CreateLeaguePage() {
                           !registrationDeadline && "text-muted-foreground"
                         )}
                         disabled={isSubmitting}
+                        type="button"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {registrationDeadline ? format(registrationDeadline, "PPP") : "Select date"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
+                      <div className="p-2 flex justify-between border-b">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => setRegistrationDeadline(undefined)}
+                          disabled={!registrationDeadline}
+                          type="button"
+                        >
+                          Clear
+                        </Button>
+                      </div>
                       <Calendar
                         mode="single"
                         selected={registrationDeadline}
