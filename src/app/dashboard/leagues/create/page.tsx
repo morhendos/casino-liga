@@ -47,17 +47,14 @@ function CreateLeaguePage() {
       return;
     }
     
-    if (!startDate || !endDate || !registrationDeadline) {
-      toast.error("All dates are required");
-      return;
-    }
-    
-    if (endDate <= startDate) {
+    // Validate only if both dates are provided
+    if (startDate && endDate && endDate <= startDate) {
       toast.error("End date must be after start date");
       return;
     }
     
-    if (registrationDeadline > startDate) {
+    // Validate only if both dates are provided
+    if (startDate && registrationDeadline && registrationDeadline > startDate) {
       toast.error("Registration deadline must be on or before the start date");
       return;
     }
@@ -163,7 +160,7 @@ function CreateLeaguePage() {
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label>Start Date *</Label>
+                  <Label>Start Date</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -191,7 +188,7 @@ function CreateLeaguePage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>End Date *</Label>
+                  <Label>End Date</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -219,7 +216,7 @@ function CreateLeaguePage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Registration Deadline *</Label>
+                  <Label>Registration Deadline</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
