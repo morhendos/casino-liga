@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Shuffle } from "lucide-react";
@@ -33,9 +32,8 @@ function CreateTeamPage() {
   
   // Form state
   const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
-  const [partnerId, setPartnerId] = useState<string>("none"); // Changed from empty string to "none"
+  const [partnerId, setPartnerId] = useState<string>("none");
   
   // Available players
   const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
@@ -136,7 +134,6 @@ function CreateTeamPage() {
       
       const teamData = {
         name: name.trim(),
-        description,
         // Only include partnerId if it's not "none"
         players: partnerId !== "none" ? [myPlayerId, partnerId] : [myPlayerId]
       };
@@ -222,18 +219,6 @@ function CreateTeamPage() {
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="description">Team Description</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Brief description of your team, playing style, etc."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  disabled={isLoading || formSubmitting}
-                  rows={3}
-                />
-              </div>
-              
               <div className="p-4 bg-muted rounded-lg">
                 <h3 className="font-medium mb-2">Team Members</h3>
                 
@@ -262,7 +247,6 @@ function CreateTeamPage() {
                         <SelectValue placeholder="Select a partner or leave empty" />
                       </SelectTrigger>
                       <SelectContent>
-                        {/* Changed empty string to "none" */}
                         <SelectItem value="none">No partner (find one later)</SelectItem>
                         {availablePlayers.map((player) => (
                           <SelectItem key={player.id || player._id} value={player.id || player._id}>
