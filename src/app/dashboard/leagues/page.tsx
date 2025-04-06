@@ -10,8 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Trophy, Calendar, Users } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistance } from "date-fns";
-import withRoleAuth from "@/components/auth/withRoleAuth";
-import { ROLES } from "@/lib/auth/role-utils";
+import withAuth from "@/components/auth/withAuth";
+import { isAdmin } from "@/lib/auth/role-utils";
 
 interface League {
   id: string;
@@ -37,12 +37,14 @@ interface League {
 interface Team {
   id: string;
   name: string;
+  players?: any[];
 }
 
 function LeaguesPage() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [activeLeagues, setActiveLeagues] = useState<League[]>([]);
   const [pastLeagues, setPastLeagues] = useState<League[]>([]);
   const [myLeagues, setMyLeagues] = useState<League[]>([]);
@@ -58,52 +60,100 @@ function LeaguesPage() {
   }, [searchParams]);
   
   useEffect(() => {
+    if (session?.user) {
+      // Check if user is admin
+      if (session.user.roles && Array.isArray(session.user.roles)) {
+        const userIsAdmin = session.user.roles.some(role => role.id === '2');
+        setIsAdmin(userIsAdmin);
+      }
+    }
+  }, [session]);
+
+  useEffect(() => {
     async function fetchLeagues() {
       if (!session?.user?.id) return;
       
       try {
         setIsLoading(true);
         
-        // Fetch active leagues (registration or active status)
-        const activeResponse = await fetch('/api/leagues?active=true');
-        const activeData = await activeResponse.json();
-        
-        if (activeData.leagues) {
-          // Ensure each league has an id property
-          const processedActiveLeagues = activeData.leagues.map((league: any) => ({
-            ...league,
-            id: league._id || league.id
-          }));
-          setActiveLeagues(processedActiveLeagues);
+        if (isAdmin) {
+          // Admin view: fetch all leagues
+          
+          // Fetch active leagues (registration or active status)
+          const activeResponse = await fetch('/api/leagues?active=true');
+          const activeData = await activeResponse.json();
+          
+          if (activeData.leagues) {
+            // Ensure each league has an id property
+            const processedActiveLeagues = activeData.leagues.map((league: any) => ({
+              ...league,
+              id: league._id || league.id
+            }));
+            setActiveLeagues(processedActiveLeagues);
+          }
+          
+          // Fetch past leagues (completed status)
+          const pastResponse = await fetch('/api/leagues?status=completed');
+          const pastData = await pastResponse.json();
+          
+          if (pastData.leagues) {
+            // Ensure each league has an id property
+            const processedPastLeagues = pastData.leagues.map((league: any) => ({
+              ...league,
+              id: league._id || league.id
+            }));
+            setPastLeagues(processedPastLeagues);
+          }
+          
+          // Fetch leagues where the user is organizer
+          const myResponse = await fetch(`/api/leagues?organizer=${session.user.id}`);
+          const myData = await myResponse.json();
+          
+          if (myData.leagues) {
+            // Ensure each league has an id property
+            const processedMyLeagues = myData.leagues.map((league: any) => ({
+              ...league,
+              id: league._id || league.id
+            }));
+            setMyLeagues(processedMyLeagues);
+          }
+        } else {
+          // Player view: fetch leagues the player is in
+          
+          // Fetch the player's active leagues
+          const activeResponse = await fetch('/api/players/leagues?active=true');
+          if (!activeResponse.ok) {
+            throw new Error(`Failed to fetch active leagues: ${activeResponse.statusText}`);
+          }
+          const activeData = await activeResponse.json();
+
+          if (activeData.leagues) {
+            // Ensure each league has an id property
+            const processedActiveLeagues = activeData.leagues.map((league: any) => ({
+              ...league,
+              id: league._id || league.id
+            }));
+            setActiveLeagues(processedActiveLeagues);
+          }
+
+          // Fetch past leagues (completed)
+          const pastResponse = await fetch('/api/players/leagues?status=completed');
+          if (!pastResponse.ok) {
+            throw new Error(`Failed to fetch past leagues: ${pastResponse.statusText}`);
+          }
+          const pastData = await pastResponse.json();
+
+          if (pastData.leagues) {
+            // Ensure each league has an id property
+            const processedPastLeagues = pastData.leagues.map((league: any) => ({
+              ...league,
+              id: league._id || league.id
+            }));
+            setPastLeagues(processedPastLeagues);
+          }
         }
         
-        // Fetch past leagues (completed status)
-        const pastResponse = await fetch('/api/leagues?status=completed');
-        const pastData = await pastResponse.json();
-        
-        if (pastData.leagues) {
-          // Ensure each league has an id property
-          const processedPastLeagues = pastData.leagues.map((league: any) => ({
-            ...league,
-            id: league._id || league.id
-          }));
-          setPastLeagues(processedPastLeagues);
-        }
-        
-        // Fetch leagues where the user is organizer
-        const myResponse = await fetch(`/api/leagues?organizer=${session.user.id}`);
-        const myData = await myResponse.json();
-        
-        if (myData.leagues) {
-          // Ensure each league has an id property
-          const processedMyLeagues = myData.leagues.map((league: any) => ({
-            ...league,
-            id: league._id || league.id
-          }));
-          setMyLeagues(processedMyLeagues);
-        }
-        
-        // Fetch user's teams
+        // Fetch user's teams (for all users)
         const playerResponse = await fetch(`/api/players?userId=${session.user.id}`);
         const playerData = await playerResponse.json();
         
@@ -132,7 +182,7 @@ function LeaguesPage() {
     }
     
     fetchLeagues();
-  }, [session]);
+  }, [session, isAdmin]);
   
   function LeagueCard({ league }: { league: League }) {
     const isRegistrationOpen = 
@@ -143,6 +193,13 @@ function LeaguesPage() {
     
     // Check if user's team is in this league
     const userTeamInLeague = selectedTeamId && league.teams.some(team => team.id === selectedTeamId);
+    
+    // For player view, find user's team in this league
+    const userTeam = !isAdmin && league.teams.find(team =>
+      team.players && team.players.some((player: any) =>
+        player.userId === session?.user?.id
+      )
+    );
     
     // Check if league is full
     const isLeagueFull = league.teams.length >= league.maxTeams;
@@ -197,6 +254,12 @@ function LeaguesPage() {
                 <span>{league.venue}</span>
               </div>
             )}
+            {userTeam && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Your Team:</span>
+                <span className="font-medium">{userTeam.name}</span>
+              </div>
+            )}
           </div>
         </CardContent>
         <CardFooter className="flex justify-between gap-2">
@@ -221,7 +284,7 @@ function LeaguesPage() {
             </Button>
           )}
           
-          {userTeamInLeague && (
+          {(userTeamInLeague || userTeam) && (
             <Button 
               size="sm"
               variant="outline"
@@ -266,21 +329,31 @@ function LeaguesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Padel Leagues</h1>
-        <Button asChild>
-          <Link href="/dashboard/leagues/create">
-            <Plus className="w-4 h-4 mr-2" />
-            Create League
-          </Link>
-        </Button>
+        <h1 className="text-3xl font-bold">{isAdmin ? "All Leagues" : "My Leagues"}</h1>
+        {isAdmin && (
+          <Button asChild>
+            <Link href="/dashboard/leagues/create">
+              <Plus className="w-4 h-4 mr-2" />
+              Create League
+            </Link>
+          </Button>
+        )}
+        {!isAdmin && (
+          <Button asChild variant="outline">
+            <Link href="/dashboard/teams">
+              <Users className="w-4 h-4 mr-2" />
+              My Teams
+            </Link>
+          </Button>
+        )}
       </div>
       
       {myTeams.length > 0 && (
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Register Your Team</CardTitle>
+            <CardTitle>My Teams</CardTitle>
             <CardDescription>
-              Select one of your teams to see which leagues you can join.
+              {isAdmin ? "Select one of your teams to see which leagues you can join." : "Your teams in the system."}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -301,106 +374,175 @@ function LeaguesPage() {
         </Card>
       )}
       
-      <Tabs defaultValue="active">
-        <TabsList className="mb-4">
-          <TabsTrigger value="active">Active Leagues</TabsTrigger>
-          <TabsTrigger value="my">My Leagues</TabsTrigger>
-          <TabsTrigger value="past">Past Leagues</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="active">
-          {isLoading ? (
-            <div className="py-12 text-center">
-              <div className="animate-pulse text-muted-foreground">Loading leagues...</div>
-            </div>
-          ) : activeLeagues.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {activeLeagues.map(league => (
-                <LeagueCard key={league.id || league._id} league={league} />
-              ))}
-            </div>
-          ) : (
-            <Card className="text-center py-12">
-              <CardContent>
-                <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                  <Trophy className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <h3 className="text-xl font-medium mb-2">No Active Leagues</h3>
-                <p className="text-muted-foreground mb-6">
-                  There are currently no active leagues available to join.
-                </p>
-                <Button asChild>
-                  <Link href="/dashboard/leagues/create">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create a League
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="my">
-          {isLoading ? (
-            <div className="py-12 text-center">
-              <div className="animate-pulse text-muted-foreground">Loading leagues...</div>
-            </div>
-          ) : myLeagues.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {myLeagues.map(league => (
-                <LeagueCard key={league.id || league._id} league={league} />
-              ))}
-            </div>
-          ) : (
-            <Card className="text-center py-12">
-              <CardContent>
-                <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                  <Trophy className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <h3 className="text-xl font-medium mb-2">No Leagues Created</h3>
-                <p className="text-muted-foreground mb-6">
-                  You haven't created any leagues yet.
-                </p>
-                <Button asChild>
-                  <Link href="/dashboard/leagues/create">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Your First League
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="past">
-          {isLoading ? (
-            <div className="py-12 text-center">
-              <div className="animate-pulse text-muted-foreground">Loading leagues...</div>
-            </div>
-          ) : pastLeagues.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {pastLeagues.map(league => (
-                <LeagueCard key={league.id || league._id} league={league} />
-              ))}
-            </div>
-          ) : (
-            <Card className="text-center py-12">
-              <CardContent>
-                <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                  <Trophy className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <h3 className="text-xl font-medium mb-2">No Past Leagues</h3>
-                <p className="text-muted-foreground mb-6">
-                  There are no completed leagues in your history.
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-      </Tabs>
+      {/* Admin specific tabs */}
+      {isAdmin ? (
+        <Tabs defaultValue="active">
+          <TabsList className="mb-4">
+            <TabsTrigger value="active">Active Leagues</TabsTrigger>
+            <TabsTrigger value="my">My Leagues</TabsTrigger>
+            <TabsTrigger value="past">Past Leagues</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="active">
+            {isLoading ? (
+              <div className="py-12 text-center">
+                <div className="animate-pulse text-muted-foreground">Loading leagues...</div>
+              </div>
+            ) : activeLeagues.length > 0 ? (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {activeLeagues.map(league => (
+                  <LeagueCard key={league.id || league._id} league={league} />
+                ))}
+              </div>
+            ) : (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                    <Trophy className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl font-medium mb-2">No Active Leagues</h3>
+                  <p className="text-muted-foreground mb-6">
+                    There are currently no active leagues available to join.
+                  </p>
+                  <Button asChild>
+                    <Link href="/dashboard/leagues/create">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create a League
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="my">
+            {isLoading ? (
+              <div className="py-12 text-center">
+                <div className="animate-pulse text-muted-foreground">Loading leagues...</div>
+              </div>
+            ) : myLeagues.length > 0 ? (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {myLeagues.map(league => (
+                  <LeagueCard key={league.id || league._id} league={league} />
+                ))}
+              </div>
+            ) : (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                    <Trophy className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl font-medium mb-2">No Leagues Created</h3>
+                  <p className="text-muted-foreground mb-6">
+                    You haven't created any leagues yet.
+                  </p>
+                  <Button asChild>
+                    <Link href="/dashboard/leagues/create">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Your First League
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="past">
+            {isLoading ? (
+              <div className="py-12 text-center">
+                <div className="animate-pulse text-muted-foreground">Loading leagues...</div>
+              </div>
+            ) : pastLeagues.length > 0 ? (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {pastLeagues.map(league => (
+                  <LeagueCard key={league.id || league._id} league={league} />
+                ))}
+              </div>
+            ) : (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                    <Trophy className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl font-medium mb-2">No Past Leagues</h3>
+                  <p className="text-muted-foreground mb-6">
+                    There are no completed leagues in your history.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      ) : (
+        /* Player specific tabs */
+        <Tabs defaultValue="active">
+          <TabsList className="mb-4">
+            <TabsTrigger value="active">Active Leagues</TabsTrigger>
+            <TabsTrigger value="past">Past Leagues</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="active">
+            {isLoading ? (
+              <div className="py-12 text-center">
+                <div className="animate-pulse text-muted-foreground">Loading leagues...</div>
+              </div>
+            ) : activeLeagues.length > 0 ? (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {activeLeagues.map(league => (
+                  <LeagueCard key={league.id || league._id} league={league} />
+                ))}
+              </div>
+            ) : (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                    <Trophy className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl font-medium mb-2">No Active Leagues</h3>
+                  <p className="text-muted-foreground mb-6">
+                    You're not currently participating in any active leagues.
+                  </p>
+                  <Button asChild>
+                    <Link href="/dashboard/teams">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create or Join a Team
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="past">
+            {isLoading ? (
+              <div className="py-12 text-center">
+                <div className="animate-pulse text-muted-foreground">Loading leagues...</div>
+              </div>
+            ) : pastLeagues.length > 0 ? (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {pastLeagues.map(league => (
+                  <LeagueCard key={league.id || league._id} league={league} />
+                ))}
+              </div>
+            ) : (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                    <Trophy className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl font-medium mb-2">No Past Leagues</h3>
+                  <p className="text-muted-foreground mb-6">
+                    You haven't participated in any completed leagues yet.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
 }
 
-// Use withRoleAuth instead of withAuth, requiring the admin role
-export default withRoleAuth(LeaguesPage, [ROLES.ADMIN]);
+// Use standard withAuth instead of withRoleAuth to allow both admins and players
+export default withAuth(LeaguesPage);
