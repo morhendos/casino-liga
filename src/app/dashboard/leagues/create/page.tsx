@@ -109,8 +109,8 @@ function CreateLeaguePage() {
         description: "You can now add teams and generate a schedule."
       });
       
-      // Redirect to league details
-      router.push(`/dashboard/leagues/${league.id}/manage`);
+      // Redirect to league management page with fromCreate parameter
+      router.push(`/dashboard/leagues/${league.id}/manage?fromCreate=true`);
     } catch (error) {
       console.error("Error creating league:", error);
       toast.error(error instanceof Error ? error.message : "Failed to create league");
