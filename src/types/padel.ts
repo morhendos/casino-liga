@@ -37,9 +37,9 @@ export interface LeagueProfile {
   id: string;
   name: string;
   description?: string;
-  startDate: Date;
-  endDate: Date;
-  registrationDeadline: Date;
+  startDate?: Date;
+  endDate?: Date;
+  registrationDeadline?: Date;
   maxTeams: number;
   minTeams: number;
   teams: TeamProfile[];
@@ -123,9 +123,9 @@ export interface CreateTeamRequest {
 export interface CreateLeagueRequest {
   name: string;
   description?: string;
-  startDate: Date | string;
-  endDate: Date | string;
-  registrationDeadline: Date | string;
+  startDate?: Date | string;
+  endDate?: Date | string;
+  registrationDeadline?: Date | string;
   maxTeams: number;
   minTeams: number;
   matchFormat: MatchFormat;
