@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Users, ArrowLeft, Trophy } from "lucide-react";
+import { Calendar, Users, ArrowLeft, Trophy, Settings } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
+import { hasRole, ROLES } from "@/lib/auth/role-utils";
 
 interface League {
   id: string;
@@ -52,12 +54,20 @@ interface Player {
 function LeagueDetailsPage() {
   const params = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const [league, setLeague] = useState<League | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Extract the ID from params
   const leagueId = params?.id as string;
+
+  useEffect(() => {
+    if (session) {
+      setIsAdmin(hasRole(session, ROLES.ADMIN));
+    }
+  }, [session]);
 
   useEffect(() => {
     if (!leagueId || leagueId === "undefined") {
@@ -177,6 +187,20 @@ function LeagueDetailsPage() {
         }>
           {league.status.charAt(0).toUpperCase() + league.status.slice(1)}
         </Badge>
+        
+        {isAdmin && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="ml-auto"
+            asChild
+          >
+            <Link href={`/dashboard/leagues/${league.id}/manage`}>
+              <Settings className="w-4 h-4 mr-2" />
+              Manage League
+            </Link>
+          </Button>
+        )}
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -281,14 +305,28 @@ function LeagueDetailsPage() {
                 <div className="py-8 text-center text-muted-foreground">
                   <Users className="w-12 h-12 mx-auto mb-4 opacity-20" />
                   <p>No teams have joined this league yet.</p>
+                  {isAdmin && (
+                    <p className="text-sm mt-2">
+                      Use the admin management page to add teams to this league.
+                    </p>
+                  )}
                 </div>
               )}
             </CardContent>
-            {league.status === 'registration' && (
+            {league.status === 'registration' && !isAdmin && (
               <CardFooter>
                 <Button className="w-full" asChild>
                   <Link href={`/dashboard/leagues/${league.id}/join`}>
                     Join League
+                  </Link>
+                </Button>
+              </CardFooter>
+            )}
+            {isAdmin && league.teams.length === 0 && (
+              <CardFooter>
+                <Button className="w-full" asChild>
+                  <Link href={`/dashboard/leagues/${league.id}/manage`}>
+                    Manage Teams
                   </Link>
                 </Button>
               </CardFooter>
