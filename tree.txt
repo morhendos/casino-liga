@@ -1,7 +1,11 @@
 subscription-tracker/
+├── IMPLEMENTATION-STATUS.md
 ├── README.md
 ├── SETUP.md
 ├── docs
+│   ├── ADMIN-INVITATION-FLOW.md
+│   ├── PLAYER-TEAM-LEAGUE-FLOW.md
+│   ├── PROGRESS-REPORT.md
 │   ├── ROLE-BASED-ACCESS-PLAN.md
 │   ├── ROLE-USAGE.md
 │   └── TESTING.md
@@ -28,7 +32,9 @@ subscription-tracker/
 │   │   │   │   └── users
 │   │   │   │       └── route.ts
 │   │   │   ├── auth
-│   │   │   │   └── [...nextauth]
+│   │   │   │   ├── [...nextauth]
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── invite
 │   │   │   │       └── route.ts
 │   │   │   ├── check-environment
 │   │   │   │   └── route.ts
@@ -66,6 +72,8 @@ subscription-tracker/
 │   │   ├── auth
 │   │   │   ├── error
 │   │   │   │   ├── loading.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── invite
 │   │   │   │   └── page.tsx
 │   │   │   └── signout
 │   │   │       └── page.tsx
@@ -121,6 +129,8 @@ subscription-tracker/
 │   │   ├── ThemeToggle.tsx
 │   │   ├── admin
 │   │   │   ├── LeagueManagement.tsx
+│   │   │   ├── LeaguePlayerManager.tsx
+│   │   │   ├── PlayerInvitationManagement.tsx
 │   │   │   ├── PlayerManagement.tsx
 │   │   │   ├── RoleManagement.tsx
 │   │   │   ├── TeamCreationForm.tsx
@@ -152,6 +162,7 @@ subscription-tracker/
 │   │   │   ├── button.tsx
 │   │   │   ├── calendar.tsx
 │   │   │   ├── card.tsx
+│   │   │   ├── dialog.tsx
 │   │   │   ├── dropdown-menu.tsx
 │   │   │   ├── input.tsx
 │   │   │   ├── label.tsx
@@ -210,7 +221,9 @@ subscription-tracker/
 │   │   ├── services
 │   │   │   ├── SERVICE_PATTERN.md
 │   │   │   ├── auth-debug-service.ts
-│   │   │   └── health-service.ts
+│   │   │   ├── email-service.ts
+│   │   │   ├── health-service.ts
+│   │   │   └── invitation-service.ts
 │   │   └── utils.ts
 │   ├── middleware
 │   │   └── rate-limit.ts
