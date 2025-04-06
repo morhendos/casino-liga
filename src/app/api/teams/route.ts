@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { withConnection } from '@/lib/db';
 import { TeamModel, PlayerModel } from '@/models';
 import { CreateTeamRequest } from '@/types';
+import mongoose from 'mongoose';
 
 // GET /api/teams - Get all teams with optional filtering
 export async function GET(request: Request) {
@@ -22,13 +23,24 @@ export async function GET(request: Request) {
       query.name = { $regex: name, $options: 'i' };
     }
     
-    if (playerId) {
-      query.players = playerId;
+    if (playerId && playerId !== 'undefined') {
+      console.log(`Querying teams for player ID: ${playerId}`);
+      try {
+        // Try to convert to ObjectId if it's a valid MongoDB ID
+        const playerObjectId = new mongoose.Types.ObjectId(playerId);
+        query.players = playerObjectId;
+      } catch (err) {
+        // If conversion fails, use the original ID
+        console.log(`Could not convert player ID to ObjectId: ${playerId}`);
+        query.players = playerId;
+      }
     }
     
     if (isActive !== null) {
       query.isActive = isActive === 'true';
     }
+    
+    console.log('Teams query:', JSON.stringify(query));
     
     const teams = await withConnection(async () => {
       const total = await TeamModel.countDocuments(query);
@@ -37,6 +49,8 @@ export async function GET(request: Request) {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
+      
+      console.log(`Found ${teams.length} teams`);
       
       return {
         teams,
@@ -73,17 +87,34 @@ export async function POST(request: Request) {
     
     const data: CreateTeamRequest = await request.json();
     
-    // Validate that exactly 2 players are provided
-    if (!data.players || data.players.length !== 2) {
+    // Validate that at least one player is provided
+    if (!data.players || data.players.length === 0) {
       return NextResponse.json(
-        { error: 'A team must have exactly 2 players' },
+        { error: 'A team must have at least one player' },
+        { status: 400 }
+      );
+    }
+    
+    // Validate that not more than 2 players are provided
+    if (data.players.length > 2) {
+      return NextResponse.json(
+        { error: 'A team cannot have more than 2 players' },
         { status: 400 }
       );
     }
     
     const newTeam = await withConnection(async () => {
+      // Convert player IDs to ObjectIds if needed
+      const playerIds = data.players.map(id => {
+        try {
+          return new mongoose.Types.ObjectId(id);
+        } catch (err) {
+          return id;
+        }
+      });
+      
       // Check if players exist
-      for (const playerId of data.players) {
+      for (const playerId of playerIds) {
         const player = await PlayerModel.findById(playerId);
         if (!player) {
           throw new Error(`Player with ID ${playerId} not found`);
@@ -102,7 +133,7 @@ export async function POST(request: Request) {
       // Create the team
       const team = new TeamModel({
         name: data.name,
-        players: data.players,
+        players: playerIds,
         logo: data.logo,
         description: data.description,
         isActive: true,
