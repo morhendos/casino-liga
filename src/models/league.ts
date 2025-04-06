@@ -9,9 +9,9 @@ export type MatchFormat = 'bestOf3' | 'bestOf5' | 'singleSet';
 export interface LeagueDocument extends mongoose.Document {
   name: string;
   description?: string;
-  startDate: Date;
-  endDate: Date;
-  registrationDeadline: Date;
+  startDate?: Date;
+  endDate?: Date;
+  registrationDeadline?: Date;
   maxTeams: number;
   minTeams: number;
   teams: ObjectId[];
@@ -48,9 +48,10 @@ const leagueSchema = new mongoose.Schema({
   },
   startDate: {
     type: Date,
-    required: [true, 'Start date is required'],
+    required: false,
     validate: {
       validator: function(startDate: Date): boolean {
+        if (!startDate) return true; // Skip validation if not provided
         const now = new Date();
         // Allow dates from yesterday to allow for timezone differences
         now.setDate(now.getDate() - 1);
@@ -61,22 +62,34 @@ const leagueSchema = new mongoose.Schema({
   },
   endDate: {
     type: Date,
-    required: [true, 'End date is required'],
+    required: false,
     validate: {
       validator: function(endDate: Date): boolean {
+        if (!endDate) return true; // Skip validation if not provided
+        // Only validate against startDate if both are provided
         // @ts-ignore - TypeScript doesn't understand 'this' in Mongoose validators
-        return this.startDate && endDate > this.startDate;
+        if (this.startDate && endDate) {
+          // @ts-ignore
+          return endDate > this.startDate;
+        }
+        return true;
       },
       message: 'End date must be after the start date'
     }
   },
   registrationDeadline: {
     type: Date,
-    required: [true, 'Registration deadline is required'],
+    required: false,
     validate: {
       validator: function(deadline: Date): boolean {
+        if (!deadline) return true; // Skip validation if not provided
+        // Only validate against startDate if both are provided
         // @ts-ignore - TypeScript doesn't understand 'this' in Mongoose validators
-        return this.startDate && deadline <= this.startDate;
+        if (this.startDate && deadline) {
+          // @ts-ignore
+          return deadline <= this.startDate;
+        }
+        return true;
       },
       message: 'Registration deadline must be before or on the start date'
     }
@@ -159,6 +172,9 @@ leagueSchema.index({ organizer: 1 });
 
 // Instance methods
 leagueSchema.methods.isRegistrationOpen = function(): boolean {
+  // If no registration deadline, consider registration closed
+  if (!this.registrationDeadline) return false;
+  
   const now = new Date();
   return this.status === 'registration' && now <= this.registrationDeadline;
 };
