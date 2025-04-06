@@ -5,6 +5,7 @@ import { PlayerModel } from '@/models';
 import { authOptions } from '@/lib/auth';
 import { hasRole, ROLES } from '@/lib/auth/role-utils';
 import crypto from 'crypto';
+import mongoose from 'mongoose';
 
 /**
  * Check if the user has admin permissions based on their session roles
@@ -89,7 +90,17 @@ export async function POST(request: Request) {
       );
     }
     
+    // Get the user session
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+    
     const data = await request.json();
+    console.log('Received player data:', data);
     
     // Validate nickname
     if (!data.nickname) {
@@ -122,6 +133,9 @@ export async function POST(request: Request) {
         throw new Error('A player with this nickname already exists');
       }
       
+      // Create a temporary email if none is provided (to satisfy model validation)
+      const tempEmail = !data.email ? `temp-${Date.now()}@example.com` : undefined;
+      
       // Create player with invitation fields if email is provided
       let playerData: any = {
         nickname: data.nickname,
@@ -131,18 +145,19 @@ export async function POST(request: Request) {
         contactPhone: data.contactPhone,
         bio: data.bio,
         isActive: true,
-        status: 'active'
+        status: 'active',
+        email: data.email || tempEmail, // Use the real email or temporary one
+        createdBy: new mongoose.Types.ObjectId(session.user.id)
       };
       
       if (data.email) {
-        // If email is provided, set up invitation fields
+        // If real email is provided, set up invitation fields
         const token = crypto.randomBytes(32).toString('hex');
         const expires = new Date();
         expires.setDate(expires.getDate() + 7); // 7 days expiration
         
         playerData = {
           ...playerData,
-          email: data.email,
           status: 'invited',
           invitationSent: false,
           invitationToken: token,
@@ -150,8 +165,15 @@ export async function POST(request: Request) {
         };
       }
       
-      const player = new PlayerModel(playerData);
-      return await player.save();
+      console.log('Creating player with data:', playerData);
+      
+      try {
+        const player = new PlayerModel(playerData);
+        return await player.save();
+      } catch (saveError) {
+        console.error('Error saving player:', saveError);
+        throw saveError;
+      }
     });
     
     return NextResponse.json(newPlayer, { status: 201 });
@@ -166,6 +188,12 @@ export async function POST(request: Request) {
           { status: 409 }
         );
       }
+      
+      // Include the actual error message in the response for debugging
+      return NextResponse.json(
+        { error: `Failed to create player: ${error.message}` },
+        { status: 500 }
+      );
     }
     
     return NextResponse.json(
