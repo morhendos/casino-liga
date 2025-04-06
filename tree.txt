@@ -4,6 +4,7 @@ subscription-tracker/
 ├── SETUP.md
 ├── docs
 │   ├── ADMIN-INVITATION-FLOW.md
+│   ├── ADMIN-WORKFLOW-CHECKLIST.md
 │   ├── PLAYER-TEAM-LEAGUE-FLOW.md
 │   ├── PROGRESS-REPORT.md
 │   ├── ROLE-BASED-ACCESS-PLAN.md
