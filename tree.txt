@@ -1,6 +1,10 @@
 subscription-tracker/
 ├── README.md
 ├── SETUP.md
+├── docs
+│   ├── ROLE-BASED-ACCESS-PLAN.md
+│   ├── ROLE-USAGE.md
+│   └── TESTING.md
 ├── next-env.d.ts
 ├── next.config.js
 ├── package-lock.json
@@ -9,11 +13,15 @@ subscription-tracker/
 ├── public
 │   └── logo-placeholder-image.png
 ├── scripts
+│   ├── seed-admin-role.js
 │   └── tree.js
 ├── src
 │   ├── app
 │   │   ├── actions.ts
 │   │   ├── api
+│   │   │   ├── admin
+│   │   │   │   └── users
+│   │   │   │       └── route.ts
 │   │   │   ├── auth
 │   │   │   │   └── [...nextauth]
 │   │   │   │       └── route.ts
@@ -43,6 +51,8 @@ subscription-tracker/
 │   │   │   ├── players
 │   │   │   │   ├── [id]
 │   │   │   │   │   └── route.ts
+│   │   │   │   ├── leagues
+│   │   │   │   │   └── route.ts
 │   │   │   │   └── route.ts
 │   │   │   └── teams
 │   │   │       ├── [id]
@@ -57,12 +67,24 @@ subscription-tracker/
 │   │   ├── auth-actions.ts
 │   │   ├── auth-diagnostic.ts
 │   │   ├── dashboard
+│   │   │   ├── admin
+│   │   │   │   └── page.tsx
 │   │   │   ├── layout.tsx
 │   │   │   ├── leagues
+│   │   │   │   ├── [id]
+│   │   │   │   │   ├── page.tsx
+│   │   │   │   │   ├── rankings
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── schedule
+│   │   │   │   │       └── page.tsx
 │   │   │   │   ├── create
 │   │   │   │   │   └── page.tsx
 │   │   │   │   └── page.tsx
 │   │   │   ├── matches
+│   │   │   │   └── page.tsx
+│   │   │   ├── my-leagues
+│   │   │   │   └── page.tsx
+│   │   │   ├── my-rankings
 │   │   │   │   └── page.tsx
 │   │   │   ├── page.tsx
 │   │   │   ├── player-profile
@@ -84,13 +106,18 @@ subscription-tracker/
 │   ├── components
 │   │   ├── GradientBackground.tsx
 │   │   ├── ThemeToggle.tsx
+│   │   ├── admin
+│   │   │   ├── LeagueManagement.tsx
+│   │   │   ├── RoleManagement.tsx
+│   │   │   └── UserManagement.tsx
 │   │   ├── auth
 │   │   │   ├── AuthLogo.tsx
 │   │   │   ├── AuthProvider.tsx
 │   │   │   ├── AuthenticatingSpinner.tsx
 │   │   │   ├── LogoutButton.tsx
 │   │   │   ├── UserAccountNav.tsx
-│   │   │   └── withAuth.tsx
+│   │   │   ├── withAuth.tsx
+│   │   │   └── withRoleAuth.tsx
 │   │   ├── common
 │   │   │   └── Section.tsx
 │   │   ├── error
@@ -142,6 +169,7 @@ subscription-tracker/
 │   │   │   ├── auth-service.ts
 │   │   │   ├── config.ts
 │   │   │   ├── index.ts
+│   │   │   ├── role-utils.ts
 │   │   │   ├── types.ts
 │   │   │   └── validation.ts
 │   │   ├── db
