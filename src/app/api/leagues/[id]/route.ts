@@ -1,7 +1,15 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { withConnection } from '@/lib/db';
-import { LeagueModel, TeamModel } from '@/models';
+import { LeagueModel } from '@/models';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { hasRole, ROLES } from '@/lib/auth/role-utils';
+
+// Helper function to check if user is admin
+async function isAdmin() {
+  const session = await getServerSession(authOptions);
+  return hasRole(session, ROLES.ADMIN);
+}
 
 // GET /api/leagues/[id] - Get a specific league by ID
 export async function GET(
@@ -9,10 +17,17 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = params.id;
+    const { id } = params;
+    
+    if (!id) {
+      return NextResponse.json(
+        { error: 'League ID is required' },
+        { status: 400 }
+      );
+    }
     
     const league = await withConnection(async () => {
-      return LeagueModel.findById(id)
+      const league = await LeagueModel.findById(id)
         .populate('organizer', 'name email')
         .populate({
           path: 'teams',
@@ -21,18 +36,25 @@ export async function GET(
             select: 'nickname skillLevel handedness preferredPosition profileImage'
           }
         });
+      
+      if (!league) {
+        throw new Error('League not found');
+      }
+      
+      return league;
     });
     
-    if (!league) {
+    return NextResponse.json(league);
+  } catch (error) {
+    console.error('Error fetching league:', error);
+    
+    if (error instanceof Error && error.message === 'League not found') {
       return NextResponse.json(
         { error: 'League not found' },
         { status: 404 }
       );
     }
     
-    return NextResponse.json(league);
-  } catch (error) {
-    console.error('Error fetching league:', error);
     return NextResponse.json(
       { error: 'Failed to fetch league' },
       { status: 500 }
@@ -40,88 +62,139 @@ export async function GET(
   }
 }
 
-// PATCH /api/leagues/[id] - Update a league
+// PATCH /api/leagues/[id] - Update a league (admin only)
 export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    const { id } = params;
     
-    if (!session?.user) {
+    if (!id) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'League ID is required' },
+        { status: 400 }
+      );
+    }
+    
+    // Get the session
+    const session = await getServerSession(authOptions);
+    
+    // Check if user is authenticated
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Authentication required' },
         { status: 401 }
       );
     }
     
-    const id = params.id;
-    const data = await request.json();
+    // Check if user has admin role
+    const adminCheck = await isAdmin();
+    if (!adminCheck) {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin privileges required' },
+        { status: 403 }
+      );
+    }
     
-    const league = await withConnection(async () => {
+    const updateData = await request.json();
+    
+    // Create a clean update object
+    const updateObj: any = {};
+    
+    // Only include fields that are present in the request body
+    if (updateData.name !== undefined) {
+      updateObj.name = updateData.name;
+    }
+    
+    if (updateData.description !== undefined) {
+      updateObj.description = updateData.description;
+    }
+    
+    if (updateData.venue !== undefined) {
+      updateObj.venue = updateData.venue;
+    }
+    
+    if (updateData.matchFormat !== undefined) {
+      updateObj.matchFormat = updateData.matchFormat;
+    }
+    
+    if (updateData.maxTeams !== undefined) {
+      updateObj.maxTeams = updateData.maxTeams;
+    }
+    
+    if (updateData.minTeams !== undefined) {
+      updateObj.minTeams = updateData.minTeams;
+    }
+    
+    if (updateData.pointsPerWin !== undefined) {
+      updateObj.pointsPerWin = updateData.pointsPerWin;
+    }
+    
+    if (updateData.pointsPerLoss !== undefined) {
+      updateObj.pointsPerLoss = updateData.pointsPerLoss;
+    }
+    
+    if (updateData.status !== undefined) {
+      updateObj.status = updateData.status;
+    }
+    
+    // Handle date fields specially to avoid "Invalid Date" errors
+    if (updateData.startDate) {
+      const startDate = new Date(updateData.startDate);
+      if (!isNaN(startDate.getTime())) {
+        updateObj.startDate = startDate;
+      }
+    }
+    
+    if (updateData.endDate) {
+      const endDate = new Date(updateData.endDate);
+      if (!isNaN(endDate.getTime())) {
+        updateObj.endDate = endDate;
+      }
+    }
+    
+    if (updateData.registrationDeadline) {
+      const registrationDeadline = new Date(updateData.registrationDeadline);
+      if (!isNaN(registrationDeadline.getTime())) {
+        updateObj.registrationDeadline = registrationDeadline;
+      }
+    }
+    
+    // Perform the update
+    const updatedLeague = await withConnection(async () => {
       const league = await LeagueModel.findById(id);
       
       if (!league) {
         throw new Error('League not found');
       }
       
-      // Ensure user can only update leagues they organize
-      if (league.organizer.toString() !== session.user.id) {
-        throw new Error('Unauthorized');
+      // Check if user is the organizer or an admin
+      const isOrganizer = league.organizer.toString() === session.user.id;
+      
+      if (!isOrganizer && !adminCheck) {
+        throw new Error('Only league organizers can update their leagues');
       }
       
-      // Validate status changes
-      if (data.status !== undefined) {
-        const currentStatus = league.status;
-        const newStatus = data.status;
-        
-        // Validate status transition
-        if (!isValidStatusTransition(currentStatus, newStatus)) {
-          throw new Error(`Invalid status transition from ${currentStatus} to ${newStatus}`);
-        }
-        
-        // Additional validation for specific transitions
-        if (newStatus === 'active' && league.teams.length < league.minTeams) {
-          throw new Error(`League must have at least ${league.minTeams} teams to be activated`);
-        }
-        
-        league.status = newStatus;
-      }
-      
-      // Update basic info
-      if (data.name !== undefined) {
-        // Check for name uniqueness if changed
-        if (data.name !== league.name) {
-          const existingLeague = await LeagueModel.findOne({ name: data.name });
-          if (existingLeague) {
-            throw new Error('League with this name already exists');
+      // Apply the update
+      const updated = await LeagueModel.findByIdAndUpdate(
+        id,
+        { $set: updateObj },
+        { new: true, runValidators: true }
+      )
+        .populate('organizer', 'name email')
+        .populate({
+          path: 'teams',
+          populate: {
+            path: 'players',
+            select: 'nickname skillLevel'
           }
-          league.name = data.name;
-        }
-      }
+        });
       
-      // Update other fields
-      if (data.description !== undefined) league.description = data.description;
-      if (data.startDate !== undefined) league.startDate = new Date(data.startDate);
-      if (data.endDate !== undefined) league.endDate = new Date(data.endDate);
-      if (data.registrationDeadline !== undefined) {
-        league.registrationDeadline = new Date(data.registrationDeadline);
-      }
-      if (data.maxTeams !== undefined) league.maxTeams = data.maxTeams;
-      if (data.minTeams !== undefined) league.minTeams = data.minTeams;
-      if (data.matchFormat !== undefined) league.matchFormat = data.matchFormat;
-      if (data.venue !== undefined) league.venue = data.venue;
-      if (data.banner !== undefined) league.banner = data.banner;
-      if (data.pointsPerWin !== undefined) league.pointsPerWin = data.pointsPerWin;
-      if (data.pointsPerLoss !== undefined) league.pointsPerLoss = data.pointsPerLoss;
-      
-      // Cannot modify teams directly through this endpoint
-      // Teams are added/removed through separate endpoints
-      
-      return await league.save();
+      return updated;
     });
     
-    return NextResponse.json(league);
+    return NextResponse.json(updatedLeague);
   } catch (error) {
     console.error('Error updating league:', error);
     
@@ -133,27 +206,17 @@ export async function PATCH(
         );
       }
       
-      if (error.message === 'Unauthorized') {
+      if (error.message === 'Only league organizers can update their leagues') {
         return NextResponse.json(
           { error: error.message },
           { status: 403 }
         );
       }
       
-      if (error.message === 'League with this name already exists') {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 409 }
-        );
-      }
-      
-      if (error.message.includes('Invalid status transition') ||
-          error.message.includes('League must have at least')) {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 400 }
-        );
-      }
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
     }
     
     return NextResponse.json(
@@ -163,22 +226,40 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/leagues/[id] - Delete a league (change status to canceled)
+// DELETE /api/leagues/[id] - Delete a league (admin only)
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    const { id } = params;
     
-    if (!session?.user) {
+    if (!id) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'League ID is required' },
+        { status: 400 }
+      );
+    }
+    
+    // Get the session
+    const session = await getServerSession(authOptions);
+    
+    // Check if user is authenticated
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Authentication required' },
         { status: 401 }
       );
     }
     
-    const id = params.id;
+    // Check if user has admin role
+    const adminCheck = await isAdmin();
+    if (!adminCheck) {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin privileges required' },
+        { status: 403 }
+      );
+    }
     
     await withConnection(async () => {
       const league = await LeagueModel.findById(id);
@@ -187,17 +268,20 @@ export async function DELETE(
         throw new Error('League not found');
       }
       
-      // Ensure user can only delete leagues they organize
-      if (league.organizer.toString() !== session.user.id) {
-        throw new Error('Unauthorized');
+      // Check if user is the organizer or an admin
+      const isOrganizer = league.organizer.toString() === session.user.id;
+      
+      if (!isOrganizer && !adminCheck) {
+        throw new Error('Only league organizers can delete their leagues');
       }
       
-      // Soft delete by setting status to canceled
-      league.status = 'canceled';
-      await league.save();
+      await LeagueModel.findByIdAndDelete(id);
     });
     
-    return new NextResponse(null, { status: 204 });
+    return NextResponse.json(
+      { message: 'League deleted successfully' },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('Error deleting league:', error);
     
@@ -209,12 +293,17 @@ export async function DELETE(
         );
       }
       
-      if (error.message === 'Unauthorized') {
+      if (error.message === 'Only league organizers can delete their leagues') {
         return NextResponse.json(
           { error: error.message },
           { status: 403 }
         );
       }
+      
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
     }
     
     return NextResponse.json(
@@ -222,17 +311,4 @@ export async function DELETE(
       { status: 500 }
     );
   }
-}
-
-// Helper function to validate league status transitions
-function isValidStatusTransition(currentStatus: string, newStatus: string): boolean {
-  const validTransitions: Record<string, string[]> = {
-    'draft': ['registration', 'canceled'],
-    'registration': ['active', 'canceled'],
-    'active': ['completed', 'canceled'],
-    'completed': ['canceled'],
-    'canceled': []
-  };
-  
-  return validTransitions[currentStatus]?.includes(newStatus) || false;
 }
