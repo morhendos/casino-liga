@@ -116,13 +116,10 @@ export async function POST(request: Request) {
         throw new Error('League with this name already exists');
       }
       
-      // Create the league
-      const league = new LeagueModel({
+      // Create a base league object without date fields
+      const leagueData: any = {
         name: data.name,
         description: data.description || "",
-        startDate: new Date(data.startDate),
-        endDate: new Date(data.endDate),
-        registrationDeadline: new Date(data.registrationDeadline),
         maxTeams: data.maxTeams || 16,
         minTeams: data.minTeams || 4,
         matchFormat: data.matchFormat || "bestOf3",
@@ -134,7 +131,32 @@ export async function POST(request: Request) {
         pointsPerLoss: data.pointsPerLoss || 0,
         organizer: organizerId,
         teams: []
-      });
+      };
+      
+      // Only add date fields if they exist and are valid
+      if (data.startDate) {
+        const startDate = new Date(data.startDate);
+        if (!isNaN(startDate.getTime())) {
+          leagueData.startDate = startDate;
+        }
+      }
+      
+      if (data.endDate) {
+        const endDate = new Date(data.endDate);
+        if (!isNaN(endDate.getTime())) {
+          leagueData.endDate = endDate;
+        }
+      }
+      
+      if (data.registrationDeadline) {
+        const registrationDeadline = new Date(data.registrationDeadline);
+        if (!isNaN(registrationDeadline.getTime())) {
+          leagueData.registrationDeadline = registrationDeadline;
+        }
+      }
+      
+      // Create the league
+      const league = new LeagueModel(leagueData);
       
       const savedLeague = await league.save();
       
