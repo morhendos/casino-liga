@@ -133,10 +133,7 @@ export async function POST(request: Request) {
         throw new Error('A player with this nickname already exists');
       }
       
-      // Create a temporary email if none is provided (to satisfy model validation)
-      const tempEmail = !data.email ? `temp-${Date.now()}@example.com` : undefined;
-      
-      // Create player with invitation fields if email is provided
+      // Create player data object
       let playerData: any = {
         nickname: data.nickname,
         skillLevel: data.skillLevel || 5,
@@ -146,12 +143,14 @@ export async function POST(request: Request) {
         bio: data.bio,
         isActive: true,
         status: 'active',
-        email: data.email || tempEmail, // Use the real email or temporary one
         createdBy: new mongoose.Types.ObjectId(session.user.id)
       };
       
+      // Add email if provided
       if (data.email) {
-        // If real email is provided, set up invitation fields
+        playerData.email = data.email;
+        
+        // Set up invitation fields for players with email
         const token = crypto.randomBytes(32).toString('hex');
         const expires = new Date();
         expires.setDate(expires.getDate() + 7); // 7 days expiration
