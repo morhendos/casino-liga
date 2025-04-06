@@ -12,9 +12,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Shuffle } from "lucide-react";
+import { getRandomTeamName } from "@/utils/teamNameSuggestions";
 
 interface Player {
   id: string;
+  _id?: string;
   nickname: string;
   skillLevel: number;
   handedness: string;
@@ -110,6 +113,9 @@ function CreateTeamPage() {
     }
     
     fetchPlayerData();
+    
+    // Set a random team name initially
+    setName(getRandomTeamName());
   }, [session, router]);
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -167,6 +173,11 @@ function CreateTeamPage() {
     }
   };
   
+  // Generate a new random team name
+  const generateRandomName = () => {
+    setName(getRandomTeamName());
+  };
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-3xl mx-auto">
@@ -184,15 +195,31 @@ function CreateTeamPage() {
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Team Name *</Label>
-                <Input
-                  id="name"
-                  placeholder="Enter your team name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  disabled={isLoading || formSubmitting}
-                />
+                <Label htmlFor="name" className="flex justify-between items-center">
+                  <span>Team Name *</span>
+                  <Button 
+                    type="button" 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={generateRandomName}
+                    className="h-8 px-2 text-xs flex items-center gap-1"
+                    disabled={isLoading || formSubmitting}
+                  >
+                    <Shuffle className="h-3 w-3" />
+                    Random Name
+                  </Button>
+                </Label>
+                <div className="flex space-x-2">
+                  <Input
+                    id="name"
+                    placeholder="Enter your team name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    disabled={isLoading || formSubmitting}
+                    className="flex-1"
+                  />
+                </div>
               </div>
               
               <div className="space-y-2">
