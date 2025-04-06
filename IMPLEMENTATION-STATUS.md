@@ -25,6 +25,7 @@ This document tracks the progress of implementing the role-based access control 
 - [x] **Admin adds players to the league**
    - [x] Admin API endpoints for player management created
    - [x] Player management component created (`components/admin/PlayerManagement.tsx`)
+   - [x] Player invitation component created (`components/admin/PlayerInvitationManagement.tsx`)
    - [ ] Complete integration with league management flow
 
 - [x] **Admin creates teams from these players**
@@ -32,16 +33,17 @@ This document tracks the progress of implementing the role-based access control 
    - [ ] Complete integration with league management flow
    - [ ] Functionality to add teams to leagues
 
-- [ ] **System sends invitations**
-   - [ ] Email sending service integration
+- [x] **System sends invitations**
+   - [x] Email service implementation
+   - [x] Invitation service implementation
    - [x] Backend support for invitation tokens
    - [x] API endpoint for inviting players (`api/admin/players/[id]/invite/route.ts`)
-   - [ ] Frontend UI for managing invitations
+   - [x] Frontend UI for managing invitations
 
-- [ ] **Player registration flow**
-   - [ ] Modified registration flow for invited players
+- [x] **Player registration flow**
+   - [x] Modified registration flow for invited players
    - [x] Model relationships to link User accounts to existing Player profiles
-   - [ ] UI to convert "invited" status to "active"
+   - [x] UI to convert "invited" status to "active"
 
 ## 3. Implementation Components
 
@@ -51,16 +53,17 @@ This document tracks the progress of implementing the role-based access control 
    - [x] Player management component
    - [x] Team formation interface components
 
-- [ ] **Player Invitation System**:
-   - [ ] Email sending service
-   - [x] Token generation for one-time links (model support)
+- [x] **Player Invitation System**:
+   - [x] Email service (dummy implementation ready for provider integration)
+   - [x] Token generation for one-time links
    - [x] API endpoint for invitations
-   - [ ] Complete invite flow integration
+   - [x] Admin UI for sending invitations
+   - [x] Invitation registration page
 
-- [ ] **User Registration Enhancement**:
+- [x] **User Registration Enhancement**:
    - [x] Backend model support for invited players
-   - [ ] Frontend flow for invited players
-   - [ ] Logic to link User accounts to existing Player profiles
+   - [x] Frontend flow for invited players
+   - [x] Logic to link User accounts to existing Player profiles
 
 - [x] **Database Relationships**:
    - [x] User → Player (one-to-one)
@@ -71,14 +74,15 @@ This document tracks the progress of implementing the role-based access control 
 
 - [x] `/api/admin/players` - Create/manage players without user accounts
 - [x] `/api/admin/players/[id]/invite` - Invite a player
+- [x] `/api/auth/invite` - Process invitation tokens and register users
 - [x] League endpoints exist in standard API (`/api/leagues`)
 - [x] Team endpoints exist in standard API (`/api/teams`)
-- [ ] Complete `/api/auth/invite` - Process invitation tokens and register users
 
 ## Next Steps and Priorities
 
-1. Complete the integration between components (league management, player management, and team creation)
-2. Develop the email invitation system
-3. Finish the specialized registration flow for invited players
-4. Implement the auth/invite endpoint
-5. Test the end-to-end flow
+1. Add real email provider integration (replace logging with actual emails)
+2. Complete the integration between components (league management, player management, and team creation)
+3. Implement end-to-end testing of the invitation flow
+4. Add error handling and validation improvements
+5. Add resend invitation functionality
+6. Add invitation tracking (status, when sent, etc.)
