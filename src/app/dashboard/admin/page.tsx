@@ -6,10 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import withRoleAuth from "@/components/auth/withRoleAuth";
 import { ROLES } from "@/lib/auth/role-utils";
-import { UserCircle, UsersRound, Trophy } from "lucide-react";
+import { UserCircle, UsersRound, Trophy, UserCog } from "lucide-react";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { RoleManagement } from "@/components/admin/RoleManagement";
 import { LeagueManagement } from "@/components/admin/LeagueManagement";
+import { PlayerManagement } from "@/components/admin/PlayerManagement";
 
 function AdminDashboard() {
   const { data: session } = useSession();
@@ -20,7 +21,7 @@ function AdminDashboard() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
         <p className="text-muted-foreground mt-2">
-          Manage users, roles, and system settings
+          Manage users, players, roles, and system settings
         </p>
       </div>
 
@@ -34,6 +35,10 @@ function AdminDashboard() {
           <TabsTrigger value="users">
             <UsersRound className="h-4 w-4 mr-2" />
             Users
+          </TabsTrigger>
+          <TabsTrigger value="players">
+            <UserCog className="h-4 w-4 mr-2" />
+            Players
           </TabsTrigger>
           <TabsTrigger value="roles">
             <UserCircle className="h-4 w-4 mr-2" />
@@ -55,6 +60,20 @@ function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <UserManagement />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="players">
+          <Card>
+            <CardHeader>
+              <CardTitle>Player Management</CardTitle>
+              <CardDescription>
+                Create and manage player profiles
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PlayerManagement />
             </CardContent>
           </Card>
         </TabsContent>
