@@ -376,44 +376,12 @@ function LeaguesPage() {
       
       {/* Admin specific tabs */}
       {isAdmin ? (
-        <Tabs defaultValue="active">
+        <Tabs defaultValue="my">
           <TabsList className="mb-4">
-            <TabsTrigger value="active">Active Leagues</TabsTrigger>
             <TabsTrigger value="my">My Leagues</TabsTrigger>
+            <TabsTrigger value="active">Active Leagues</TabsTrigger>
             <TabsTrigger value="past">Past Leagues</TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="active">
-            {isLoading ? (
-              <div className="py-12 text-center">
-                <div className="animate-pulse text-muted-foreground">Loading leagues...</div>
-              </div>
-            ) : activeLeagues.length > 0 ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {activeLeagues.map(league => (
-                  <LeagueCard key={league.id || league._id} league={league} />
-                ))}
-              </div>
-            ) : (
-              <Card className="text-center py-12">
-                <CardContent>
-                  <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                    <Trophy className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-medium mb-2">No Active Leagues</h3>
-                  <p className="text-muted-foreground mb-6">
-                    There are currently no active leagues available to join.
-                  </p>
-                  <Button asChild>
-                    <Link href="/dashboard/leagues/create">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create a League
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
           
           <TabsContent value="my">
             {isLoading ? (
@@ -440,6 +408,38 @@ function LeaguesPage() {
                     <Link href="/dashboard/leagues/create">
                       <Plus className="w-4 h-4 mr-2" />
                       Create Your First League
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="active">
+            {isLoading ? (
+              <div className="py-12 text-center">
+                <div className="animate-pulse text-muted-foreground">Loading leagues...</div>
+              </div>
+            ) : activeLeagues.length > 0 ? (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {activeLeagues.map(league => (
+                  <LeagueCard key={league.id || league._id} league={league} />
+                ))}
+              </div>
+            ) : (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                    <Trophy className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl font-medium mb-2">No Active Leagues</h3>
+                  <p className="text-muted-foreground mb-6">
+                    There are currently no active leagues available to join.
+                  </p>
+                  <Button asChild>
+                    <Link href="/dashboard/leagues/create">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create a League
                     </Link>
                   </Button>
                 </CardContent>
