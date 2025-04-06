@@ -8,15 +8,21 @@ interface ValidatorProps {
 }
 
 export interface PlayerDocument extends mongoose.Document {
-  userId: ObjectId;
+  userId?: ObjectId;         // Optional to allow admin-created players without users
+  email?: string;           // Added to support player invitations
   nickname: string;
-  skillLevel: number;  // Can be a rating from 1-10
+  skillLevel: number;       // Can be a rating from 1-10
   handedness: 'left' | 'right' | 'ambidextrous';
   preferredPosition: 'forehand' | 'backhand' | 'both';
   contactPhone?: string;
   bio?: string;
   profileImage?: string;
   isActive: boolean;
+  // Invitation fields
+  status: 'invited' | 'active' | 'inactive';
+  invitationSent: boolean;
+  invitationToken?: string;
+  invitationExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,7 +31,14 @@ const playerSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: false, // Changed to false to allow admin-created players
+    index: true
+  },
+  email: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address'],
     index: true
   },
   nickname: {
@@ -78,12 +91,33 @@ const playerSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
-  }
+  },
+  // Invitation fields
+  status: {
+    type: String,
+    enum: ['invited', 'active', 'inactive'],
+    default: 'active'
+  },
+  invitationSent: {
+    type: Boolean,
+    default: false
+  },
+  invitationToken: String,
+  invitationExpires: Date
 }, {
   timestamps: true
 });
 
-// Add index for performance
+// Add custom validator to require either userId or email
+playerSchema.pre('validate', function(next) {
+  if (!this.userId && !this.email) {
+    this.invalidate('email', 'Either userId or email must be provided');
+  }
+  next();
+});
+
+// Add indexes for performance
 playerSchema.index({ nickname: 'text' });
+playerSchema.index({ invitationToken: 1 }, { sparse: true }); // For invitation tokens
 
 export const PlayerModel = mongoose.models.Player || mongoose.model<PlayerDocument>('Player', playerSchema);
