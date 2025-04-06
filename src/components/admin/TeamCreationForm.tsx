@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Search, Plus, X, UserPlus } from "lucide-react";
+import { Search, Plus, X, UserPlus, RefreshCw } from "lucide-react";
 import { getRandomTeamName } from "@/utils/teamNameSuggestions";
 
 interface Player {
@@ -217,7 +217,7 @@ export function TeamCreationForm({ leagueId, onTeamCreated }: TeamCreationFormPr
             />
             <Button type="button" variant="outline" onClick={generateRandomName}>
               <span className="sr-only">Generate Random Name</span>
-              <Shuffle className="h-4 w-4" />
+              <RefreshCw className="h-4 w-4" />
             </Button>
           </div>
         </div>
