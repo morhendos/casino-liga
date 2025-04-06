@@ -143,13 +143,16 @@ function TeamDetailsPage() {
   
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center mb-8">
-        <Button variant="ghost" className="mr-4" asChild>
-          <Link href="/dashboard/teams">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Link>
-        </Button>
+      {/* Navigation and header section - Fixed to put team name on its own line */}
+      <div className="mb-8">
+        <div className="mb-3">
+          <Button variant="ghost" size="sm" className="px-0" asChild>
+            <Link href="/dashboard/teams">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Teams
+            </Link>
+          </Button>
+        </div>
         <h1 className="text-3xl font-bold">{team.name}</h1>
       </div>
       
