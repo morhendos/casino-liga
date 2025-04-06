@@ -32,7 +32,7 @@ function CreateTeamPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
-  const [partnerId, setPartnerId] = useState<string>("");
+  const [partnerId, setPartnerId] = useState<string>("none"); // Changed from empty string to "none"
   
   // Available players
   const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
@@ -46,22 +46,45 @@ function CreateTeamPage() {
         
         // First, get the current user's player profile
         const playerResponse = await fetch(`/api/players?userId=${session.user.id}`);
+        
+        if (!playerResponse.ok) {
+          const errorData = await playerResponse.json();
+          throw new Error(errorData.error || "Failed to fetch player profile");
+        }
+        
         const playerData = await playerResponse.json();
+        console.log("Player data response:", playerData);
         
         if (playerData.players && playerData.players.length > 0) {
           const myPlayer = playerData.players[0];
-          setMyPlayerId(myPlayer.id);
+          // Handle both id and _id formats
+          const playerId = myPlayer.id || myPlayer._id;
+          
+          if (!playerId) {
+            throw new Error("Could not determine player ID");
+          }
+          
+          setMyPlayerId(playerId);
+          console.log("Set my player ID to:", playerId);
           
           // Then fetch all active players for partner selection (excluding the current user)
           const allPlayersResponse = await fetch('/api/players?isActive=true');
+          
+          if (!allPlayersResponse.ok) {
+            const errorData = await allPlayersResponse.json();
+            throw new Error(errorData.error || "Failed to fetch available players");
+          }
+          
           const allPlayersData = await allPlayersResponse.json();
+          console.log("All players data:", allPlayersData);
           
           if (allPlayersData.players) {
             // Filter out the current user's player
             const otherPlayers = allPlayersData.players.filter(
-              (player: Player) => player.id !== myPlayer.id
+              (player: Player) => (player.id || player._id) !== playerId
             );
             setAvailablePlayers(otherPlayers);
+            console.log("Set available players:", otherPlayers.length);
           }
         } else {
           // No player profile yet
@@ -80,7 +103,7 @@ function CreateTeamPage() {
         }
       } catch (error) {
         console.error("Error fetching player data:", error);
-        toast.error("Failed to load player data");
+        toast.error(error instanceof Error ? error.message : "Failed to load player data");
       } finally {
         setIsLoading(false);
       }
@@ -108,8 +131,11 @@ function CreateTeamPage() {
       const teamData = {
         name: name.trim(),
         description,
-        players: partnerId ? [myPlayerId, partnerId] : [myPlayerId]
+        // Only include partnerId if it's not "none"
+        players: partnerId !== "none" ? [myPlayerId, partnerId] : [myPlayerId]
       };
+      
+      console.log("Submitting team data:", teamData);
       
       const response = await fetch("/api/teams", {
         method: "POST",
@@ -123,15 +149,16 @@ function CreateTeamPage() {
       }
       
       const team = await response.json();
+      console.log("Team created successfully:", team);
       
       toast.success("Team created successfully", {
-        description: partnerId 
+        description: partnerId !== "none" 
           ? "Your team is now ready to join leagues!" 
           : "Your team is created. You can add a partner later."
       });
       
       // Redirect to team details
-      router.push(`/dashboard/teams/${team.id}`);
+      router.push(`/dashboard/teams/${team.id || team._id}`);
     } catch (error) {
       console.error("Error creating team:", error);
       toast.error(error instanceof Error ? error.message : "Failed to create team");
@@ -208,9 +235,10 @@ function CreateTeamPage() {
                         <SelectValue placeholder="Select a partner or leave empty" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">No partner (find one later)</SelectItem>
+                        {/* Changed empty string to "none" */}
+                        <SelectItem value="none">No partner (find one later)</SelectItem>
                         {availablePlayers.map((player) => (
-                          <SelectItem key={player.id} value={player.id}>
+                          <SelectItem key={player.id || player._id} value={player.id || player._id}>
                             {player.nickname} - Skill: {player.skillLevel} - {player.handedness === "right" ? "Right" : player.handedness === "left" ? "Left" : "Ambi"}
                           </SelectItem>
                         ))}
