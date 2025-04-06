@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Users, ArrowLeft, Trophy, Edit, Settings } from "lucide-react";
+import { Calendar, Users, ArrowLeft, Trophy, Edit, Settings, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import LeaguePlayerManager from "@/components/admin/LeaguePlayerManager";
 
 interface League {
   id: string;
@@ -62,49 +63,49 @@ function LeagueManagePage() {
   const leagueId = params?.id as string;
 
   useEffect(() => {
+    fetchLeagueDetails();
+  }, [leagueId]);
+
+  const fetchLeagueDetails = async () => {
     if (!leagueId || leagueId === "undefined") {
       setError("Invalid league ID");
       setIsLoading(false);
       return;
     }
 
-    async function fetchLeagueDetails() {
-      try {
-        setIsLoading(true);
-        const response = await fetch(`/api/leagues/${leagueId}`);
-        
-        if (!response.ok) {
-          throw new Error(`Error fetching league: ${response.statusText}`);
-        }
-        
-        const leagueData = await response.json();
-        
-        // Ensure ID is available in the expected format
-        const processedLeague = {
-          ...leagueData,
-          id: leagueData._id || leagueData.id,
-          teams: leagueData.teams?.map((team: any) => ({
-            ...team,
-            id: team._id || team.id,
-            players: team.players?.map((player: any) => ({
-              ...player,
-              id: player._id || player.id
-            }))
-          })) || []
-        };
-        
-        setLeague(processedLeague);
-      } catch (error) {
-        console.error("Error fetching league details:", error);
-        setError("Failed to load league details");
-        toast.error("Failed to load league details");
-      } finally {
-        setIsLoading(false);
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/leagues/${leagueId}`);
+      
+      if (!response.ok) {
+        throw new Error(`Error fetching league: ${response.statusText}`);
       }
+      
+      const leagueData = await response.json();
+      
+      // Ensure ID is available in the expected format
+      const processedLeague = {
+        ...leagueData,
+        id: leagueData._id || leagueData.id,
+        teams: leagueData.teams?.map((team: any) => ({
+          ...team,
+          id: team._id || team.id,
+          players: team.players?.map((player: any) => ({
+            ...player,
+            id: player._id || player.id
+          }))
+        })) || []
+      };
+      
+      setLeague(processedLeague);
+    } catch (error) {
+      console.error("Error fetching league details:", error);
+      setError("Failed to load league details");
+      toast.error("Failed to load league details");
+    } finally {
+      setIsLoading(false);
     }
-    
-    fetchLeagueDetails();
-  }, [leagueId]);
+  };
   
   function formatMatchType(matchFormat: string): string {
     switch (matchFormat) {
@@ -198,6 +199,10 @@ function LeagueManagePage() {
           <TabsTrigger value="teams">
             <Users className="w-4 h-4 mr-2" />
             Manage Teams
+          </TabsTrigger>
+          <TabsTrigger value="players">
+            <UserPlus className="w-4 h-4 mr-2" />
+            Add Players
           </TabsTrigger>
           <TabsTrigger value="schedule">
             <Calendar className="w-4 h-4 mr-2" />
@@ -316,17 +321,26 @@ function LeagueManagePage() {
                 <div className="py-8 text-center text-muted-foreground">
                   <Users className="w-12 h-12 mx-auto mb-4 opacity-20" />
                   <p>No teams have joined this league yet.</p>
+                  <p className="text-sm mt-2">Use the "Add Players" tab to create teams for this league.</p>
                 </div>
               )}
             </CardContent>
             <CardFooter>
-              <Button className="w-full" asChild>
-                <Link href={`/dashboard/leagues/${league.id}/invite-teams`}>
-                  Invite Teams
-                </Link>
+              <Button 
+                className="w-full" 
+                onClick={() => setActiveTab("players")}
+              >
+                Add Teams to League
               </Button>
             </CardFooter>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="players">
+          <LeaguePlayerManager 
+            leagueId={league.id} 
+            onPlayersUpdated={fetchLeagueDetails}
+          />
         </TabsContent>
         
         <TabsContent value="schedule">
