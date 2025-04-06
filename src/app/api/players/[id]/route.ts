@@ -12,6 +12,7 @@ export async function GET(
 ) {
   try {
     const id = params.id;
+    console.log(`GET request for player ID: ${id}`);
     
     const player = await withConnection(async () => {
       return PlayerModel.findById(id);
@@ -50,12 +51,15 @@ export async function PATCH(
     }
     
     const id = params.id;
+    console.log(`PATCH request for player ID: ${id}`);
     const data = await request.json();
+    console.log('Update data received:', data);
     
     const player = await withConnection(async () => {
       const player = await PlayerModel.findById(id);
       
       if (!player) {
+        console.log(`Player with ID ${id} not found`);
         throw new Error('Player not found');
       }
       
@@ -84,6 +88,7 @@ export async function PATCH(
       }
       
       if (!isAuthorized) {
+        console.log('Authorization failed - user does not own this profile');
         throw new Error('Unauthorized');
       }
       
@@ -97,6 +102,7 @@ export async function PATCH(
       if (data.profileImage !== undefined) player.profileImage = data.profileImage;
       if (data.isActive !== undefined) player.isActive = data.isActive;
       
+      console.log('Saving updated player:', player);
       return await player.save();
     });
     
