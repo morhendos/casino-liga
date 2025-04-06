@@ -189,7 +189,7 @@ function LeagueManagePage() {
         </Badge>
       </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList>
           <TabsTrigger value="details">
             <Settings className="w-4 h-4 mr-2" />
@@ -204,177 +204,177 @@ function LeagueManagePage() {
             Manage Schedule
           </TabsTrigger>
         </TabsList>
-      </Tabs>
       
-      <TabsContent value="details" className="mt-0">
-        <Card>
-          <CardHeader>
-            <CardTitle>League Settings</CardTitle>
-            <CardDescription>
-              Manage your league's settings and details
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                <div>
-                  <div className="text-sm text-muted-foreground">Name</div>
-                  <div className="font-medium">{league.name}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Status</div>
-                  <div className="font-medium">{league.status.charAt(0).toUpperCase() + league.status.slice(1)}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Description</div>
-                  <div>{league.description || "No description provided"}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Match Format</div>
-                  <div>{formatMatchType(league.matchFormat)}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Start Date</div>
-                  <div>{formatDate(league.startDate)}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">End Date</div>
-                  <div>{formatDate(league.endDate)}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Registration Deadline</div>
-                  <div>{formatDate(league.registrationDeadline)}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Venue</div>
-                  <div>{league.venue || "Not specified"}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Teams</div>
-                  <div>{league.teams.length} / {league.maxTeams}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Points System</div>
-                  <div>Win: {league.pointsPerWin} / Loss: {league.pointsPerLoss}</div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="flex gap-2">
-            <Button asChild>
-              <Link href={`/dashboard/leagues/${league.id}/edit`}>
-                <Edit className="w-4 h-4 mr-2" />
-                Edit League
-              </Link>
-            </Button>
-            
-            {league.status === 'draft' && (
-              <Button variant="outline">
-                Publish League
-              </Button>
-            )}
-            
-            {league.status === 'registration' && (
-              <Button variant="outline">
-                Open League
-              </Button>
-            )}
-          </CardFooter>
-        </Card>
-      </TabsContent>
-      
-      <TabsContent value="teams" className="mt-0">
-        <Card>
-          <CardHeader>
-            <CardTitle>Team Management</CardTitle>
-            <CardDescription>
-              View and manage teams in this league
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {league.teams.length > 0 ? (
+        <TabsContent value="details">
+          <Card>
+            <CardHeader>
+              <CardTitle>League Settings</CardTitle>
+              <CardDescription>
+                Manage your league's settings and details
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
               <div className="space-y-4">
-                {league.teams.map((team) => (
-                  <div 
-                    key={team.id || team._id} 
-                    className="flex items-center p-3 rounded-md border"
-                  >
-                    <div className="flex-1">
-                      <div className="font-medium">{team.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {team.players?.map(player => player.nickname).join(' & ')}
-                      </div>
-                    </div>
-                    <Button size="sm" variant="ghost" asChild>
-                      <Link href={`/dashboard/teams/${team.id || team._id}`}>
-                        View
-                      </Link>
-                    </Button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                  <div>
+                    <div className="text-sm text-muted-foreground">Name</div>
+                    <div className="font-medium">{league.name}</div>
                   </div>
-                ))}
+                  <div>
+                    <div className="text-sm text-muted-foreground">Status</div>
+                    <div className="font-medium">{league.status.charAt(0).toUpperCase() + league.status.slice(1)}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Description</div>
+                    <div>{league.description || "No description provided"}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Match Format</div>
+                    <div>{formatMatchType(league.matchFormat)}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Start Date</div>
+                    <div>{formatDate(league.startDate)}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">End Date</div>
+                    <div>{formatDate(league.endDate)}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Registration Deadline</div>
+                    <div>{formatDate(league.registrationDeadline)}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Venue</div>
+                    <div>{league.venue || "Not specified"}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Teams</div>
+                    <div>{league.teams.length} / {league.maxTeams}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Points System</div>
+                    <div>Win: {league.pointsPerWin} / Loss: {league.pointsPerLoss}</div>
+                  </div>
+                </div>
               </div>
-            ) : (
-              <div className="py-8 text-center text-muted-foreground">
-                <Users className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                <p>No teams have joined this league yet.</p>
-              </div>
-            )}
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full" asChild>
-              <Link href={`/dashboard/leagues/${league.id}/invite-teams`}>
-                Invite Teams
-              </Link>
-            </Button>
-          </CardFooter>
-        </Card>
-      </TabsContent>
-      
-      <TabsContent value="schedule" className="mt-0">
-        <Card>
-          <CardHeader>
-            <CardTitle>Schedule Management</CardTitle>
-            <CardDescription>
-              {league.scheduleGenerated ? 
-                "View and manage the league schedule" : 
-                "Generate a schedule for this league"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {league.scheduleGenerated ? (
-              <div className="text-center py-4">
-                <p>Schedule has been generated.</p>
-                <p className="text-muted-foreground">You can view and manage matches below.</p>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Calendar className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                <p>No schedule has been generated yet.</p>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Create a schedule to automatically generate matches between teams.
-                </p>
-                <Button disabled={league.teams.length < 2}>
-                  Generate Schedule
+            </CardContent>
+            <CardFooter className="flex gap-2">
+              <Button asChild>
+                <Link href={`/dashboard/leagues/${league.id}/edit`}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit League
+                </Link>
+              </Button>
+              
+              {league.status === 'draft' && (
+                <Button variant="outline">
+                  Publish League
                 </Button>
-                {league.teams.length < 2 && (
-                  <p className="text-xs text-muted-foreground mt-2">
-                    You need at least 2 teams to generate a schedule.
-                  </p>
-                )}
-              </div>
-            )}
-          </CardContent>
-          {league.scheduleGenerated && (
+              )}
+              
+              {league.status === 'registration' && (
+                <Button variant="outline">
+                  Open League
+                </Button>
+              )}
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="teams">
+          <Card>
+            <CardHeader>
+              <CardTitle>Team Management</CardTitle>
+              <CardDescription>
+                View and manage teams in this league
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {league.teams.length > 0 ? (
+                <div className="space-y-4">
+                  {league.teams.map((team) => (
+                    <div 
+                      key={team.id || team._id} 
+                      className="flex items-center p-3 rounded-md border"
+                    >
+                      <div className="flex-1">
+                        <div className="font-medium">{team.name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {team.players?.map(player => player.nickname).join(' & ')}
+                        </div>
+                      </div>
+                      <Button size="sm" variant="ghost" asChild>
+                        <Link href={`/dashboard/teams/${team.id || team._id}`}>
+                          View
+                        </Link>
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-8 text-center text-muted-foreground">
+                  <Users className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                  <p>No teams have joined this league yet.</p>
+                </div>
+              )}
+            </CardContent>
             <CardFooter>
               <Button className="w-full" asChild>
-                <Link href={`/dashboard/leagues/${league.id}/schedule`}>
-                  View Full Schedule
+                <Link href={`/dashboard/leagues/${league.id}/invite-teams`}>
+                  Invite Teams
                 </Link>
               </Button>
             </CardFooter>
-          )}
-        </Card>
-      </TabsContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="schedule">
+          <Card>
+            <CardHeader>
+              <CardTitle>Schedule Management</CardTitle>
+              <CardDescription>
+                {league.scheduleGenerated ? 
+                  "View and manage the league schedule" : 
+                  "Generate a schedule for this league"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {league.scheduleGenerated ? (
+                <div className="text-center py-4">
+                  <p>Schedule has been generated.</p>
+                  <p className="text-muted-foreground">You can view and manage matches below.</p>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Calendar className="w-16 h-16 mx-auto mb-4 opacity-20" />
+                  <p>No schedule has been generated yet.</p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Create a schedule to automatically generate matches between teams.
+                  </p>
+                  <Button disabled={league.teams.length < 2}>
+                    Generate Schedule
+                  </Button>
+                  {league.teams.length < 2 && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      You need at least 2 teams to generate a schedule.
+                    </p>
+                  )}
+                </div>
+              )}
+            </CardContent>
+            {league.scheduleGenerated && (
+              <CardFooter>
+                <Button className="w-full" asChild>
+                  <Link href={`/dashboard/leagues/${league.id}/schedule`}>
+                    View Full Schedule
+                  </Link>
+                </Button>
+              </CardFooter>
+            )}
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
