@@ -44,10 +44,18 @@ function PlayerProfilePage() {
       try {
         setIsLoading(true);
         const response = await fetch(`/api/players?userId=${session.user.id}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("API Error:", errorData);
+          throw new Error(errorData.error || "Failed to fetch player profile");
+        }
+        
         const data = await response.json();
         
         if (data.players && data.players.length > 0) {
           const player = data.players[0];
+          console.log("Found player:", player);
           setPlayerData(player);
           setHasProfile(true);
           
@@ -58,6 +66,9 @@ function PlayerProfilePage() {
           setPreferredPosition(player.preferredPosition || "both");
           setContactPhone(player.contactPhone || "");
           setBio(player.bio || "");
+        } else {
+          console.log("No player profile found");
+          setHasProfile(false);
         }
       } catch (error) {
         console.error("Error fetching player profile:", error);
@@ -88,7 +99,7 @@ function PlayerProfilePage() {
       let response;
       
       if (hasProfile && playerData?.id) {
-        // Update existing profile - use the id from the fetched playerData, not from formData
+        // Update existing profile
         response = await fetch(`/api/players/${playerData.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -104,8 +115,9 @@ function PlayerProfilePage() {
       }
       
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Something went wrong");
+        const errorData = await response.json();
+        console.error("API Error response:", errorData);
+        throw new Error(errorData.error || "Something went wrong");
       }
       
       const result = await response.json();

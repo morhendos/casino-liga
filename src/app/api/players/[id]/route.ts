@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { withConnection } from '@/lib/db';
 import { PlayerModel } from '@/models';
+import { authOptions } from '@/lib/auth';
+import mongoose from 'mongoose';
 
 // GET /api/players/[id] - Get a specific player by ID
 export async function GET(
@@ -38,7 +40,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user) {
       return NextResponse.json(
@@ -57,8 +59,31 @@ export async function PATCH(
         throw new Error('Player not found');
       }
       
+      // Convert session.user.id and player.userId to strings for comparison
+      const sessionUserId = session.user.id;
+      const playerUserId = player.userId.toString();
+      
+      console.log('Session user ID:', sessionUserId);
+      console.log('Player user ID:', playerUserId);
+      
       // Ensure user can only update their own player profile
-      if (player.userId.toString() !== session.user.id) {
+      // Flexible comparison to handle potential string/ObjectId type differences
+      let isAuthorized = playerUserId === sessionUserId;
+      
+      // If direct comparison fails, try converting both to same format
+      if (!isAuthorized) {
+        try {
+          // Try comparing normalized ObjectId strings
+          const sessionUserObjectId = new mongoose.Types.ObjectId(sessionUserId).toString();
+          const playerUserObjectId = new mongoose.Types.ObjectId(playerUserId).toString();
+          isAuthorized = sessionUserObjectId === playerUserObjectId;
+        } catch (error) {
+          console.error('Error comparing user IDs:', error);
+          // If conversion fails, authorization remains false
+        }
+      }
+      
+      if (!isAuthorized) {
         throw new Error('Unauthorized');
       }
       
@@ -108,7 +133,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user) {
       return NextResponse.json(
@@ -126,8 +151,23 @@ export async function DELETE(
         throw new Error('Player not found');
       }
       
-      // Ensure user can only delete their own player profile
-      if (player.userId.toString() !== session.user.id) {
+      // Similar flexible authorization check as in PATCH
+      const sessionUserId = session.user.id;
+      const playerUserId = player.userId.toString();
+      
+      let isAuthorized = playerUserId === sessionUserId;
+      
+      if (!isAuthorized) {
+        try {
+          const sessionUserObjectId = new mongoose.Types.ObjectId(sessionUserId).toString();
+          const playerUserObjectId = new mongoose.Types.ObjectId(playerUserId).toString();
+          isAuthorized = sessionUserObjectId === playerUserObjectId;
+        } catch (error) {
+          console.error('Error comparing user IDs:', error);
+        }
+      }
+      
+      if (!isAuthorized) {
         throw new Error('Unauthorized');
       }
       
