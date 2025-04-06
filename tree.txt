@@ -20,6 +20,11 @@ subscription-tracker/
 │   │   ├── actions.ts
 │   │   ├── api
 │   │   │   ├── admin
+│   │   │   │   ├── players
+│   │   │   │   │   ├── [id]
+│   │   │   │   │   │   └── invite
+│   │   │   │   │   │       └── route.ts
+│   │   │   │   │   └── route.ts
 │   │   │   │   └── users
 │   │   │   │       └── route.ts
 │   │   │   ├── auth
@@ -79,7 +84,9 @@ subscription-tracker/
 │   │   │   │   │   ├── page.tsx
 │   │   │   │   │   ├── rankings
 │   │   │   │   │   │   └── page.tsx
-│   │   │   │   │   └── schedule
+│   │   │   │   │   ├── schedule
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── teams
 │   │   │   │   │       └── page.tsx
 │   │   │   │   ├── create
 │   │   │   │   │   └── page.tsx
@@ -96,6 +103,8 @@ subscription-tracker/
 │   │   │   ├── rankings
 │   │   │   │   └── page.tsx
 │   │   │   └── teams
+│   │   │       ├── [id]
+│   │   │       │   └── page.tsx
 │   │   │       ├── create
 │   │   │       │   └── page.tsx
 │   │   │       └── page.tsx
@@ -112,7 +121,9 @@ subscription-tracker/
 │   │   ├── ThemeToggle.tsx
 │   │   ├── admin
 │   │   │   ├── LeagueManagement.tsx
+│   │   │   ├── PlayerManagement.tsx
 │   │   │   ├── RoleManagement.tsx
+│   │   │   ├── TeamCreationForm.tsx
 │   │   │   └── UserManagement.tsx
 │   │   ├── auth
 │   │   │   ├── AuthLogo.tsx
@@ -223,7 +234,8 @@ subscription-tracker/
 │   └── utils
 │       ├── format.ts
 │       ├── mongodb-utils.ts
-│       └── scheduleGenerator.ts
+│       ├── scheduleGenerator.ts
+│       └── teamNameSuggestions.ts
 ├── tailwind.config.js
 ├── tree.txt
 └── tsconfig.json
