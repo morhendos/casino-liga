@@ -32,14 +32,7 @@ export function PadelNavigation() {
     {
       label: "Leagues",
       href: "/dashboard/leagues",
-      icon: Trophy,
-      adminOnly: true // Only show for admin users
-    },
-    {
-      label: "My Leagues",
-      href: "/dashboard/my-leagues",
-      icon: Award,
-      playerOnly: true // Only show for player users
+      icon: Trophy
     },
     {
       label: "Matches",
