@@ -14,6 +14,7 @@ import { toast } from "sonner";
 // Define interface for player data
 interface PlayerProfile {
   id?: string;
+  _id?: string;
   nickname: string;
   skillLevel: number;
   handedness: string;
@@ -52,6 +53,7 @@ function PlayerProfilePage() {
         }
         
         const data = await response.json();
+        console.log("Player API response:", data);
         
         if (data.players && data.players.length > 0) {
           const player = data.players[0];
@@ -96,17 +98,24 @@ function PlayerProfilePage() {
         bio
       };
       
+      // Use either id or _id, whichever is available
+      const playerId = playerData?.id || playerData?._id;
+      console.log("Player data for update:", playerData);
+      console.log("Using player ID for update:", playerId);
+      
       let response;
       
-      if (hasProfile && playerData?.id) {
+      if (hasProfile && playerId) {
         // Update existing profile
-        response = await fetch(`/api/players/${playerData.id}`, {
+        console.log(`Updating existing profile with ID: ${playerId}`);
+        response = await fetch(`/api/players/${playerId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData)
         });
       } else {
         // Create new profile
+        console.log("Creating new player profile");
         response = await fetch("/api/players", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -121,6 +130,7 @@ function PlayerProfilePage() {
       }
       
       const result = await response.json();
+      console.log("API success response:", result);
       setPlayerData(result);
       setHasProfile(true);
       
