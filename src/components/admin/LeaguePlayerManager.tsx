@@ -6,6 +6,15 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Loader2, Plus, UserPlus, X } from "lucide-react";
 
@@ -45,6 +54,15 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
   const [isCreatingTeam, setIsCreatingTeam] = useState(false);
   const [teamName, setTeamName] = useState('');
   const [filteredPlayers, setFilteredPlayers] = useState<Player[]>([]);
+  
+  // New player creation state
+  const [showNewPlayerDialog, setShowNewPlayerDialog] = useState(false);
+  const [newPlayerNickname, setNewPlayerNickname] = useState('');
+  const [newPlayerEmail, setNewPlayerEmail] = useState('');
+  const [newPlayerSkillLevel, setNewPlayerSkillLevel] = useState('5');
+  const [newPlayerHandedness, setNewPlayerHandedness] = useState('right');
+  const [newPlayerPosition, setNewPlayerPosition] = useState('both');
+  const [isCreatingPlayer, setIsCreatingPlayer] = useState(false);
 
   // Fetch available players when component mounts
   useEffect(() => {
@@ -160,9 +178,72 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
     }
   };
 
-  const handleNewPlayerClick = () => {
-    // We'll use the PlayerInvitationManagement component through our parent
-    toast.info('Please use the Invitations tab to create and invite new players');
+  const handleCreatePlayer = async () => {
+    if (!newPlayerNickname.trim()) {
+      toast.error('Player nickname is required');
+      return;
+    }
+
+    try {
+      setIsCreatingPlayer(true);
+      
+      const playerData = {
+        nickname: newPlayerNickname,
+        skillLevel: parseInt(newPlayerSkillLevel, 10),
+        handedness: newPlayerHandedness,
+        preferredPosition: newPlayerPosition,
+        email: newPlayerEmail.trim() || undefined // Only include email if provided
+      };
+      
+      const response = await fetch('/api/admin/players', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(playerData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to create player');
+      }
+
+      const newPlayer = await response.json();
+      
+      toast.success('Player created successfully');
+      
+      // Add the new player to available players
+      const playerWithId = {
+        ...newPlayer,
+        id: newPlayer._id || newPlayer.id
+      };
+      
+      setAvailablePlayers([playerWithId, ...availablePlayers]);
+      setFilteredPlayers([playerWithId, ...filteredPlayers]);
+      
+      // Add the new player to selected players if less than 2 already selected
+      if (selectedPlayers.length < 2) {
+        setSelectedPlayers([...selectedPlayers, playerWithId]);
+      }
+      
+      // Reset form and close dialog
+      resetNewPlayerForm();
+      setShowNewPlayerDialog(false);
+      
+    } catch (error) {
+      console.error('Error creating player:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create player');
+    } finally {
+      setIsCreatingPlayer(false);
+    }
+  };
+
+  const resetNewPlayerForm = () => {
+    setNewPlayerNickname('');
+    setNewPlayerEmail('');
+    setNewPlayerSkillLevel('5');
+    setNewPlayerHandedness('right');
+    setNewPlayerPosition('both');
   };
 
   return (
@@ -183,10 +264,117 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1"
               />
-              <Button variant="outline" onClick={handleNewPlayerClick}>
-                <UserPlus className="h-4 w-4 mr-2" />
-                New Player
-              </Button>
+              <Dialog open={showNewPlayerDialog} onOpenChange={setShowNewPlayerDialog}>
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    New Player
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Create New Player</DialogTitle>
+                    <DialogDescription>
+                      Add a new player to the system. Players with email addresses can be invited later.
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="nickname">Nickname *</Label>
+                      <Input
+                        id="nickname"
+                        value={newPlayerNickname}
+                        onChange={(e) => setNewPlayerNickname(e.target.value)}
+                        placeholder="Player nickname"
+                      />
+                    </div>
+                    
+                    <div className="grid gap-2">
+                      <Label htmlFor="email">Email (optional)</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={newPlayerEmail}
+                        onChange={(e) => setNewPlayerEmail(e.target.value)}
+                        placeholder="player@example.com"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        If provided, the player can be invited to join the platform later
+                      </p>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="skillLevel">Skill Level</Label>
+                        <Select value={newPlayerSkillLevel} onValueChange={setNewPlayerSkillLevel}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select skill level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(level => (
+                              <SelectItem key={level} value={level.toString()}>
+                                {level}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="grid gap-2">
+                        <Label htmlFor="handedness">Handedness</Label>
+                        <Select value={newPlayerHandedness} onValueChange={setNewPlayerHandedness}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select handedness" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="right">Right</SelectItem>
+                            <SelectItem value="left">Left</SelectItem>
+                            <SelectItem value="ambidextrous">Ambidextrous</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="grid gap-2">
+                        <Label htmlFor="position">Position</Label>
+                        <Select value={newPlayerPosition} onValueChange={setNewPlayerPosition}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select position" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="forehand">Forehand</SelectItem>
+                            <SelectItem value="backhand">Backhand</SelectItem>
+                            <SelectItem value="both">Both</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <DialogFooter>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowNewPlayerDialog(false)}
+                      disabled={isCreatingPlayer}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      onClick={handleCreatePlayer}
+                      disabled={!newPlayerNickname.trim() || isCreatingPlayer}
+                    >
+                      {isCreatingPlayer ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Creating...
+                        </>
+                      ) : (
+                        'Create Player'
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
             
             <div className="h-60 overflow-y-auto border rounded-md p-2">
