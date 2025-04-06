@@ -142,17 +142,16 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
     try {
       setIsCreatingTeam(true);
       
-      // Create team with selected players - use the "players" field instead of "playerIds"
-      // to match the API expectation
-      const response = await fetch('/api/teams', {
+      // Create team with selected players and add to league
+      // Use the specific league endpoint to add the team directly to the league
+      const response = await fetch(`/api/leagues/${leagueId}/teams`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           name: teamName,
-          players: selectedPlayers.map(player => player.id),
-          leagueId
+          players: selectedPlayers.map(player => player.id)
         }),
       });
 
@@ -161,13 +160,13 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
         throw new Error(error.error || 'Failed to create team');
       }
 
-      toast.success('Team created successfully');
+      toast.success('Team created and added to league successfully');
       
       // Reset form
       setSelectedPlayers([]);
       setTeamName('');
       
-      // Notify parent component about the update
+      // Notify parent component about the update to refresh league data
       if (onPlayersUpdated) {
         onPlayersUpdated();
       }
