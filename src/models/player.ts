@@ -18,6 +18,7 @@ export interface PlayerDocument extends mongoose.Document {
   bio?: string;
   profileImage?: string;
   isActive: boolean;
+  createdBy?: ObjectId;     // Reference to admin user who created this player
   // Invitation fields
   status: 'invited' | 'active' | 'inactive';
   invitationSent: boolean;
@@ -39,7 +40,8 @@ const playerSchema = new mongoose.Schema({
     trim: true,
     lowercase: true,
     match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address'],
-    index: true
+    index: true,
+    required: false // Email is optional for admin-created players
   },
   nickname: {
     type: String,
@@ -92,6 +94,12 @@ const playerSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false, // Optional field to track who created the player
+    index: true
+  },
   // Invitation fields
   status: {
     type: String,
@@ -108,13 +116,8 @@ const playerSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Add custom validator to require either userId or email
-playerSchema.pre('validate', function(next) {
-  if (!this.userId && !this.email) {
-    this.invalidate('email', 'Either userId or email must be provided');
-  }
-  next();
-});
+// Remove the email requirement - we'll allow players without email or userId as long as they have a nickname
+// This enables admin-created players without emails
 
 // Add indexes for performance
 playerSchema.index({ nickname: 'text' });
