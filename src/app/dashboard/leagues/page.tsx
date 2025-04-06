@@ -79,6 +79,19 @@ function LeaguesPage() {
         if (isAdmin) {
           // Admin view: fetch all leagues
           
+          // Fetch leagues where the user is organizer
+          const myResponse = await fetch(`/api/leagues?organizer=${session.user.id}`);
+          const myData = await myResponse.json();
+          
+          if (myData.leagues) {
+            // Ensure each league has an id property
+            const processedMyLeagues = myData.leagues.map((league: any) => ({
+              ...league,
+              id: league._id || league.id
+            }));
+            setMyLeagues(processedMyLeagues);
+          }
+          
           // Fetch active leagues (registration or active status)
           const activeResponse = await fetch('/api/leagues?active=true');
           const activeData = await activeResponse.json();
@@ -103,19 +116,6 @@ function LeaguesPage() {
               id: league._id || league.id
             }));
             setPastLeagues(processedPastLeagues);
-          }
-          
-          // Fetch leagues where the user is organizer
-          const myResponse = await fetch(`/api/leagues?organizer=${session.user.id}`);
-          const myData = await myResponse.json();
-          
-          if (myData.leagues) {
-            // Ensure each league has an id property
-            const processedMyLeagues = myData.leagues.map((league: any) => ({
-              ...league,
-              id: league._id || league.id
-            }));
-            setMyLeagues(processedMyLeagues);
           }
         } else {
           // Player view: fetch leagues the player is in
