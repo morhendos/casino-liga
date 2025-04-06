@@ -142,7 +142,8 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
     try {
       setIsCreatingTeam(true);
       
-      // Create team with selected players
+      // Create team with selected players - use the "players" field instead of "playerIds"
+      // to match the API expectation
       const response = await fetch('/api/teams', {
         method: 'POST',
         headers: {
@@ -150,14 +151,14 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
         },
         body: JSON.stringify({
           name: teamName,
-          playerIds: selectedPlayers.map(player => player.id),
+          players: selectedPlayers.map(player => player.id),
           leagueId
         }),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to create team');
+        throw new Error(error.error || 'Failed to create team');
       }
 
       toast.success('Team created successfully');
@@ -205,7 +206,7 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to create player');
+        throw new Error(error.error || 'Failed to create player');
       }
 
       const newPlayer = await response.json();
