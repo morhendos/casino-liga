@@ -48,7 +48,7 @@ export function LeagueManagement() {
   const [leagues, setLeagues] = useState<League[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const fetchLeagues = async () => {
     try {
@@ -62,7 +62,7 @@ export function LeagueManagement() {
         params.append('name', searchTerm);
       }
       
-      if (statusFilter) {
+      if (statusFilter && statusFilter !== "all") {
         params.append('status', statusFilter);
       }
       
@@ -141,7 +141,7 @@ export function LeagueManagement() {
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Statuses</SelectItem>
+              <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="draft">Draft</SelectItem>
               <SelectItem value="registration">Registration</SelectItem>
               <SelectItem value="active">Active</SelectItem>
