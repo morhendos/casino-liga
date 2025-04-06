@@ -11,6 +11,7 @@ export interface UserDocument extends mongoose.Document {
   emailVerificationExpires?: Date;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
+  invitedPlayerId?: mongoose.Types.ObjectId; // Reference to pre-created player
   failedLoginAttempts: number;
   lockedUntil?: Date;
   lastLogin?: Date;
@@ -58,6 +59,11 @@ const userSchema = new mongoose.Schema({
   emailVerificationExpires: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  invitedPlayerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Player',
+    required: false
+  },
   failedLoginAttempts: {
     type: Number,
     default: 0
