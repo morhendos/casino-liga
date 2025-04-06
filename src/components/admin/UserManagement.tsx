@@ -48,7 +48,7 @@ export function UserManagement({ onUpdate }: UserManagementProps) {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -67,7 +67,7 @@ export function UserManagement({ onUpdate }: UserManagementProps) {
         }
       }
       
-      if (roleFilter) {
+      if (roleFilter && roleFilter !== "all") {
         params.append('roleId', roleFilter);
       }
       
@@ -207,7 +207,7 @@ export function UserManagement({ onUpdate }: UserManagementProps) {
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All roles</SelectItem>
+            <SelectItem value="all">All roles</SelectItem>
             <SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
             <SelectItem value={ROLES.PLAYER}>Player</SelectItem>
           </SelectContent>
