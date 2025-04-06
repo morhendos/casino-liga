@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import withRoleAuth from "@/components/auth/withRoleAuth";
 import { ROLES } from "@/lib/auth/role-utils";
 import { Button } from "@/components/ui/button";
@@ -54,10 +54,15 @@ interface Player {
 function LeagueManagePage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [league, setLeague] = useState<League | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("details");
+  
+  // Check if this is a newly created league
+  const fromCreate = searchParams.get("fromCreate") === "true";
+  // Set the initial active tab: "players" if coming from create, "details" otherwise
+  const [activeTab, setActiveTab] = useState(fromCreate ? "players" : "details");
 
   // Extract the ID from params
   const leagueId = params?.id as string;
@@ -341,6 +346,14 @@ function LeagueManagePage() {
             leagueId={league.id} 
             onPlayersUpdated={fetchLeagueDetails}
           />
+          {fromCreate && (
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mt-6">
+              <h3 className="text-blue-800 font-medium">Your league has been created successfully!</h3>
+              <p className="text-blue-600 text-sm mt-1">
+                Now you can add players and create teams for your new league. Once you've added teams, you can generate a schedule.
+              </p>
+            </div>
+          )}
         </TabsContent>
         
         <TabsContent value="schedule">
