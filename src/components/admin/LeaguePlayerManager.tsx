@@ -17,8 +17,18 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Loader2, Plus, UserPlus, X, Users, UserCheck, RefreshCw, ListOrdered, Sparkles } from "lucide-react";
+import { Loader2, Plus, UserPlus, X, Users, UserCheck, RefreshCw, ListOrdered, Sparkles, Trash } from "lucide-react";
 import { getRandomTeamName } from "@/utils/teamNameSuggestions";
 
 interface Player {
@@ -62,6 +72,9 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
   const [playersInTeams, setPlayersInTeams] = useState<Set<string>>(new Set());
   const [teamNameMode, setTeamNameMode] = useState<'manual' | 'sequential' | 'funny'>('manual');
   const [nextSequentialLetter, setNextSequentialLetter] = useState('A');
+  const [isDeletingTeam, setIsDeletingTeam] = useState(false);
+  const [teamToDelete, setTeamToDelete] = useState<Team | null>(null);
+  const [deleteTeamDialogOpen, setDeleteTeamDialogOpen] = useState(false);
   
   // New player creation state
   const [showNewPlayerDialog, setShowNewPlayerDialog] = useState(false);
@@ -338,6 +351,44 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
       setIsCreatingPlayer(false);
     }
   };
+  
+  const handleDeleteTeam = async (team: Team) => {
+    setTeamToDelete(team);
+    setDeleteTeamDialogOpen(true);
+  };
+  
+  const confirmDeleteTeam = async () => {
+    if (!teamToDelete) return;
+    
+    try {
+      setIsDeletingTeam(true);
+      
+      const response = await fetch(`/api/teams/${teamToDelete.id}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete team');
+      }
+      
+      toast.success(`Team "${teamToDelete.name}" deleted successfully`);
+      
+      // Refresh the teams list
+      await fetchLeagueTeams();
+      
+      // Notify parent component about the update to refresh league data
+      if (onPlayersUpdated) {
+        onPlayersUpdated();
+      }
+    } catch (error) {
+      console.error('Error deleting team:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to delete team');
+    } finally {
+      setIsDeletingTeam(false);
+      setDeleteTeamDialogOpen(false);
+      setTeamToDelete(null);
+    }
+  };
 
   const resetNewPlayerForm = () => {
     setNewPlayerNickname('');
@@ -364,6 +415,36 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
 
   return (
     <div className="space-y-6">
+      {/* Delete Team Confirmation Dialog */}
+      <AlertDialog open={deleteTeamDialogOpen} onOpenChange={setDeleteTeamDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this team?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {teamToDelete && (
+                <>
+                  Team "{teamToDelete.name}" with {teamToDelete.players.length} player(s) will be removed from the league.
+                  This action cannot be undone.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeletingTeam}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteTeam} disabled={isDeletingTeam} className="bg-destructive hover:bg-destructive/90">
+              {isDeletingTeam ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete Team'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left column: Available players and Create team */}
         <div className="space-y-6">
@@ -671,9 +752,20 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                     <div key={team.id} className="border rounded-md p-4">
                       <div className="flex items-center justify-between mb-3">
                         <h3 className="text-lg font-semibold">{team.name}</h3>
-                        <Badge variant="secondary">
-                          {team.players.length} player{team.players.length !== 1 ? 's' : ''}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary">
+                            {team.players.length} player{team.players.length !== 1 ? 's' : ''}
+                          </Badge>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 p-0" 
+                            onClick={() => handleDeleteTeam(team)}
+                          >
+                            <Trash className="h-4 w-4 text-destructive" />
+                            <span className="sr-only">Delete team</span>
+                          </Button>
+                        </div>
                       </div>
                       
                       <div className="space-y-2">
