@@ -11,7 +11,7 @@ import { Plus, Trophy, Calendar, Users } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistance } from "date-fns";
 import withAuth from "@/components/auth/withAuth";
-import { isAdmin } from "@/lib/auth/role-utils";
+import { isAdmin as isAdminHelper } from "@/lib/auth/role-utils";
 
 interface League {
   id: string;
@@ -41,7 +41,7 @@ interface Team {
 }
 
 function LeaguesPage() {
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -60,130 +60,185 @@ function LeaguesPage() {
     }
   }, [searchParams]);
   
+  // Wait for session to be loaded, then check admin status and fetch appropriate data
   useEffect(() => {
-    if (session?.user) {
-      // Check if user is admin
-      if (session.user.roles && Array.isArray(session.user.roles)) {
-        const userIsAdmin = session.user.roles.some(role => role.id === '2');
-        setIsAdmin(userIsAdmin);
-      }
-    }
-  }, [session]);
-
-  useEffect(() => {
-    async function fetchLeagues() {
-      if (!session?.user?.id) return;
-      
-      try {
-        setIsLoading(true);
-        
-        if (isAdmin) {
-          // Admin view: fetch all leagues
-          
-          // Fetch leagues where the user is organizer
-          const myResponse = await fetch(`/api/leagues?organizer=${session.user.id}`);
-          const myData = await myResponse.json();
-          
-          if (myData.leagues) {
-            // Ensure each league has an id property
-            const processedMyLeagues = myData.leagues.map((league: any) => ({
-              ...league,
-              id: league._id || league.id
-            }));
-            setMyLeagues(processedMyLeagues);
-          }
-          
-          // Fetch active leagues (registration or active status)
-          const activeResponse = await fetch('/api/leagues?active=true');
-          const activeData = await activeResponse.json();
-          
-          if (activeData.leagues) {
-            // Ensure each league has an id property
-            const processedActiveLeagues = activeData.leagues.map((league: any) => ({
-              ...league,
-              id: league._id || league.id
-            }));
-            setActiveLeagues(processedActiveLeagues);
-          }
-          
-          // Fetch past leagues (completed status)
-          const pastResponse = await fetch('/api/leagues?status=completed');
-          const pastData = await pastResponse.json();
-          
-          if (pastData.leagues) {
-            // Ensure each league has an id property
-            const processedPastLeagues = pastData.leagues.map((league: any) => ({
-              ...league,
-              id: league._id || league.id
-            }));
-            setPastLeagues(processedPastLeagues);
-          }
-        } else {
-          // Player view: fetch leagues the player is in
-          
-          // Fetch the player's active leagues
-          const activeResponse = await fetch('/api/players/leagues?active=true');
-          if (!activeResponse.ok) {
-            throw new Error(`Failed to fetch active leagues: ${activeResponse.statusText}`);
-          }
-          const activeData = await activeResponse.json();
-
-          if (activeData.leagues) {
-            // Ensure each league has an id property
-            const processedActiveLeagues = activeData.leagues.map((league: any) => ({
-              ...league,
-              id: league._id || league.id
-            }));
-            setActiveLeagues(processedActiveLeagues);
-          }
-
-          // Fetch past leagues (completed)
-          const pastResponse = await fetch('/api/players/leagues?status=completed');
-          if (!pastResponse.ok) {
-            throw new Error(`Failed to fetch past leagues: ${pastResponse.statusText}`);
-          }
-          const pastData = await pastResponse.json();
-
-          if (pastData.leagues) {
-            // Ensure each league has an id property
-            const processedPastLeagues = pastData.leagues.map((league: any) => ({
-              ...league,
-              id: league._id || league.id
-            }));
-            setPastLeagues(processedPastLeagues);
-          }
-        }
-        
-        // Fetch user's teams (for all users)
-        const playerResponse = await fetch(`/api/players?userId=${session.user.id}`);
-        const playerData = await playerResponse.json();
-        
-        if (playerData.players && playerData.players.length > 0) {
-          const playerId = playerData.players[0].id || playerData.players[0]._id;
-          
-          // Fetch teams for this player
-          const teamsResponse = await fetch(`/api/teams?playerId=${playerId}`);
-          const teamsData = await teamsResponse.json();
-          
-          if (teamsData.teams) {
-            // Ensure each team has an id property
-            const processedTeams = teamsData.teams.map((team: any) => ({
-              ...team,
-              id: team._id || team.id
-            }));
-            setMyTeams(processedTeams);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching leagues:", error);
-        toast.error("Failed to load leagues");
-      } finally {
-        setIsLoading(false);
-      }
-    }
+    // Skip if session is still loading
+    if (sessionStatus === "loading") return;
     
-    fetchLeagues();
-  }, [session, isAdmin]);
+    // Skip if no user is logged in
+    if (!session?.user?.id) return;
+    
+    // Check if user is admin
+    const userIsAdmin = session.user.roles && Array.isArray(session.user.roles) && 
+                        session.user.roles.some(role => role.id === '2');
+    
+    // Set admin status
+    setIsAdmin(userIsAdmin);
+    
+    // Fetch leagues and teams
+    fetchData(userIsAdmin, session.user.id);
+  }, [session, sessionStatus]);
+  
+  // Main data fetching function
+  const fetchData = async (userIsAdmin: boolean, userId: string) => {
+    try {
+      setIsLoading(true);
+      
+      if (userIsAdmin) {
+        // Admin view: fetch all leagues
+        await fetchAdminLeagues(userId);
+      } else {
+        // Player view: fetch leagues the player is in
+        await fetchPlayerLeagues();
+      }
+      
+      // Fetch user's teams (for all users)
+      await fetchUserTeams(userId);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("Failed to load leagues data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Fetch leagues for admin users
+  const fetchAdminLeagues = async (userId: string) => {
+    try {
+      // Fetch leagues where the user is organizer
+      const myResponse = await fetch(`/api/leagues?organizer=${userId}`);
+      if (!myResponse.ok) {
+        throw new Error(`Failed to fetch your leagues: ${myResponse.statusText}`);
+      }
+      
+      const myData = await myResponse.json();
+      
+      if (myData.leagues) {
+        // Ensure each league has an id property
+        const processedMyLeagues = myData.leagues.map((league: any) => ({
+          ...league,
+          id: league._id || league.id
+        }));
+        setMyLeagues(processedMyLeagues);
+      }
+      
+      // Fetch active leagues (registration or active status)
+      const activeResponse = await fetch('/api/leagues?active=true');
+      if (!activeResponse.ok) {
+        throw new Error(`Failed to fetch active leagues: ${activeResponse.statusText}`);
+      }
+      
+      const activeData = await activeResponse.json();
+      
+      if (activeData.leagues) {
+        // Ensure each league has an id property
+        const processedActiveLeagues = activeData.leagues.map((league: any) => ({
+          ...league,
+          id: league._id || league.id
+        }));
+        setActiveLeagues(processedActiveLeagues);
+      }
+      
+      // Fetch past leagues (completed status)
+      const pastResponse = await fetch('/api/leagues?status=completed');
+      if (!pastResponse.ok) {
+        throw new Error(`Failed to fetch past leagues: ${pastResponse.statusText}`);
+      }
+      
+      const pastData = await pastResponse.json();
+      
+      if (pastData.leagues) {
+        // Ensure each league has an id property
+        const processedPastLeagues = pastData.leagues.map((league: any) => ({
+          ...league,
+          id: league._id || league.id
+        }));
+        setPastLeagues(processedPastLeagues);
+      }
+    } catch (error) {
+      console.error("Error fetching admin leagues:", error);
+      throw error; // Rethrow for the main handler
+    }
+  };
+  
+  // Fetch leagues for regular players
+  const fetchPlayerLeagues = async () => {
+    try {
+      // Fetch the player's active leagues
+      const activeResponse = await fetch('/api/players/leagues?active=true');
+      if (!activeResponse.ok) {
+        throw new Error(`Failed to fetch active leagues: ${activeResponse.statusText}`);
+      }
+      
+      const activeData = await activeResponse.json();
+
+      if (activeData.leagues) {
+        // Ensure each league has an id property
+        const processedActiveLeagues = activeData.leagues.map((league: any) => ({
+          ...league,
+          id: league._id || league.id
+        }));
+        setActiveLeagues(processedActiveLeagues);
+      }
+
+      // Fetch past leagues (completed)
+      const pastResponse = await fetch('/api/players/leagues?status=completed');
+      if (!pastResponse.ok) {
+        throw new Error(`Failed to fetch past leagues: ${pastResponse.statusText}`);
+      }
+      
+      const pastData = await pastResponse.json();
+
+      if (pastData.leagues) {
+        // Ensure each league has an id property
+        const processedPastLeagues = pastData.leagues.map((league: any) => ({
+          ...league,
+          id: league._id || league.id
+        }));
+        setPastLeagues(processedPastLeagues);
+      }
+    } catch (error) {
+      console.error("Error fetching player leagues:", error);
+      throw error; // Rethrow for the main handler
+    }
+  };
+  
+  // Fetch teams for any user
+  const fetchUserTeams = async (userId: string) => {
+    try {
+      // Get the player profile for this user
+      const playerResponse = await fetch(`/api/players?userId=${userId}`);
+      if (!playerResponse.ok) {
+        throw new Error(`Failed to fetch player data: ${playerResponse.statusText}`);
+      }
+      
+      const playerData = await playerResponse.json();
+      
+      if (playerData.players && playerData.players.length > 0) {
+        const playerId = playerData.players[0].id || playerData.players[0]._id;
+        
+        // Fetch teams for this player
+        const teamsResponse = await fetch(`/api/teams?playerId=${playerId}`);
+        if (!teamsResponse.ok) {
+          throw new Error(`Failed to fetch teams: ${teamsResponse.statusText}`);
+        }
+        
+        const teamsData = await teamsResponse.json();
+        
+        if (teamsData.teams) {
+          // Ensure each team has an id property
+          const processedTeams = teamsData.teams.map((team: any) => ({
+            ...team,
+            id: team._id || team.id
+          }));
+          setMyTeams(processedTeams);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user teams:", error);
+      throw error; // Rethrow for the main handler
+    }
+  };
   
   function LeagueCard({ league }: { league: League }) {
     const isRegistrationOpen = 
@@ -325,6 +380,18 @@ function LeaguesPage() {
       default:
         return matchFormat;
     }
+  }
+  
+  if (sessionStatus === "loading") {
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <div className="animate-pulse text-center">
+          <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto mb-8"></div>
+          <div className="h-32 bg-gray-200 rounded w-full max-w-3xl mx-auto"></div>
+        </div>
+      </div>
+    );
   }
   
   return (
