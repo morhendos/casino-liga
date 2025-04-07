@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withConnection } from '@/lib/db';
-import { LeagueModel } from '@/models';
+import { LeagueModel, TeamModel, MatchModel, RankingModel } from '@/models';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { hasRole, ROLES } from '@/lib/auth/role-utils';
@@ -226,7 +226,7 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/leagues/[id] - Delete a league (admin only)
+// DELETE /api/leagues/[id] - Delete a league and associated data (admin only)
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
@@ -261,7 +261,8 @@ export async function DELETE(
       );
     }
     
-    await withConnection(async () => {
+    const results = await withConnection(async () => {
+      // 1. Find the league
       const league = await LeagueModel.findById(id);
       
       if (!league) {
@@ -272,16 +273,47 @@ export async function DELETE(
       const isOrganizer = league.organizer.toString() === session.user.id;
       
       if (!isOrganizer && !adminCheck) {
-        throw new Error('Only league organizers can delete their leagues');
+        throw new Error('Only league organizers or admins can delete leagues');
       }
       
-      await LeagueModel.findByIdAndDelete(id);
+      // 2. Get all teams in this league
+      const teams = league.teams || [];
+      
+      // 3. Delete all matches associated with this league
+      const deletedMatches = await MatchModel.deleteMany({ league: id });
+      
+      // 4. Delete all rankings associated with this league
+      const deletedRankings = await RankingModel.deleteMany({ league: id });
+      
+      // 5. Update teams to remove league association
+      if (teams.length > 0) {
+        await TeamModel.updateMany(
+          { _id: { $in: teams } },
+          { $unset: { league: 1 } }
+        );
+      }
+      
+      // 6. Delete the league itself
+      const deletedLeague = await LeagueModel.findByIdAndDelete(id);
+      
+      return {
+        league: deletedLeague,
+        matches: deletedMatches.deletedCount,
+        rankings: deletedRankings.deletedCount,
+        teamsUpdated: teams.length
+      };
     });
     
-    return NextResponse.json(
-      { message: 'League deleted successfully' },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      success: true,
+      message: 'League deleted successfully',
+      details: {
+        leagueName: results.league.name,
+        matchesDeleted: results.matches,
+        rankingsDeleted: results.rankings,
+        teamsUpdated: results.teamsUpdated
+      }
+    });
   } catch (error) {
     console.error('Error deleting league:', error);
     
@@ -293,7 +325,7 @@ export async function DELETE(
         );
       }
       
-      if (error.message === 'Only league organizers can delete their leagues') {
+      if (error.message === 'Only league organizers or admins can delete leagues') {
         return NextResponse.json(
           { error: error.message },
           { status: 403 }
