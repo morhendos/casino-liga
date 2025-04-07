@@ -50,6 +50,7 @@ function LeaguesPage() {
   const [myLeagues, setMyLeagues] = useState<League[]>([]);
   const [myTeams, setMyTeams] = useState<Team[]>([]);
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("my"); // Control active tab with state
   
   // Initialize selectedTeamId from URL if present
   useEffect(() => {
@@ -350,7 +351,7 @@ function LeaguesPage() {
       
       {/* Admin specific tabs */}
       {isAdmin ? (
-        <Tabs defaultValue="my">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4">
             <TabsTrigger value="my">My Leagues</TabsTrigger>
             <TabsTrigger value="active">Active Leagues</TabsTrigger>
