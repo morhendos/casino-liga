@@ -16,8 +16,10 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Loader2, Plus, UserPlus, X, Users, UserCheck } from "lucide-react";
+import { Loader2, Plus, UserPlus, X, Users, UserCheck, RefreshCw, ListOrdered, Sparkles } from "lucide-react";
+import { getRandomTeamName } from "@/utils/teamNameSuggestions";
 
 interface Player {
   id: string;
@@ -58,6 +60,8 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
   const [filteredPlayers, setFilteredPlayers] = useState<Player[]>([]);
   const [leagueTeams, setLeagueTeams] = useState<Team[]>([]);
   const [playersInTeams, setPlayersInTeams] = useState<Set<string>>(new Set());
+  const [teamNameMode, setTeamNameMode] = useState<'manual' | 'sequential' | 'funny'>('manual');
+  const [nextSequentialLetter, setNextSequentialLetter] = useState('A');
   
   // New player creation state
   const [showNewPlayerDialog, setShowNewPlayerDialog] = useState(false);
@@ -89,7 +93,7 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
     setFilteredPlayers(filtered);
   }, [searchQuery, availablePlayers]);
 
-  // Track which players are already in teams
+  // Track which players are already in teams and update sequential letter
   useEffect(() => {
     // Create a set of player IDs that are already in teams
     const playerIdsInTeams = new Set<string>();
@@ -101,7 +105,15 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
     });
     
     setPlayersInTeams(playerIdsInTeams);
+    
+    // Update the next sequential letter
+    updateNextSequentialLetter(leagueTeams);
   }, [leagueTeams]);
+  
+  // Update team name when team name mode changes
+  useEffect(() => {
+    updateTeamName();
+  }, [teamNameMode, nextSequentialLetter]);
 
   const fetchAvailablePlayers = async () => {
     try {
@@ -154,6 +166,46 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
     } finally {
       setIsLoadingTeams(false);
     }
+  };
+  
+  // Update the next sequential letter based on existing teams
+  const updateNextSequentialLetter = (teams: Team[]) => {
+    const letterTeams = teams.filter(team => 
+      team.name.match(/^Team [A-Z]$/)
+    );
+    
+    if (letterTeams.length === 0) {
+      setNextSequentialLetter('A');
+      return;
+    }
+    
+    // Find the highest letter used
+    const highestLetter = letterTeams
+      .map(team => team.name.charAt(team.name.length - 1))
+      .sort()
+      .pop() || 'A';
+    
+    // Get the next letter in sequence
+    const nextLetter = String.fromCharCode(highestLetter.charCodeAt(0) + 1);
+    setNextSequentialLetter(nextLetter);
+  };
+  
+  // Generate a team name based on the selected mode
+  const updateTeamName = () => {
+    switch (teamNameMode) {
+      case 'sequential':
+        setTeamName(`Team ${nextSequentialLetter}`);
+        break;
+      case 'funny':
+        setTeamName(getRandomTeamName());
+        break;
+      // For manual mode, keep the existing name
+    }
+  };
+  
+  // Generate a new random funny team name
+  const generateRandomFunnyName = () => {
+    setTeamName(getRandomTeamName());
   };
 
   const handleAddPlayer = (player: Player) => {
@@ -381,9 +433,9 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                               </SelectTrigger>
                               <SelectContent>
                                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(level => (
-                                  <SelectItem key={level} value={level.toString()}>
-                                    {level}
-                                  </SelectItem>
+                                    <SelectItem key={level} value={level.toString()}>
+                                      {level}
+                                    </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
@@ -513,12 +565,38 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="teamName">Team Name</Label>
-                  <Input
-                    id="teamName"
-                    placeholder="Enter team name"
-                    value={teamName}
-                    onChange={(e) => setTeamName(e.target.value)}
-                  />
+                  <div className="space-y-2">
+                    <Tabs defaultValue="manual" onValueChange={(value) => setTeamNameMode(value as 'manual' | 'sequential' | 'funny')}>
+                      <TabsList className="grid grid-cols-3">
+                        <TabsTrigger value="manual" className="flex items-center gap-1">
+                          <span>Manual</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="sequential" className="flex items-center gap-1">
+                          <ListOrdered className="h-4 w-4 mr-1" />
+                          <span>Team A, B, C...</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="funny" className="flex items-center gap-1">
+                          <Sparkles className="h-4 w-4 mr-1" />
+                          <span>Funny Names</span>
+                        </TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                    
+                    <div className="flex gap-2">
+                      <Input
+                        id="teamName"
+                        placeholder="Enter team name"
+                        value={teamName}
+                        onChange={(e) => setTeamName(e.target.value)}
+                        className="flex-1"
+                      />
+                      {teamNameMode === 'funny' && (
+                        <Button type="button" variant="outline" onClick={generateRandomFunnyName} title="Generate another funny name">
+                          <RefreshCw className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 
                 <div>
