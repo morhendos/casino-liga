@@ -66,7 +66,7 @@ function LeagueDetailsPage() {
   // Check if this is a newly created league
   const fromCreate = searchParams.get("fromCreate") === "true";
   // Set the default tab
-  const [activeTab, setActiveTab] = useState(fromCreate && isAdmin ? "managePlayers" : "overview");
+  const [activeTab, setActiveTab] = useState(fromCreate && isAdmin ? "teams" : "overview");
 
   // Extract the ID from params
   const leagueId = params?.id as string;
@@ -76,9 +76,9 @@ function LeagueDetailsPage() {
       const userIsAdmin = hasRole(session, ROLES.ADMIN);
       setIsAdmin(userIsAdmin);
       
-      // If we're coming from create and the user is an admin, show the player management tab
+      // If we're coming from create and the user is an admin, show the teams tab
       if (fromCreate && userIsAdmin) {
-        setActiveTab("managePlayers");
+        setActiveTab("teams");
       }
     }
   }, [session, fromCreate]);
@@ -236,21 +236,9 @@ function LeagueDetailsPage() {
           {/* Admin-only tabs */}
           {isAdmin && (
             <>
-              <TabsTrigger value="manageSettings">
+              <TabsTrigger value="settings">
                 <Settings className="w-4 h-4 mr-2" />
-                League Settings
-              </TabsTrigger>
-              <TabsTrigger value="manageTeams">
-                <Users className="w-4 h-4 mr-2" />
-                Manage Teams
-              </TabsTrigger>
-              <TabsTrigger value="managePlayers">
-                <UserPlus className="w-4 h-4 mr-2" />
-                Add Players
-              </TabsTrigger>
-              <TabsTrigger value="manageSchedule">
-                <Calendar className="w-4 h-4 mr-2" />
-                Manage Schedule
+                Settings
               </TabsTrigger>
             </>
           )}
@@ -360,7 +348,7 @@ function LeagueDetailsPage() {
                       <p>No teams have joined this league yet.</p>
                       {isAdmin && (
                         <p className="text-sm mt-2">
-                          Use the admin management page to add teams to this league.
+                          Use the Teams tab to add teams to this league.
                         </p>
                       )}
                     </div>
@@ -379,7 +367,7 @@ function LeagueDetailsPage() {
                   <CardFooter>
                     <Button 
                       className="w-full" 
-                      onClick={() => setActiveTab("managePlayers")}
+                      onClick={() => setActiveTab("teams")}
                     >
                       Add Teams to League
                     </Button>
@@ -390,62 +378,95 @@ function LeagueDetailsPage() {
           </div>
         </TabsContent>
         
-        {/* Teams Tab - More detailed team view for all users */}
+        {/* Teams Tab - Consolidated team management for all users */}
         <TabsContent value="teams">
-          <Card>
-            <CardHeader>
-              <CardTitle>League Teams</CardTitle>
-              <CardDescription>
-                All teams participating in this league
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {league.teams.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {league.teams.map((team) => (
-                    <Card key={team.id || team._id} className="overflow-hidden">
-                      <CardHeader className="pb-2">
-                        <CardTitle>{team.name}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <div className="text-sm font-medium">Players:</div>
-                          {team.players?.map(player => (
-                            <div key={player.id} className="flex justify-between items-center border-b pb-1">
-                              <div>{player.nickname}</div>
-                              <div className="text-xs text-muted-foreground">
-                                Level: {player.skillLevel}
+          <div className="space-y-8">
+            {/* For admins, show the team management section first */}
+            {isAdmin && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Team Management</CardTitle>
+                  <CardDescription>
+                    Add players and create teams for this league
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <LeaguePlayerManager 
+                    leagueId={league.id} 
+                    onPlayersUpdated={fetchLeagueDetails}
+                  />
+                </CardContent>
+              </Card>
+            )}
+            
+            {/* Team list section for all users */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Teams in this League</CardTitle>
+                <CardDescription>
+                  {league.teams.length > 0 
+                    ? `${league.teams.length} of ${league.maxTeams} maximum teams` 
+                    : "No teams have joined this league yet"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {league.teams.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {league.teams.map((team) => (
+                      <Card key={team.id || team._id} className="overflow-hidden">
+                        <CardHeader className="pb-2">
+                          <CardTitle>{team.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <div className="text-sm font-medium">Players:</div>
+                            {team.players?.map(player => (
+                              <div key={player.id} className="flex justify-between items-center border-b pb-1">
+                                <div>{player.nickname}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  Level: {player.skillLevel}
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                      <CardFooter>
-                        <Button size="sm" variant="outline" asChild className="w-full">
-                          <Link href={`/dashboard/teams/${team.id || team._id}`}>
-                            View Team Details
-                          </Link>
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-12 text-center">
-                  <Users className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                  <h3 className="text-xl font-medium mb-2">No Teams Registered</h3>
-                  <p className="text-muted-foreground mb-6">
-                    There are currently no teams registered in this league.
-                  </p>
-                  {isAdmin && (
-                    <Button onClick={() => setActiveTab("managePlayers")}>
-                      Add Teams Now
-                    </Button>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                            ))}
+                          </div>
+                        </CardContent>
+                        <CardFooter>
+                          <Button size="sm" variant="outline" asChild className="w-full">
+                            <Link href={`/dashboard/teams/${team.id || team._id}`}>
+                              View Team Details
+                            </Link>
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-12 text-center">
+                    <Users className="w-16 h-16 mx-auto mb-4 opacity-20" />
+                    <h3 className="text-xl font-medium mb-2">No Teams Registered</h3>
+                    <p className="text-muted-foreground mb-6">
+                      There are currently no teams registered in this league.
+                    </p>
+                    {isAdmin && !fromCreate && (
+                      <p className="text-muted-foreground">
+                        Use the team management section above to add teams to this league.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Show welcome message if coming from league creation */}
+            {fromCreate && isAdmin && (
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mt-6">
+                <h3 className="text-blue-800 font-medium">Your league has been created successfully!</h3>
+                <p className="text-blue-600 text-sm mt-1">
+                  Now you can add players and create teams for your new league. Once you've added teams, you can generate a schedule.
+                </p>
+              </div>
+            )}
+          </div>
         </TabsContent>
         
         {/* Schedule Tab - View schedule for all users */}
@@ -471,9 +492,19 @@ function LeagueDetailsPage() {
                     The schedule has not been generated for this league yet.
                   </p>
                   {isAdmin && (
-                    <p className="text-sm text-muted-foreground mb-6">
-                      Use the "Manage Schedule" tab to create a schedule.
-                    </p>
+                    <>
+                      <p className="text-sm text-muted-foreground mb-6">
+                        You can generate a schedule once you have enough teams.
+                      </p>
+                      <Button disabled={league.teams.length < 2}>
+                        Generate Schedule
+                      </Button>
+                      {league.teams.length < 2 && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          You need at least 2 teams to generate a schedule.
+                        </p>
+                      )}
+                    </>
                   )}
                 </div>
               )}
@@ -485,7 +516,7 @@ function LeagueDetailsPage() {
         
         {/* League Settings Tab - Admin only */}
         {isAdmin && (
-          <TabsContent value="manageSettings">
+          <TabsContent value="settings">
             <Card>
               <CardHeader>
                 <CardTitle>League Settings</CardTitle>
@@ -539,7 +570,7 @@ function LeagueDetailsPage() {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="flex gap-2">
+              <CardFooter className="flex flex-wrap gap-2">
                 <Button asChild>
                   <Link href={`/dashboard/leagues/${league.id}/edit`}>
                     <Edit className="w-4 h-4 mr-2" />
@@ -564,125 +595,6 @@ function LeagueDetailsPage() {
                   </Button>
                 )}
               </CardFooter>
-            </Card>
-          </TabsContent>
-        )}
-        
-        {/* Manage Teams Tab - Admin only */}
-        {isAdmin && (
-          <TabsContent value="manageTeams">
-            <Card>
-              <CardHeader>
-                <CardTitle>Team Management</CardTitle>
-                <CardDescription>
-                  View and manage teams in this league
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {league.teams.length > 0 ? (
-                  <div className="space-y-4">
-                    {league.teams.map((team) => (
-                      <div 
-                        key={team.id || team._id} 
-                        className="flex items-center p-3 rounded-md border"
-                      >
-                        <div className="flex-1">
-                          <div className="font-medium">{team.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {team.players?.map(player => player.nickname).join(' & ')}
-                          </div>
-                        </div>
-                        <Button size="sm" variant="ghost" asChild>
-                          <Link href={`/dashboard/teams/${team.id || team._id}`}>
-                            View
-                          </Link>
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="py-8 text-center text-muted-foreground">
-                    <Users className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                    <p>No teams have joined this league yet.</p>
-                    <p className="text-sm mt-2">Use the "Add Players" tab to create teams for this league.</p>
-                  </div>
-                )}
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  className="w-full" 
-                  onClick={() => setActiveTab("managePlayers")}
-                >
-                  Add Teams to League
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-        )}
-        
-        {/* Add Players Tab - Admin only */}
-        {isAdmin && (
-          <TabsContent value="managePlayers">
-            <LeaguePlayerManager 
-              leagueId={league.id} 
-              onPlayersUpdated={fetchLeagueDetails}
-            />
-            {fromCreate && (
-              <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mt-6">
-                <h3 className="text-blue-800 font-medium">Your league has been created successfully!</h3>
-                <p className="text-blue-600 text-sm mt-1">
-                  Now you can add players and create teams for your new league. Once you've added teams, you can generate a schedule.
-                </p>
-              </div>
-            )}
-          </TabsContent>
-        )}
-        
-        {/* Manage Schedule Tab - Admin only */}
-        {isAdmin && (
-          <TabsContent value="manageSchedule">
-            <Card>
-              <CardHeader>
-                <CardTitle>Schedule Management</CardTitle>
-                <CardDescription>
-                  {league.scheduleGenerated ? 
-                    "View and manage the league schedule" : 
-                    "Generate a schedule for this league"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {league.scheduleGenerated ? (
-                  <div className="text-center py-4">
-                    <p>Schedule has been generated.</p>
-                    <p className="text-muted-foreground">You can view and manage matches below.</p>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Calendar className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                    <p>No schedule has been generated yet.</p>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Create a schedule to automatically generate matches between teams.
-                    </p>
-                    <Button disabled={league.teams.length < 2}>
-                      Generate Schedule
-                    </Button>
-                    {league.teams.length < 2 && (
-                      <p className="text-xs text-muted-foreground mt-2">
-                        You need at least 2 teams to generate a schedule.
-                      </p>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-              {league.scheduleGenerated && (
-                <CardFooter>
-                  <Button className="w-full" asChild>
-                    <Link href={`/dashboard/leagues/${league.id}/schedule`}>
-                      View Full Schedule
-                    </Link>
-                  </Button>
-                </CardFooter>
-              )}
             </Card>
           </TabsContent>
         )}
