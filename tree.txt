@@ -88,8 +88,6 @@ subscription-tracker/
 │   │   │   │   ├── [id]
 │   │   │   │   │   ├── edit
 │   │   │   │   │   │   └── page.tsx
-│   │   │   │   │   ├── manage
-│   │   │   │   │   │   └── page.tsx
 │   │   │   │   │   ├── page.tsx
 │   │   │   │   │   ├── rankings
 │   │   │   │   │   │   └── page.tsx
