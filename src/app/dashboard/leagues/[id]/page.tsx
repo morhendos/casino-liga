@@ -381,36 +381,23 @@ function LeagueDetailsPage() {
         {/* Teams Tab - Consolidated team management for all users */}
         <TabsContent value="teams">
           <div className="space-y-8">
-            {/* For admins, show the team management section first */}
-            {isAdmin && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Team Management</CardTitle>
-                  <CardDescription>
-                    Add players and create teams for this league
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+            {/* For admins, show ONLY the team management section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Teams Management</CardTitle>
+                <CardDescription>
+                  {isAdmin 
+                    ? "Add players and create teams for this league" 
+                    : `${league.teams.length} of ${league.maxTeams} maximum teams`}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isAdmin ? (
                   <LeaguePlayerManager 
                     leagueId={league.id} 
                     onPlayersUpdated={fetchLeagueDetails}
                   />
-                </CardContent>
-              </Card>
-            )}
-            
-            {/* Team grid layout */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Teams in this League</CardTitle>
-                <CardDescription>
-                  {league.teams.length > 0 
-                    ? `${league.teams.length} of ${league.maxTeams} maximum teams` 
-                    : "No teams have joined this league yet"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {league.teams.length > 0 ? (
+                ) : league.teams.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {league.teams.map((team) => (
                       <Card key={team.id || team._id} className="overflow-hidden">
@@ -447,11 +434,6 @@ function LeagueDetailsPage() {
                     <p className="text-muted-foreground mb-6">
                       There are currently no teams registered in this league.
                     </p>
-                    {isAdmin && !fromCreate && (
-                      <p className="text-muted-foreground">
-                        Use the team management section above to add teams to this league.
-                      </p>
-                    )}
                   </div>
                 )}
               </CardContent>
