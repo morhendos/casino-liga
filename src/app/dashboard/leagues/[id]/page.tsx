@@ -166,11 +166,11 @@ function LeagueDetailsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center mb-8">
+      {/* Navigation Section - Back button on its own line */}
+      <div className="mb-4">
         <Button 
           variant="outline" 
           size="sm" 
-          className="mr-4"
           asChild
         >
           <Link href="/dashboard/leagues">
@@ -178,21 +178,26 @@ function LeagueDetailsPage() {
             Back to Leagues
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold">{league.name}</h1>
-        <Badge className="ml-4" variant={
-          league.status === 'active' ? "default" :
-          league.status === 'registration' ? "secondary" :
-          league.status === 'completed' ? "outline" :
-          "destructive"
-        }>
-          {league.status.charAt(0).toUpperCase() + league.status.slice(1)}
-        </Badge>
+      </div>
+      
+      {/* Title Section - Title and status badge on their own line */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center">
+          <h1 className="text-3xl font-bold">{league.name}</h1>
+          <Badge className="ml-4" variant={
+            league.status === 'active' ? "default" :
+            league.status === 'registration' ? "secondary" :
+            league.status === 'completed' ? "outline" :
+            "destructive"
+          }>
+            {league.status.charAt(0).toUpperCase() + league.status.slice(1)}
+          </Badge>
+        </div>
         
         {isAdmin && (
           <Button 
             variant="outline" 
-            size="sm" 
-            className="ml-auto"
+            size="sm"
             asChild
           >
             <Link href={`/dashboard/leagues/${league.id}/manage`}>
