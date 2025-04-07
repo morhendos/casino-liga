@@ -566,7 +566,7 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                 <div>
                   <Label htmlFor="teamName">Team Name</Label>
                   <div className="space-y-2">
-                    <Tabs defaultValue="manual" onValueChange={(value) => setTeamNameMode(value as 'manual' | 'sequential' | 'funny')}>
+                    <Tabs defaultValue="manual" onValueChange={(value) => setTeamNameMode(value as 'manual' | 'sequential' | 'funny')}>                    
                       <TabsList className="grid grid-cols-3">
                         <TabsTrigger value="manual" className="flex items-center gap-1">
                           <span>Manual</span>
