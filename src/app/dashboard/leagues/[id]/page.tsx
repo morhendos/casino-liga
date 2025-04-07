@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { hasRole, ROLES } from "@/lib/auth/role-utils";
 import LeaguePlayerManager from "@/components/admin/LeaguePlayerManager";
+import { DeleteLeagueButton } from "@/components/admin/DeleteLeagueButton";
 
 interface League {
   id: string;
@@ -545,6 +546,11 @@ function LeagueDetailsPage() {
                     Edit League
                   </Link>
                 </Button>
+                
+                <DeleteLeagueButton 
+                  leagueId={league.id} 
+                  leagueName={league.name}
+                />
                 
                 {league.status === 'draft' && (
                   <Button variant="outline">
