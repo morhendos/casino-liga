@@ -8,7 +8,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ArrowLeft, Users, Trophy, UserPlus, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Users, Trophy, UserPlus, Pencil } from "lucide-react";
+import { DeleteTeamButton } from "@/components/admin/DeleteTeamButton";
 
 interface Player {
   id: string;
@@ -40,7 +41,6 @@ function TeamDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [team, setTeam] = useState<Team | null>(null);
   const [isOwner, setIsOwner] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   
   const teamId = params.id as string;
   
@@ -85,30 +85,6 @@ function TeamDetailsPage() {
     
     fetchTeam();
   }, [teamId, session, router]);
-  
-  const handleDeleteTeam = async () => {
-    if (!confirm("Are you sure you want to delete this team?")) return;
-    
-    try {
-      setIsDeleting(true);
-      const response = await fetch(`/api/teams/${teamId}`, {
-        method: "DELETE",
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to delete team");
-      }
-      
-      toast.success("Team deleted successfully");
-      router.push("/dashboard/teams");
-    } catch (error) {
-      console.error("Error deleting team:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to delete team");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
   
   const getPlayerColor = (index: number) => {
     const colors = ["bg-primary/20 text-primary", "bg-secondary/20 text-secondary"];
@@ -265,15 +241,10 @@ function TeamDetailsPage() {
                     </Button>
                   )}
                   
-                  <Button 
-                    className="w-full justify-start" 
-                    variant="destructive" 
-                    onClick={handleDeleteTeam}
-                    disabled={isDeleting}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    {isDeleting ? "Deleting..." : "Delete Team"}
-                  </Button>
+                  <DeleteTeamButton 
+                    teamId={teamId} 
+                    teamName={team.name}
+                  />
                 </>
               ) : (
                 <div className="text-muted-foreground text-sm">
