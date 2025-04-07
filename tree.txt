@@ -157,6 +157,7 @@ subscription-tracker/
 │   │   │   └── HeaderControls.tsx
 │   │   ├── ui
 │   │   │   ├── IconButton.tsx
+│   │   │   ├── alert-dialog.tsx
 │   │   │   ├── badge.tsx
 │   │   │   ├── button.tsx
 │   │   │   ├── calendar.tsx
