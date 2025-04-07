@@ -399,7 +399,7 @@ function LeagueDetailsPage() {
               </Card>
             )}
             
-            {/* Team list section for all users */}
+            {/* Team grid layout */}
             <Card>
               <CardHeader>
                 <CardTitle>Teams in this League</CardTitle>
@@ -455,6 +455,15 @@ function LeagueDetailsPage() {
                   </div>
                 )}
               </CardContent>
+              {league.status === 'registration' && !isAdmin && league.teams.length < league.maxTeams && (
+                <CardFooter>
+                  <Button className="w-full" asChild>
+                    <Link href={`/dashboard/leagues/${league.id}/join`}>
+                      Join This League
+                    </Link>
+                  </Button>
+                </CardFooter>
+              )}
             </Card>
 
             {/* Show welcome message if coming from league creation */}
