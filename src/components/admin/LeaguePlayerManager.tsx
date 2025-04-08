@@ -112,9 +112,11 @@ export default function LeaguePlayerManager({
     try {
       setIsCreatingTeam(true);
       
+      // Pass player IDs and full player details for optimistic UI update
       const success = await createTeam(
         teamName,
-        selectedPlayers.map((player) => player.id)
+        selectedPlayers.map((player) => player.id),
+        selectedPlayers
       );
 
       if (success) {
@@ -131,9 +133,14 @@ export default function LeaguePlayerManager({
           updateTeamName();
         }, 50);
         
-        // Notify parent component about the update to refresh league data
+        // We don't need to call onPlayersUpdated() anymore since we're using optimistic updates
+        // This was likely causing the full page refresh
+        // Instead, we can call it after a delay if needed for syncing with other components
         if (onPlayersUpdated) {
-          onPlayersUpdated();
+          // Call with a small delay to let animations complete
+          setTimeout(() => {
+            onPlayersUpdated();
+          }, 300);
         }
       }
     } finally {
@@ -165,9 +172,12 @@ export default function LeaguePlayerManager({
     if (success) {
       toast.success(`Team "${teamName}" deleted successfully`);
       
-      // Notify parent component about the update to refresh league data
+      // We don't need to notify parent immediately, but can do it with a small delay
+      // to let the UI animation complete
       if (onPlayersUpdated) {
-        onPlayersUpdated();
+        setTimeout(() => {
+          onPlayersUpdated();
+        }, 300);
       }
     }
     
