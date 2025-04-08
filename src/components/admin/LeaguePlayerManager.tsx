@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { 
   PlayerList, 
@@ -31,6 +31,9 @@ export default function LeaguePlayerManager({
   // Player selection state
   const [selectedPlayers, setSelectedPlayers] = useState<Player[]>([]);
   const [isCreatingTeam, setIsCreatingTeam] = useState(false);
+  
+  // Use refs to prevent multiple unnecessary updates
+  const hasUpdatedRef = useRef(false);
   
   // Custom hooks
   const { 
@@ -76,6 +79,13 @@ export default function LeaguePlayerManager({
   useEffect(() => {
     updateTeamName();
   }, [teamNameMode]);
+
+  // Reset the update ref when we unmount
+  useEffect(() => {
+    return () => {
+      hasUpdatedRef.current = false;
+    };
+  }, []);
 
   const handleAddPlayer = (player: Player) => {
     if (selectedPlayers.length >= 2) {
@@ -133,14 +143,26 @@ export default function LeaguePlayerManager({
           updateTeamName();
         }, 50);
         
-        // We don't need to call onPlayersUpdated() anymore since we're using optimistic updates
-        // This was likely causing the full page refresh
-        // Instead, we can call it after a delay if needed for syncing with other components
-        if (onPlayersUpdated) {
-          // Call with a small delay to let animations complete
-          setTimeout(() => {
-            onPlayersUpdated();
-          }, 300);
+        // Only notify the parent once per session to prevent multiple page reloads
+        // and only if it's absolutely necessary
+        if (onPlayersUpdated && !hasUpdatedRef.current) {
+          // Set the ref to true to prevent further updates
+          hasUpdatedRef.current = true;
+          
+          // Store the current URL to check if navigation occurs
+          const currentUrl = window.location.href;
+          
+          // Call with a larger delay to let animations complete
+          // and to allow cancellation if navigation occurs
+          const timeoutId = setTimeout(() => {
+            // Only call if we're still on the same page (no navigation occurred)
+            if (currentUrl === window.location.href) {
+              onPlayersUpdated();
+            }
+          }, 1500);
+          
+          // Clear the timeout if we unmount
+          return () => clearTimeout(timeoutId);
         }
       }
     } finally {
@@ -172,12 +194,19 @@ export default function LeaguePlayerManager({
     if (success) {
       toast.success(`Team "${teamName}" deleted successfully`);
       
-      // We don't need to notify parent immediately, but can do it with a small delay
-      // to let the UI animation complete
-      if (onPlayersUpdated) {
-        setTimeout(() => {
-          onPlayersUpdated();
-        }, 300);
+      // Only call the callback if absolutely necessary and not already called
+      if (onPlayersUpdated && !hasUpdatedRef.current) {
+        hasUpdatedRef.current = true;
+        
+        // We use the same approach of delayed update with navigation check
+        const currentUrl = window.location.href;
+        const timeoutId = setTimeout(() => {
+          if (currentUrl === window.location.href) {
+            onPlayersUpdated();
+          }
+        }, 1500);
+        
+        return () => clearTimeout(timeoutId);
       }
     }
     
