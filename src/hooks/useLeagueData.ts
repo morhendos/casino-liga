@@ -54,6 +54,38 @@ export const useAvailablePlayers = () => {
     }
   }, []);
 
+  const deletePlayer = async (playerId: string) => {
+    try {
+      // Optimistically update UI first
+      const playerToDelete = availablePlayers.find(player => player.id === playerId);
+      if (!playerToDelete) return false;
+      
+      // Remove player from local state immediately
+      setAvailablePlayers(prev => prev.filter(player => player.id !== playerId));
+      
+      // Send request to server
+      const response = await fetch(`/api/admin/players/${playerId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        // If failed, revert the optimistic update
+        if (playerToDelete) {
+          setAvailablePlayers(prev => [...prev, playerToDelete]);
+        }
+        throw new Error("Failed to delete player");
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error deleting player:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete player"
+      );
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchAvailablePlayers();
   }, [fetchAvailablePlayers]);
@@ -63,6 +95,7 @@ export const useAvailablePlayers = () => {
     setAvailablePlayers,
     isLoading,
     fetchAvailablePlayers,
+    deletePlayer
   };
 };
 
