@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardHeader,
@@ -8,7 +7,6 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,20 +17,27 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Users, Trash, User } from "lucide-react";
+import { Loader2, Users } from "lucide-react";
 import { useState } from "react";
 import { Team } from "@/hooks/useLeagueData";
+import TeamCard from "./TeamCard";
 
 interface TeamListProps {
   leagueTeams: Team[];
   isLoading: boolean;
   onDeleteTeam: (teamId: string, teamName: string) => Promise<boolean>;
+  title?: string;
+  subtitle?: string;
+  variant?: 'compact' | 'detailed';
 }
 
 export default function TeamList({
   leagueTeams,
   isLoading,
   onDeleteTeam,
+  title = "Teams in This League",
+  subtitle,
+  variant = 'compact'
 }: TeamListProps) {
   const [isDeletingTeam, setIsDeletingTeam] = useState(false);
   const [teamToDelete, setTeamToDelete] = useState<Team | null>(null);
@@ -63,6 +68,12 @@ export default function TeamList({
     (count, team) => count + team.players.length,
     0
   );
+
+  // Generate default subtitle if one is not provided
+  const defaultSubtitle = subtitle || 
+    `${leagueTeams.length} team${leagueTeams.length !== 1 ? "s" : ""} registered${
+      leagueTeams.length > 0 ? ` (${totalPlayers} players total)` : ""
+    }`;
 
   return (
     <>
@@ -114,20 +125,16 @@ export default function TeamList({
             <div>
               <CardTitle className="text-xl flex items-center">
                 <Users className="h-5 w-5 mr-2" />
-                Teams in This League
+                {title}
               </CardTitle>
               <CardDescription>
-                {leagueTeams.length} team
-                {leagueTeams.length !== 1 ? "s" : ""} registered
-                {leagueTeams.length > 0
-                  ? ` (${totalPlayers} players total)`
-                  : ""}
+                {defaultSubtitle}
               </CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent
-          className="p-0 overflow-y-auto"
+          className="space-y-4 overflow-y-auto"
           style={{ maxHeight: "500px" }}
         >
           {isLoading ? (
@@ -135,48 +142,14 @@ export default function TeamList({
               <Loader2 className="h-6 w-6 animate-spin" />
             </div>
           ) : leagueTeams.length > 0 ? (
-            <div className="divide-y">
+            <div className="space-y-2">
               {leagueTeams.map((team) => (
-                <div key={team.id} className="px-3 py-2 hover:bg-muted/30">
-                  <div className="flex items-center">
-                    <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold">{team.name}</span>
-                        <Badge
-                          variant="secondary"
-                          className="text-xs px-1.5 py-0"
-                        >
-                          {team.players.length} player
-                          {team.players.length !== 1 ? "s" : ""}
-                        </Badge>
-                        <span className="mx-0.5 text-muted-foreground">
-                          |
-                        </span>
-                        {team.players.map((player) => (
-                          <div
-                            key={player.id}
-                            className="inline-flex items-center text-xs"
-                          >
-                            <User className="h-3 w-3 mr-1 text-muted-foreground" />
-                            <span>{player.nickname}</span>
-                            <span className="ml-1 text-muted-foreground">
-                              ({player.skillLevel})
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 p-0 ml-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => handleDeleteTeam(team)}
-                    >
-                      <Trash className="h-4 w-4" />
-                      <span className="sr-only">Delete team</span>
-                    </Button>
-                  </div>
-                </div>
+                <TeamCard 
+                  key={team.id}
+                  team={team}
+                  onDelete={handleDeleteTeam}
+                  variant={variant}
+                />
               ))}
             </div>
           ) : (
