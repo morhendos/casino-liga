@@ -31,6 +31,9 @@ import { toast } from "sonner";
 import { Loader2, Plus, UserPlus, X, Users, UserCheck, RefreshCw, ListOrdered, Sparkles, Trash, AlertCircle, ArrowRight } from "lucide-react";
 import { getRandomTeamName } from "@/utils/teamNameSuggestions";
 
+// Local storage key for team name mode preference
+const TEAM_NAME_MODE_KEY = 'casino-liga-team-name-mode';
+
 interface Player {
   id: string;
   _id: string;
@@ -86,6 +89,25 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
   const [newPlayerHandedness, setNewPlayerHandedness] = useState('right');
   const [newPlayerPosition, setNewPlayerPosition] = useState('both');
   const [isCreatingPlayer, setIsCreatingPlayer] = useState(false);
+
+  // Load team name mode preference from localStorage on mount
+  useEffect(() => {
+    // Only run on client-side
+    if (typeof window !== 'undefined') {
+      const savedMode = localStorage.getItem(TEAM_NAME_MODE_KEY);
+      if (savedMode && (savedMode === 'manual' || savedMode === 'sequential' || savedMode === 'funny')) {
+        setTeamNameMode(savedMode as 'manual' | 'sequential' | 'funny');
+      }
+    }
+  }, []);
+
+  // Save team name mode preference when it changes
+  useEffect(() => {
+    // Only run on client-side
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(TEAM_NAME_MODE_KEY, teamNameMode);
+    }
+  }, [teamNameMode]);
 
   // Fetch available players and league teams when component mounts
   useEffect(() => {
@@ -282,9 +304,12 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
 
       toast.success('Team created and added to league successfully');
       
-      // Reset form
+      // Reset form (but keep the team name mode)
       setSelectedPlayers([]);
       setTeamName('');
+      
+      // Generate a new team name based on the current mode
+      updateTeamName();
       
       // Refresh teams list
       await fetchLeagueTeams();
@@ -652,7 +677,7 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                 <div className="space-y-3">
                   <Label htmlFor="teamName" className="text-base font-medium">Team Name</Label>
                   <Tabs 
-                    defaultValue="manual" 
+                    value={teamNameMode}
                     onValueChange={(value) => setTeamNameMode(value as 'manual' | 'sequential' | 'funny')}
                     className="w-full"
                   >                    
