@@ -28,10 +28,13 @@ import {
 } from "@/components/ui/select";
 import {
   Loader2,
-  Plus,
   UserPlus,
   AlertCircle,
   Users,
+  Mail,
+  PlusCircle,
+  Dumbbell,
+  HandMetal,
 } from "lucide-react";
 import { Player } from "@/hooks/useLeagueData";
 
@@ -66,20 +69,44 @@ function Search(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-// Get player skill level display with colored badge
-const getSkillLevelBadge = (level: number) => {
-  let color;
-  if (level >= 8) color = "bg-green-100 text-green-800 border-green-300";
-  else if (level >= 5) color = "bg-blue-100 text-blue-800 border-blue-300";
-  else color = "bg-gray-100 text-gray-800 border-gray-300";
-
+// Get player skill level badge with color corresponding to skill level
+const SkillLevelBadge = ({ level }: { level: number }) => {
+  let bgColor, textColor;
+  
+  if (level >= 8) {
+    bgColor = "bg-green-100";
+    textColor = "text-green-800";
+  } else if (level >= 6) {
+    bgColor = "bg-blue-100"; 
+    textColor = "text-blue-800";
+  } else if (level >= 4) {
+    bgColor = "bg-amber-100";
+    textColor = "text-amber-800";
+  } else {
+    bgColor = "bg-gray-100";
+    textColor = "text-gray-800";
+  }
+  
   return (
-    <span
-      className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${color}`}
-    >
-      {level}
-    </span>
+    <div className={`flex items-center gap-1 ${textColor}`}>
+      <Dumbbell className="h-3.5 w-3.5" />
+      <span className={`inline-flex items-center justify-center rounded-md w-6 h-6 text-xs font-semibold ${bgColor} ${textColor}`}>
+        {level}
+      </span>
+    </div>
   );
+};
+
+const handednessLabels: Record<string, string> = {
+  'right': 'Right-handed',
+  'left': 'Left-handed',
+  'ambidextrous': 'Ambidextrous'
+};
+
+const positionLabels: Record<string, string> = {
+  'forehand': 'Forehand',
+  'backhand': 'Backhand',
+  'both': 'Both positions'
 };
 
 export default function PlayerList({
@@ -320,25 +347,51 @@ export default function PlayerList({
               {filteredPlayers.map((player) => (
                 <div
                   key={player.id}
-                  className="flex items-center p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                  className="relative p-4 hover:bg-muted/50 transition-colors cursor-pointer group"
                   onClick={() => onAddPlayer(player)}
                 >
-                  <div className="flex-1">
-                    <div className="font-medium flex items-center">
-                      {player.nickname}
-                    </div>
-                    <div className="text-sm text-muted-foreground flex items-center mt-1">
-                      <span className="inline-block mr-2">
-                        {getSkillLevelBadge(player.skillLevel)}
-                      </span>
+                  <div className="flex items-start gap-3">
+                    {/* Player Details */}
+                    <div className="flex-1">
+                      <div className="font-medium text-lg">{player.nickname}</div>
+                      
+                      <div className="flex flex-wrap gap-4 mt-1">
+                        <SkillLevelBadge level={player.skillLevel} />
+                        
+                        {player.handedness && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <HandMetal className="h-3.5 w-3.5" />
+                            <span>{handednessLabels[player.handedness]}</span>
+                          </div>
+                        )}
+                        
+                        {player.preferredPosition && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <span>{positionLabels[player.preferredPosition]}</span>
+                          </div>
+                        )}
+                      </div>
+                      
                       {player.email && (
-                        <span className="text-xs truncate max-w-[150px]">
-                          {player.email}
-                        </span>
+                        <div className="flex items-center gap-1 mt-1 text-sm text-muted-foreground">
+                          <Mail className="h-3.5 w-3.5" />
+                          <span>{player.email}</span>
+                        </div>
                       )}
                     </div>
+                    
+                    {/* Add button (visible on hover) */}
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="h-8 w-8 rounded-full p-0 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary"
+                      >
+                        <PlusCircle className="h-5 w-5" />
+                        <span className="sr-only">Add player</span>
+                      </Button>
+                    </div>
                   </div>
-                  <Plus className="h-4 w-4 text-muted-foreground" />
                 </div>
               ))}
             </div>
