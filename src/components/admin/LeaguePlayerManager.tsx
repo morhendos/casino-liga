@@ -28,7 +28,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Loader2, Plus, UserPlus, X, Users, UserCheck, RefreshCw, ListOrdered, Sparkles, Trash, AlertCircle, ArrowRight } from "lucide-react";
+import { Loader2, Plus, UserPlus, X, Users, UserCheck, RefreshCw, ListOrdered, Sparkles, Trash, AlertCircle, ArrowRight, ChevronDown, ChevronUp, User } from "lucide-react";
 import { getRandomTeamName } from "@/utils/teamNameSuggestions";
 
 // Type for team name mode
@@ -108,6 +108,7 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
   const [isDeletingTeam, setIsDeletingTeam] = useState(false);
   const [teamToDelete, setTeamToDelete] = useState<Team | null>(null);
   const [deleteTeamDialogOpen, setDeleteTeamDialogOpen] = useState(false);
+  const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
   
   // New player creation state
   const [showNewPlayerDialog, setShowNewPlayerDialog] = useState(false);
@@ -470,10 +471,19 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
     else color = "bg-gray-100 text-gray-800 border-gray-300";
     
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${color}`}>
-        Level {level}
+      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${color}`}>
+        {level}
       </span>
     );
+  };
+  
+  // Toggle team expanded/collapsed state
+  const toggleTeamExpanded = (teamId: string) => {
+    if (expandedTeam === teamId) {
+      setExpandedTeam(null); // Collapse if already expanded
+    } else {
+      setExpandedTeam(teamId); // Expand this team, collapse others
+    }
   };
 
   return (
@@ -850,45 +860,82 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
               ) : leagueTeams.length > 0 ? (
                 <div className="divide-y">
                   {leagueTeams.map((team) => (
-                    <div key={team.id} className="p-3 hover:bg-muted/30 transition-colors">
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="font-semibold">{team.name}</div>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10" 
-                          onClick={() => handleDeleteTeam(team)}
-                        >
-                          <Trash className="h-4 w-4" />
-                          <span className="sr-only">Delete team</span>
-                        </Button>
-                      </div>
-                      <div className="flex items-center gap-1 mb-1">
-                        <Badge variant="secondary" size="sm" className="text-xs px-1.5 py-0">
-                          {team.players.length} player{team.players.length !== 1 ? 's' : ''}
-                        </Badge>
-                      </div>
-                      <div className="space-y-1 mt-1">
-                        {team.players.map((player) => (
-                          <div key={player.id} className="flex items-center p-1.5 bg-muted rounded-md text-sm">
-                            <div className={`w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-medium mr-2 text-xs`}>
-                              {player.nickname.charAt(0).toUpperCase()}
-                            </div>
-                            <div className="flex flex-col">
-                              <div className="font-medium text-sm">{player.nickname}</div>
-                              <div className="flex items-center gap-1 mt-0.5">
-                                {getSkillLevelBadge(player.skillLevel)}
-                                {player.handedness && (
-                                  <Badge variant="outline" className="ml-1 text-[10px] px-1 py-0 h-4">
-                                    {player.handedness === 'right' ? 'R' : 
-                                    player.handedness === 'left' ? 'L' : 'A'}
-                                  </Badge>
-                                )}
-                              </div>
+                    <div key={team.id} className="transition-colors">
+                      {/* Team row */}
+                      <div className="flex items-center px-3 py-2 hover:bg-muted/30">
+                        <div className="flex-1 flex items-center">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-6 w-6 p-0 mr-2" 
+                            onClick={() => toggleTeamExpanded(team.id)}
+                          >
+                            {expandedTeam === team.id ? (
+                              <ChevronUp className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
+                          </Button>
+                          <div>
+                            <span className="font-semibold text-sm">{team.name}</span>
+                            <div className="flex items-center gap-1">
+                              <Badge variant="secondary" size="sm" className="text-xs px-1.5 py-0">
+                                {team.players.length} player{team.players.length !== 1 ? 's' : ''}
+                              </Badge>
                             </div>
                           </div>
-                        ))}
+                        </div>
+                        <div className="flex items-center">
+                          {/* Player initials */}
+                          <div className="flex -space-x-2 mr-2">
+                            {team.players.map((player) => (
+                              <div 
+                                key={player.id}
+                                className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-medium text-xs border-2 border-background"
+                                title={`${player.nickname} (Level ${player.skillLevel})`}
+                              >
+                                {player.nickname.charAt(0).toUpperCase()}
+                              </div>
+                            ))}
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                            onClick={() => handleDeleteTeam(team)}
+                          >
+                            <Trash className="h-4 w-4" />
+                            <span className="sr-only">Delete team</span>
+                          </Button>
+                        </div>
                       </div>
+                      
+                      {/* Expanded details */}
+                      {expandedTeam === team.id && (
+                        <div className="bg-muted/10 px-3 py-2 border-t border-muted">
+                          <div className="space-y-1">
+                            {team.players.map((player) => (
+                              <div key={player.id} className="flex items-center p-1.5 bg-muted rounded-md text-sm">
+                                <div className={`w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-medium mr-2 text-xs`}>
+                                  {player.nickname.charAt(0).toUpperCase()}
+                                </div>
+                                <div className="flex flex-col">
+                                  <div className="font-medium text-sm">{player.nickname}</div>
+                                  <div className="flex items-center gap-1 mt-0.5">
+                                    {getSkillLevelBadge(player.skillLevel)}
+                                    {player.handedness && (
+                                      <Badge variant="outline" className="ml-1 text-[10px] px-1 py-0 h-4">
+                                        {player.handedness === 'right' ? 'R' : 
+                                        player.handedness === 'left' ? 'L' : 'A'}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
