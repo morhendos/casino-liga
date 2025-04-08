@@ -34,7 +34,8 @@ export default function TeamCard({
     return () => clearTimeout(timer);
   }, []);
   
-  const handleDelete = () => {
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!onDelete) return;
     
     // Animate removal before actually calling onDelete
