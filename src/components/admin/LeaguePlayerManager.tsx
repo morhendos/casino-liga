@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { 
   PlayerList, 
@@ -32,22 +32,17 @@ export default function LeaguePlayerManager({
   const [selectedPlayers, setSelectedPlayers] = useState<Player[]>([]);
   const [isCreatingTeam, setIsCreatingTeam] = useState(false);
   
-  // Use refs to prevent multiple unnecessary updates
-  const hasUpdatedRef = useRef(false);
-  
   // Custom hooks
   const { 
     availablePlayers, 
     setAvailablePlayers, 
-    isLoading: isLoadingPlayers, 
-    fetchAvailablePlayers 
+    isLoading: isLoadingPlayers
   } = useAvailablePlayers();
   
   const { 
     leagueTeams, 
     isLoading: isLoadingTeams, 
     playersInTeams, 
-    fetchLeagueTeams,
     deleteTeam,
     createTeam
   } = useLeagueTeams(leagueId);
@@ -79,13 +74,6 @@ export default function LeaguePlayerManager({
   useEffect(() => {
     updateTeamName();
   }, [teamNameMode]);
-
-  // Reset the update ref when we unmount
-  useEffect(() => {
-    return () => {
-      hasUpdatedRef.current = false;
-    };
-  }, []);
 
   const handleAddPlayer = (player: Player) => {
     if (selectedPlayers.length >= 2) {
@@ -138,32 +126,11 @@ export default function LeaguePlayerManager({
         // Clear the team name
         setTeamName("");
         
-        // Generate a new team name based on the current mode (after a brief delay)
-        setTimeout(() => {
-          updateTeamName();
-        }, 50);
+        // Generate a new team name based on the current mode
+        updateTeamName();
         
-        // Only notify the parent once per session to prevent multiple page reloads
-        // and only if it's absolutely necessary
-        if (onPlayersUpdated && !hasUpdatedRef.current) {
-          // Set the ref to true to prevent further updates
-          hasUpdatedRef.current = true;
-          
-          // Store the current URL to check if navigation occurs
-          const currentUrl = window.location.href;
-          
-          // Call with a larger delay to let animations complete
-          // and to allow cancellation if navigation occurs
-          const timeoutId = setTimeout(() => {
-            // Only call if we're still on the same page (no navigation occurred)
-            if (currentUrl === window.location.href) {
-              onPlayersUpdated();
-            }
-          }, 1500);
-          
-          // Clear the timeout if we unmount
-          return () => clearTimeout(timeoutId);
-        }
+        // DO NOT call onPlayersUpdated() - this is what's causing the page reload
+        // The UI updates are already being handled optimistically
       }
     } finally {
       setIsCreatingTeam(false);
@@ -194,20 +161,8 @@ export default function LeaguePlayerManager({
     if (success) {
       toast.success(`Team "${teamName}" deleted successfully`);
       
-      // Only call the callback if absolutely necessary and not already called
-      if (onPlayersUpdated && !hasUpdatedRef.current) {
-        hasUpdatedRef.current = true;
-        
-        // We use the same approach of delayed update with navigation check
-        const currentUrl = window.location.href;
-        const timeoutId = setTimeout(() => {
-          if (currentUrl === window.location.href) {
-            onPlayersUpdated();
-          }
-        }, 1500);
-        
-        return () => clearTimeout(timeoutId);
-      }
+      // DO NOT call onPlayersUpdated() - this is what's causing the page reload
+      // The UI updates are already being handled optimistically
     }
     
     return success;
