@@ -1,17 +1,22 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { LucideIcon, User, Users, Trophy, Calendar, BarChart } from "lucide-react";
+import { LucideIcon, User, Users, Trophy, Calendar, BarChart, Award, Settings, Medal } from "lucide-react";
+import { isAdmin, isPlayer } from "@/lib/auth/role-utils";
 
 interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
+  adminOnly?: boolean;
+  playerOnly?: boolean;
 }
 
 export function PadelNavigation() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   
   const navItems: NavItem[] = [
     {
@@ -37,13 +42,42 @@ export function PadelNavigation() {
     {
       label: "Rankings",
       href: "/dashboard/rankings",
-      icon: BarChart
+      icon: BarChart,
+      adminOnly: true // Global rankings for admins
+    },
+    {
+      label: "My Rankings",
+      href: "/dashboard/my-rankings",
+      icon: Medal,
+      playerOnly: true // Personal rankings for players
+    },
+    {
+      label: "Admin",
+      href: "/dashboard/admin",
+      icon: Settings,
+      adminOnly: true // Only show for admin users
     }
   ];
   
+  // Filter nav items based on user role
+  const filteredNavItems = navItems.filter(item => {
+    // If an item is marked as adminOnly, check if the user is an admin
+    if (item.adminOnly) {
+      return isAdmin(session);
+    }
+    
+    // If an item is marked as playerOnly, check if the user is a player (not admin-only)
+    if (item.playerOnly) {
+      return isPlayer(session);
+    }
+    
+    // Otherwise show the item to all authenticated users
+    return true;
+  });
+  
   return (
     <nav className="space-y-1">
-      {navItems.map((item) => {
+      {filteredNavItems.map((item) => {
         const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
         
         return (

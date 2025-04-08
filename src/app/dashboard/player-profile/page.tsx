@@ -14,6 +14,7 @@ import { toast } from "sonner";
 // Define interface for player data
 interface PlayerProfile {
   id?: string;
+  _id?: string;
   nickname: string;
   skillLevel: number;
   handedness: string;
@@ -44,10 +45,19 @@ function PlayerProfilePage() {
       try {
         setIsLoading(true);
         const response = await fetch(`/api/players?userId=${session.user.id}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("API Error:", errorData);
+          throw new Error(errorData.error || "Failed to fetch player profile");
+        }
+        
         const data = await response.json();
+        console.log("Player API response:", data);
         
         if (data.players && data.players.length > 0) {
           const player = data.players[0];
+          console.log("Found player:", player);
           setPlayerData(player);
           setHasProfile(true);
           
@@ -58,6 +68,9 @@ function PlayerProfilePage() {
           setPreferredPosition(player.preferredPosition || "both");
           setContactPhone(player.contactPhone || "");
           setBio(player.bio || "");
+        } else {
+          console.log("No player profile found");
+          setHasProfile(false);
         }
       } catch (error) {
         console.error("Error fetching player profile:", error);
@@ -85,17 +98,24 @@ function PlayerProfilePage() {
         bio
       };
       
+      // Use either id or _id, whichever is available
+      const playerId = playerData?.id || playerData?._id;
+      console.log("Player data for update:", playerData);
+      console.log("Using player ID for update:", playerId);
+      
       let response;
       
-      if (hasProfile && playerData?.id) {
-        // Update existing profile - use the id from the fetched playerData, not from formData
-        response = await fetch(`/api/players/${playerData.id}`, {
+      if (hasProfile && playerId) {
+        // Update existing profile
+        console.log(`Updating existing profile with ID: ${playerId}`);
+        response = await fetch(`/api/players/${playerId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData)
         });
       } else {
         // Create new profile
+        console.log("Creating new player profile");
         response = await fetch("/api/players", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -104,11 +124,13 @@ function PlayerProfilePage() {
       }
       
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Something went wrong");
+        const errorData = await response.json();
+        console.error("API Error response:", errorData);
+        throw new Error(errorData.error || "Something went wrong");
       }
       
       const result = await response.json();
+      console.log("API success response:", result);
       setPlayerData(result);
       setHasProfile(true);
       

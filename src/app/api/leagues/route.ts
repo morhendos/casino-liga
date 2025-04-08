@@ -4,6 +4,15 @@ import { LeagueModel } from '@/models';
 import { CreateLeagueRequest } from '@/types';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { hasRole, ROLES } from '@/lib/auth/role-utils';
+
+/**
+ * Check if the user has admin permissions based on their session roles
+ */
+async function isAdmin() {
+  const session = await getServerSession(authOptions);
+  return hasRole(session, ROLES.ADMIN);
+}
 
 // GET /api/leagues - Get all leagues with optional filtering
 export async function GET(request: Request) {
@@ -73,27 +82,31 @@ export async function GET(request: Request) {
   }
 }
 
-// POST /api/leagues - Create a new league
+// POST /api/leagues - Create a new league (admin only)
 export async function POST(request: Request) {
   try {
     // Get the session
     const session = await getServerSession(authOptions);
     
-    console.log("Session in league creation:", session); // Debug log
-    
+    // Check if user is authenticated
     if (!session?.user?.id) {
-      console.log("Missing user ID in session:", session);
       return NextResponse.json(
-        { error: 'Unauthorized: Missing user ID' },
+        { error: 'Unauthorized: Authentication required' },
         { status: 401 }
       );
     }
     
-    const data: CreateLeagueRequest = await request.json();
-    console.log("League data:", data); // Debug log
+    // Check if user has admin role
+    const adminCheck = await isAdmin();
+    if (!adminCheck) {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin privileges required' },
+        { status: 403 }
+      );
+    }
     
+    const data: CreateLeagueRequest = await request.json();
     const organizerId = session.user.id;
-    console.log("Organizer ID:", organizerId); // Debug log
     
     const newLeague = await withConnection(async () => {
       // Check if league with the same name already exists
@@ -103,13 +116,10 @@ export async function POST(request: Request) {
         throw new Error('League with this name already exists');
       }
       
-      // Create the league
-      const league = new LeagueModel({
+      // Create a base league object without date fields
+      const leagueData: any = {
         name: data.name,
         description: data.description || "",
-        startDate: new Date(data.startDate),
-        endDate: new Date(data.endDate),
-        registrationDeadline: new Date(data.registrationDeadline),
         maxTeams: data.maxTeams || 16,
         minTeams: data.minTeams || 4,
         matchFormat: data.matchFormat || "bestOf3",
@@ -119,14 +129,34 @@ export async function POST(request: Request) {
         scheduleGenerated: false,
         pointsPerWin: data.pointsPerWin || 3,
         pointsPerLoss: data.pointsPerLoss || 0,
-        organizer: organizerId, // Use the extracted ID directly
+        organizer: organizerId,
         teams: []
-      });
+      };
       
-      console.log("League to be saved:", {
-        ...league.toObject(),
-        organizer: organizerId // Log the organizer ID separately
-      });
+      // Only add date fields if they exist and are valid
+      if (data.startDate) {
+        const startDate = new Date(data.startDate);
+        if (!isNaN(startDate.getTime())) {
+          leagueData.startDate = startDate;
+        }
+      }
+      
+      if (data.endDate) {
+        const endDate = new Date(data.endDate);
+        if (!isNaN(endDate.getTime())) {
+          leagueData.endDate = endDate;
+        }
+      }
+      
+      if (data.registrationDeadline) {
+        const registrationDeadline = new Date(data.registrationDeadline);
+        if (!isNaN(registrationDeadline.getTime())) {
+          leagueData.registrationDeadline = registrationDeadline;
+        }
+      }
+      
+      // Create the league
+      const league = new LeagueModel(leagueData);
       
       const savedLeague = await league.save();
       

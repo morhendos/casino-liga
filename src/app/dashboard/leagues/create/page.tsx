@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import withAuth from "@/components/auth/withAuth";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import withRoleAuth from "@/components/auth/withRoleAuth";
+import { ROLES } from "@/lib/auth/role-utils";
 
 function CreateLeaguePage() {
   const router = useRouter();
@@ -46,17 +47,14 @@ function CreateLeaguePage() {
       return;
     }
     
-    if (!startDate || !endDate || !registrationDeadline) {
-      toast.error("All dates are required");
-      return;
-    }
-    
-    if (endDate <= startDate) {
+    // Validate only if both dates are provided
+    if (startDate && endDate && endDate <= startDate) {
       toast.error("End date must be after start date");
       return;
     }
     
-    if (registrationDeadline > startDate) {
+    // Validate only if both dates are provided
+    if (startDate && registrationDeadline && registrationDeadline > startDate) {
       toast.error("Registration deadline must be on or before the start date");
       return;
     }
@@ -69,12 +67,10 @@ function CreateLeaguePage() {
     try {
       setIsSubmitting(true);
       
-      const leagueData = {
+      // Create a base object without date fields
+      const leagueData: any = {
         name: name.trim(),
         description: description.trim(),
-        startDate,
-        endDate,
-        registrationDeadline,
         maxTeams,
         minTeams,
         matchFormat,
@@ -82,6 +78,19 @@ function CreateLeaguePage() {
         pointsPerWin,
         pointsPerLoss
       };
+      
+      // Only add date fields if they are valid dates
+      if (startDate) {
+        leagueData.startDate = startDate;
+      }
+      
+      if (endDate) {
+        leagueData.endDate = endDate;
+      }
+      
+      if (registrationDeadline) {
+        leagueData.registrationDeadline = registrationDeadline;
+      }
       
       const response = await fetch("/api/leagues", {
         method: "POST",
@@ -100,8 +109,8 @@ function CreateLeaguePage() {
         description: "You can now add teams and generate a schedule."
       });
       
-      // Redirect to league details
-      router.push(`/dashboard/leagues/${league.id}/manage`);
+      // Redirect to league management page with fromCreate parameter
+      router.push(`/dashboard/leagues/${league.id}/manage?fromCreate=true`);
     } catch (error) {
       console.error("Error creating league:", error);
       toast.error(error instanceof Error ? error.message : "Failed to create league");
@@ -162,7 +171,7 @@ function CreateLeaguePage() {
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label>Start Date *</Label>
+                  <Label>Start Date</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -172,12 +181,24 @@ function CreateLeaguePage() {
                           !startDate && "text-muted-foreground"
                         )}
                         disabled={isSubmitting}
+                        type="button"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {startDate ? format(startDate, "PPP") : "Select date"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
+                      <div className="p-2 flex justify-between border-b">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => setStartDate(undefined)}
+                          disabled={!startDate}
+                          type="button"
+                        >
+                          Clear
+                        </Button>
+                      </div>
                       <Calendar
                         mode="single"
                         selected={startDate}
@@ -190,7 +211,7 @@ function CreateLeaguePage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>End Date *</Label>
+                  <Label>End Date</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -200,12 +221,24 @@ function CreateLeaguePage() {
                           !endDate && "text-muted-foreground"
                         )}
                         disabled={isSubmitting}
+                        type="button"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {endDate ? format(endDate, "PPP") : "Select date"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
+                      <div className="p-2 flex justify-between border-b">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => setEndDate(undefined)}
+                          disabled={!endDate}
+                          type="button"
+                        >
+                          Clear
+                        </Button>
+                      </div>
                       <Calendar
                         mode="single"
                         selected={endDate}
@@ -218,7 +251,7 @@ function CreateLeaguePage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Registration Deadline *</Label>
+                  <Label>Registration Deadline</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -228,12 +261,24 @@ function CreateLeaguePage() {
                           !registrationDeadline && "text-muted-foreground"
                         )}
                         disabled={isSubmitting}
+                        type="button"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {registrationDeadline ? format(registrationDeadline, "PPP") : "Select date"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
+                      <div className="p-2 flex justify-between border-b">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => setRegistrationDeadline(undefined)}
+                          disabled={!registrationDeadline}
+                          type="button"
+                        >
+                          Clear
+                        </Button>
+                      </div>
                       <Calendar
                         mode="single"
                         selected={registrationDeadline}
@@ -375,4 +420,5 @@ function CreateLeaguePage() {
   );
 }
 
-export default withAuth(CreateLeaguePage);
+// Use withRoleAuth instead of withAuth, requiring the admin role
+export default withRoleAuth(CreateLeaguePage, [ROLES.ADMIN]);

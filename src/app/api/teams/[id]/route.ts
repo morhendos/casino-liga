@@ -1,7 +1,15 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { withConnection } from '@/lib/db';
-import { TeamModel, PlayerModel } from '@/models';
+import { TeamModel, PlayerModel, LeagueModel } from '@/models';
+import { authOptions } from '@/lib/auth';
+import { hasRole, ROLES } from '@/lib/auth/role-utils';
+
+// Helper function to check if user is admin
+async function isAdmin() {
+  const session = await getServerSession(authOptions);
+  return hasRole(session, ROLES.ADMIN);
+}
 
 // GET /api/teams/[id] - Get a specific team by ID
 export async function GET(
@@ -57,8 +65,11 @@ export async function PATCH(
         throw new Error('Team not found');
       }
       
-      // Ensure user can only update teams they created
-      if (team.createdBy.toString() !== session.user.id) {
+      // Check if user is admin
+      const adminCheck = await isAdmin();
+      
+      // Ensure user can only update teams they created or if they're an admin
+      if (team.createdBy.toString() !== session.user.id && !adminCheck) {
         throw new Error('Unauthorized');
       }
       
@@ -143,7 +154,7 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/teams/[id] - Delete a team (soft delete by setting isActive to false)
+// DELETE /api/teams/[id] - Delete a team (permanently)
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
@@ -167,21 +178,32 @@ export async function DELETE(
         throw new Error('Team not found');
       }
       
-      // Ensure user can only delete teams they created
-      if (team.createdBy.toString() !== session.user.id) {
+      // Check if user is admin
+      const adminCheck = await isAdmin();
+      
+      // Ensure user can only delete teams they created or if they're an admin
+      if (team.createdBy.toString() !== session.user.id && !adminCheck) {
         throw new Error('Unauthorized');
       }
       
-      // Check if team is part of any active leagues
-      // For simplicity, we're not implementing this check here
-      // but you would typically check in the LeagueModel
+      // If team is part of a league, remove it from the league
+      if (team.league) {
+        await LeagueModel.updateOne(
+          { _id: team.league },
+          { $pull: { teams: team._id } }
+        );
+      }
       
-      // Soft delete by setting isActive to false
-      team.isActive = false;
-      await team.save();
+      // Hard delete the team
+      await TeamModel.findByIdAndDelete(id);
+      
+      return { success: true };
     });
     
-    return new NextResponse(null, { status: 204 });
+    return NextResponse.json({ 
+      success: true,
+      message: 'Team deleted successfully' 
+    });
   } catch (error) {
     console.error('Error deleting team:', error);
     

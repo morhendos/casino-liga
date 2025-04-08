@@ -1,6 +1,15 @@
 subscription-tracker/
+├── IMPLEMENTATION-STATUS.md
 ├── README.md
 ├── SETUP.md
+├── docs
+│   ├── ADMIN-INVITATION-FLOW.md
+│   ├── ADMIN-WORKFLOW-CHECKLIST.md
+│   ├── PLAYER-TEAM-LEAGUE-FLOW.md
+│   ├── PROGRESS-REPORT.md
+│   ├── ROLE-BASED-ACCESS-PLAN.md
+│   ├── ROLE-USAGE.md
+│   └── TESTING.md
 ├── next-env.d.ts
 ├── next.config.js
 ├── package-lock.json
@@ -9,13 +18,24 @@ subscription-tracker/
 ├── public
 │   └── logo-placeholder-image.png
 ├── scripts
+│   ├── seed-admin-role.js
 │   └── tree.js
 ├── src
 │   ├── app
 │   │   ├── actions.ts
 │   │   ├── api
+│   │   │   ├── admin
+│   │   │   │   ├── players
+│   │   │   │   │   ├── [id]
+│   │   │   │   │   │   └── invite
+│   │   │   │   │   │       └── route.ts
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── users
+│   │   │   │       └── route.ts
 │   │   │   ├── auth
-│   │   │   │   └── [...nextauth]
+│   │   │   │   ├── [...nextauth]
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── invite
 │   │   │   │       └── route.ts
 │   │   │   ├── check-environment
 │   │   │   │   └── route.ts
@@ -43,6 +63,8 @@ subscription-tracker/
 │   │   │   ├── players
 │   │   │   │   ├── [id]
 │   │   │   │   │   └── route.ts
+│   │   │   │   ├── leagues
+│   │   │   │   │   └── route.ts
 │   │   │   │   └── route.ts
 │   │   │   └── teams
 │   │   │       ├── [id]
@@ -52,17 +74,35 @@ subscription-tracker/
 │   │   │   ├── error
 │   │   │   │   ├── loading.tsx
 │   │   │   │   └── page.tsx
+│   │   │   ├── invite
+│   │   │   │   └── page.tsx
 │   │   │   └── signout
 │   │   │       └── page.tsx
 │   │   ├── auth-actions.ts
 │   │   ├── auth-diagnostic.ts
 │   │   ├── dashboard
+│   │   │   ├── admin
+│   │   │   │   └── page.tsx
 │   │   │   ├── layout.tsx
 │   │   │   ├── leagues
+│   │   │   │   ├── [id]
+│   │   │   │   │   ├── edit
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   ├── page.tsx
+│   │   │   │   │   ├── rankings
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   ├── schedule
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── teams
+│   │   │   │   │       └── page.tsx
 │   │   │   │   ├── create
 │   │   │   │   │   └── page.tsx
 │   │   │   │   └── page.tsx
 │   │   │   ├── matches
+│   │   │   │   └── page.tsx
+│   │   │   ├── my-leagues
+│   │   │   │   └── page.tsx
+│   │   │   ├── my-rankings
 │   │   │   │   └── page.tsx
 │   │   │   ├── page.tsx
 │   │   │   ├── player-profile
@@ -70,6 +110,8 @@ subscription-tracker/
 │   │   │   ├── rankings
 │   │   │   │   └── page.tsx
 │   │   │   └── teams
+│   │   │       ├── [id]
+│   │   │       │   └── page.tsx
 │   │   │       ├── create
 │   │   │       │   └── page.tsx
 │   │   │       └── page.tsx
@@ -84,13 +126,22 @@ subscription-tracker/
 │   ├── components
 │   │   ├── GradientBackground.tsx
 │   │   ├── ThemeToggle.tsx
+│   │   ├── admin
+│   │   │   ├── LeagueManagement.tsx
+│   │   │   ├── LeaguePlayerManager.tsx
+│   │   │   ├── PlayerInvitationManagement.tsx
+│   │   │   ├── PlayerManagement.tsx
+│   │   │   ├── RoleManagement.tsx
+│   │   │   ├── TeamCreationForm.tsx
+│   │   │   └── UserManagement.tsx
 │   │   ├── auth
 │   │   │   ├── AuthLogo.tsx
 │   │   │   ├── AuthProvider.tsx
 │   │   │   ├── AuthenticatingSpinner.tsx
 │   │   │   ├── LogoutButton.tsx
 │   │   │   ├── UserAccountNav.tsx
-│   │   │   └── withAuth.tsx
+│   │   │   ├── withAuth.tsx
+│   │   │   └── withRoleAuth.tsx
 │   │   ├── common
 │   │   │   └── Section.tsx
 │   │   ├── error
@@ -106,16 +157,19 @@ subscription-tracker/
 │   │   │   └── HeaderControls.tsx
 │   │   ├── ui
 │   │   │   ├── IconButton.tsx
+│   │   │   ├── alert-dialog.tsx
 │   │   │   ├── badge.tsx
 │   │   │   ├── button.tsx
 │   │   │   ├── calendar.tsx
 │   │   │   ├── card.tsx
+│   │   │   ├── dialog.tsx
 │   │   │   ├── dropdown-menu.tsx
 │   │   │   ├── input.tsx
 │   │   │   ├── label.tsx
 │   │   │   ├── popover.tsx
 │   │   │   ├── select.tsx
 │   │   │   ├── sheet.tsx
+│   │   │   ├── table.tsx
 │   │   │   ├── tabs.tsx
 │   │   │   ├── textarea.tsx
 │   │   │   ├── toast.tsx
@@ -142,6 +196,7 @@ subscription-tracker/
 │   │   │   ├── auth-service.ts
 │   │   │   ├── config.ts
 │   │   │   ├── index.ts
+│   │   │   ├── role-utils.ts
 │   │   │   ├── types.ts
 │   │   │   └── validation.ts
 │   │   ├── db
@@ -166,7 +221,9 @@ subscription-tracker/
 │   │   ├── services
 │   │   │   ├── SERVICE_PATTERN.md
 │   │   │   ├── auth-debug-service.ts
-│   │   │   └── health-service.ts
+│   │   │   ├── email-service.ts
+│   │   │   ├── health-service.ts
+│   │   │   └── invitation-service.ts
 │   │   └── utils.ts
 │   ├── middleware
 │   │   └── rate-limit.ts
@@ -190,7 +247,8 @@ subscription-tracker/
 │   └── utils
 │       ├── format.ts
 │       ├── mongodb-utils.ts
-│       └── scheduleGenerator.ts
+│       ├── scheduleGenerator.ts
+│       └── teamNameSuggestions.ts
 ├── tailwind.config.js
 ├── tree.txt
 └── tsconfig.json

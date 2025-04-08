@@ -3,7 +3,7 @@ import { type ObjectId } from 'mongoose';
 
 export interface TeamDocument extends mongoose.Document {
   name: string;
-  players: ObjectId[];  // References to two PlayerDocuments
+  players: ObjectId[];  // References to PlayerDocuments
   logo?: string;
   description?: string;
   isActive: boolean;
@@ -28,10 +28,10 @@ const teamSchema = new mongoose.Schema({
     }],
     validate: {
       validator: function(players: ObjectId[]) {
-        // A valid padel team consists of exactly 2 players
-        return players.length === 2;
+        // A valid padel team must have at least 1 player and at most 2 players
+        return players.length >= 1 && players.length <= 2;
       },
-      message: 'A team must have exactly 2 players'
+      message: 'A team must have at least 1 player and at most 2 players'
     },
     required: [true, 'Players are required']
   },
@@ -64,6 +64,11 @@ teamSchema.methods.hasPlayer = function(playerId: string | ObjectId): boolean {
   return this.players.some((player: ObjectId) => 
     player.toString() === playerId.toString()
   );
+};
+
+// Method to check if this team is complete (has 2 players)
+teamSchema.methods.isComplete = function(): boolean {
+  return this.players.length === 2;
 };
 
 export const TeamModel = mongoose.models.Team || mongoose.model<TeamDocument>('Team', teamSchema);

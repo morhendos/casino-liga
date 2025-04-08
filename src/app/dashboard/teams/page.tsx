@@ -35,14 +35,38 @@ function TeamsPage() {
         
         // First, get the player profile to get the player ID
         const playerResponse = await fetch(`/api/players?userId=${session.user.id}`);
+        
+        if (!playerResponse.ok) {
+          throw new Error("Failed to fetch player profile");
+        }
+        
         const playerData = await playerResponse.json();
+        console.log("Player data response:", playerData);
         
         if (playerData.players && playerData.players.length > 0) {
-          const playerId = playerData.players[0].id;
+          const player = playerData.players[0];
+          // Try to get the ID, handling both id and _id formats from MongoDB
+          const playerId = player.id || player._id;
+          
+          console.log("Using player ID for teams query:", playerId);
+          
+          if (!playerId) {
+            console.error("No player ID found in player data:", player);
+            toast.error("Could not determine player ID");
+            setIsLoading(false);
+            return;
+          }
           
           // Then fetch teams where this player is a member
           const teamsResponse = await fetch(`/api/teams?playerId=${playerId}`);
+          
+          if (!teamsResponse.ok) {
+            const errorData = await teamsResponse.json();
+            throw new Error(errorData.error || "Failed to fetch teams");
+          }
+          
           const teamsData = await teamsResponse.json();
+          console.log("Teams data response:", teamsData);
           
           if (teamsData.teams) {
             setMyTeams(teamsData.teams);
@@ -53,7 +77,7 @@ function TeamsPage() {
         }
       } catch (error) {
         console.error("Error fetching teams:", error);
-        toast.error("Failed to load teams");
+        toast.error(error instanceof Error ? error.message : "Failed to load teams");
       } finally {
         setIsLoading(false);
       }
@@ -81,7 +105,7 @@ function TeamsPage() {
             <div className="font-medium">Team Members:</div>
             <div className="bg-muted p-3 rounded-md">
               {teamMembers.map((player) => (
-                <div key={player.id} className="flex items-center gap-2 py-1">
+                <div key={player.id || player._id} className="flex items-center gap-2 py-1">
                   <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-medium">
                     {player.nickname?.charAt(0) || "P"}
                   </div>
@@ -111,7 +135,7 @@ function TeamsPage() {
             size="sm" 
             asChild
           >
-            <Link href={`/dashboard/teams/${team.id}`}>
+            <Link href={`/dashboard/teams/${team.id || team._id}`}>
               Manage Team
             </Link>
           </Button>
@@ -121,7 +145,7 @@ function TeamsPage() {
               size="sm"
               asChild
             >
-              <Link href={`/dashboard/leagues?teamId=${team.id}`}>
+              <Link href={`/dashboard/leagues?teamId=${team.id || team._id}`}>
                 <Trophy className="w-4 h-4 mr-1" />
                 <span>Find Leagues</span>
               </Link>
@@ -151,7 +175,7 @@ function TeamsPage() {
       ) : myTeams.length > 0 ? (
         <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {myTeams.map((team) => (
-            <TeamCard key={team.id} team={team} />
+            <TeamCard key={team.id || team._id} team={team} />
           ))}
         </div>
       ) : (

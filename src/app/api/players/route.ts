@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth';
 import { withConnection } from '@/lib/db';
 import { PlayerModel } from '@/models';
 import { CreatePlayerRequest } from '@/types';
+import mongoose from 'mongoose';
+import { authOptions } from '@/lib/auth';
 
 // GET /api/players - Get all players with optional filtering
 export async function GET(request: Request) {
@@ -11,6 +13,7 @@ export async function GET(request: Request) {
     const nickname = searchParams.get('nickname');
     const skillLevel = searchParams.get('skillLevel');
     const isActive = searchParams.get('isActive');
+    const userId = searchParams.get('userId');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     
@@ -28,6 +31,16 @@ export async function GET(request: Request) {
     
     if (isActive !== null) {
       query.isActive = isActive === 'true';
+    }
+
+    if (userId) {
+      // Handle both string IDs and ObjectIds
+      try {
+        query.userId = new mongoose.Types.ObjectId(userId);
+      } catch (err) {
+        // If conversion fails, use the original string 
+        query.userId = userId;
+      }
     }
     
     const players = await withConnection(async () => {
@@ -61,7 +74,7 @@ export async function GET(request: Request) {
 // POST /api/players - Create a new player
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user) {
       return NextResponse.json(
@@ -74,14 +87,24 @@ export async function POST(request: Request) {
     
     const newPlayer = await withConnection(async () => {
       // Check if user already has a player profile
-      const existingPlayer = await PlayerModel.findOne({ userId: session.user.id });
+      // Convert session.user.id to ObjectId when querying
+      let userIdObj;
+      try {
+        userIdObj = new mongoose.Types.ObjectId(session.user.id);
+      } catch (err) {
+        console.error('Error converting userId to ObjectId:', err);
+        // Fall back to using the string ID if conversion fails
+        userIdObj = session.user.id;
+      }
+      
+      const existingPlayer = await PlayerModel.findOne({ userId: userIdObj });
       
       if (existingPlayer) {
         throw new Error('User already has a player profile');
       }
       
       const player = new PlayerModel({
-        userId: session.user.id,
+        userId: userIdObj, // Use the converted ObjectId
         nickname: data.nickname,
         skillLevel: data.skillLevel,
         handedness: data.handedness,

@@ -1,15 +1,149 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { withConnection } from '@/lib/db';
-import { LeagueModel, TeamModel } from '@/models';
-import { PlayerDocument } from '@/models/player';
-import { ObjectId } from 'mongoose';
+import { LeagueModel, TeamModel, PlayerModel } from '@/models';
+import { authOptions } from '@/lib/auth';
+import { hasRole, ROLES } from '@/lib/auth/role-utils';
+import mongoose from 'mongoose';
 
-// Define a type for the player item that might be in the team.players array
-interface TeamPlayer {
-  userId?: string | ObjectId;
-  _id?: string | ObjectId;
-  [key: string]: any; // For other potential properties
+/**
+ * Check if the user has admin permissions based on their session roles
+ */
+async function isAdmin() {
+  const session = await getServerSession(authOptions);
+  return hasRole(session, ROLES.ADMIN);
+}
+
+// POST /api/leagues/[id]/teams - Create a team in a league
+export async function POST(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    // Get the session
+    const session = await getServerSession(authOptions);
+    
+    // Check if user is authenticated
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Authentication required' },
+        { status: 401 }
+      );
+    }
+    
+    // Check if user has admin role
+    const adminCheck = await isAdmin();
+    if (!adminCheck) {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin privileges required' },
+        { status: 403 }
+      );
+    }
+    
+    const leagueId = params.id;
+    const data = await request.json();
+    
+    // Validate team name
+    if (!data.name || !data.name.trim()) {
+      return NextResponse.json(
+        { error: 'Team name is required' },
+        { status: 400 }
+      );
+    }
+    
+    // Validate players
+    if (!data.players || !Array.isArray(data.players) || data.players.length === 0) {
+      return NextResponse.json(
+        { error: 'At least one player is required' },
+        { status: 400 }
+      );
+    }
+    
+    if (data.players.length > 2) {
+      return NextResponse.json(
+        { error: 'A team cannot have more than 2 players' },
+        { status: 400 }
+      );
+    }
+    
+    const result = await withConnection(async () => {
+      // 1. Check if league exists
+      const league = await LeagueModel.findById(leagueId);
+      if (!league) {
+        throw new Error('League not found');
+      }
+      
+      // 2. Check if team name is already taken
+      const existingTeam = await TeamModel.findOne({ name: data.name.trim() });
+      if (existingTeam) {
+        throw new Error('Team with this name already exists');
+      }
+      
+      // 3. Check if players exist and are active
+      const playerIds = data.players.map((id: string) => {
+        try {
+          return new mongoose.Types.ObjectId(id);
+        } catch (err) {
+          return id;
+        }
+      });
+      
+      const players = await PlayerModel.find({ _id: { $in: playerIds } });
+      
+      if (players.length !== playerIds.length) {
+        throw new Error('One or more players not found');
+      }
+      
+      const inactivePlayers = players.filter(player => !player.isActive);
+      if (inactivePlayers.length > 0) {
+        throw new Error('One or more players are inactive');
+      }
+      
+      // 4. Create the team
+      const team = new TeamModel({
+        name: data.name.trim(),
+        players: playerIds,
+        isActive: true,
+        createdBy: session.user.id
+      });
+      
+      const savedTeam = await team.save();
+      
+      // 5. Add team to league
+      league.teams.push(savedTeam._id);
+      await league.save();
+      
+      // 6. Return team with populated player data
+      const populatedTeam = await TeamModel.findById(savedTeam._id).populate('players');
+      
+      return populatedTeam;
+    });
+    
+    return NextResponse.json(result, { status: 201 });
+  } catch (error) {
+    console.error('Error creating team in league:', error);
+    
+    if (error instanceof Error) {
+      const errorMap: { [key: string]: number } = {
+        'League not found': 404,
+        'Team with this name already exists': 409,
+        'One or more players not found': 400,
+        'One or more players are inactive': 400
+      };
+      
+      const statusCode = errorMap[error.message] || 500;
+      
+      return NextResponse.json(
+        { error: error.message },
+        { status: statusCode }
+      );
+    }
+    
+    return NextResponse.json(
+      { error: 'Failed to create team in league' },
+      { status: 500 }
+    );
+  }
 }
 
 // GET /api/leagues/[id]/teams - Get all teams in a league
@@ -20,26 +154,28 @@ export async function GET(
   try {
     const leagueId = params.id;
     
-    const teams = await withConnection(async () => {
-      const league = await LeagueModel.findById(leagueId)
-        .populate({
-          path: 'teams',
-          populate: {
-            path: 'players',
-            select: 'nickname skillLevel handedness preferredPosition'
-          }
-        });
-      
+    const result = await withConnection(async () => {
+      // Check if league exists
+      const league = await LeagueModel.findById(leagueId);
       if (!league) {
         throw new Error('League not found');
       }
       
-      return league.teams;
+      // Get teams with populated player data
+      const teams = await TeamModel.find({ _id: { $in: league.teams } })
+        .populate('players')
+        .sort({ name: 1 });
+      
+      return {
+        teams,
+        leagueId: league._id,
+        leagueName: league.name
+      };
     });
     
-    return NextResponse.json(teams);
+    return NextResponse.json(result);
   } catch (error) {
-    console.error('Error fetching league teams:', error);
+    console.error('Error fetching teams for league:', error);
     
     if (error instanceof Error && error.message === 'League not found') {
       return NextResponse.json(
@@ -49,238 +185,7 @@ export async function GET(
     }
     
     return NextResponse.json(
-      { error: 'Failed to fetch league teams' },
-      { status: 500 }
-    );
-  }
-}
-
-// POST /api/leagues/[id]/teams - Add a team to a league
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const session = await getServerSession();
-    
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-    
-    const leagueId = params.id;
-    const { teamId } = await request.json();
-    
-    if (!teamId) {
-      return NextResponse.json(
-        { error: 'Team ID is required' },
-        { status: 400 }
-      );
-    }
-    
-    const updatedLeague = await withConnection(async () => {
-      // Get the league
-      const league = await LeagueModel.findById(leagueId);
-      
-      if (!league) {
-        throw new Error('League not found');
-      }
-      
-      // Check if league is in registration status
-      if (league.status !== 'registration') {
-        throw new Error('League is not open for registration');
-      }
-      
-      // Check if registration deadline has passed
-      if (new Date() > league.registrationDeadline) {
-        throw new Error('Registration deadline has passed');
-      }
-      
-      // Check if league is full
-      if (league.teams.length >= league.maxTeams) {
-        throw new Error('League is already full');
-      }
-      
-      // Get the team
-      const team = await TeamModel.findById(teamId);
-      
-      if (!team) {
-        throw new Error('Team not found');
-      }
-      
-      // Check if team is active
-      if (!team.isActive) {
-        throw new Error('Team is not active');
-      }
-      
-      // Check if team is already in the league
-      if (league.teams.includes(team._id)) {
-        throw new Error('Team is already in this league');
-      }
-      
-      // Check if user is authorized (must be a team member or league organizer)
-      const isTeamMember = team.players.some((player: TeamPlayer) => {
-        return player.userId && player.userId.toString() === session.user.id;
-      });
-      
-      const isLeagueOrganizer = league.organizer.toString() === session.user.id;
-      
-      if (!isTeamMember && !isLeagueOrganizer) {
-        throw new Error('You must be a team member or league organizer to add a team');
-      }
-      
-      // Add the team to the league
-      league.teams.push(team._id);
-      await league.save();
-      
-      return LeagueModel.findById(leagueId)
-        .populate('teams')
-        .populate('organizer', 'name email');
-    });
-    
-    return NextResponse.json(updatedLeague);
-  } catch (error) {
-    console.error('Error adding team to league:', error);
-    
-    if (error instanceof Error) {
-      if (error.message === 'League not found' || error.message === 'Team not found') {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 404 }
-        );
-      }
-      
-      if (error.message === 'You must be a team member or league organizer to add a team') {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 403 }
-        );
-      }
-      
-      // Other validation errors
-      if (error.message === 'League is not open for registration' ||
-          error.message === 'Registration deadline has passed' ||
-          error.message === 'League is already full' ||
-          error.message === 'Team is not active' ||
-          error.message === 'Team is already in this league') {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 400 }
-        );
-      }
-    }
-    
-    return NextResponse.json(
-      { error: 'Failed to add team to league' },
-      { status: 500 }
-    );
-  }
-}
-
-// DELETE /api/leagues/[id]/teams - Remove a team from a league
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const session = await getServerSession();
-    
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-    
-    const leagueId = params.id;
-    const { searchParams } = new URL(request.url);
-    const teamId = searchParams.get('teamId');
-    
-    if (!teamId) {
-      return NextResponse.json(
-        { error: 'Team ID is required' },
-        { status: 400 }
-      );
-    }
-    
-    const updatedLeague = await withConnection(async () => {
-      // Get the league
-      const league = await LeagueModel.findById(leagueId);
-      
-      if (!league) {
-        throw new Error('League not found');
-      }
-      
-      // Check if league status allows team removal
-      if (league.status !== 'registration' && league.status !== 'draft') {
-        throw new Error('Teams cannot be removed once the league is active or completed');
-      }
-      
-      // Get the team
-      const team = await TeamModel.findById(teamId);
-      
-      if (!team) {
-        throw new Error('Team not found');
-      }
-      
-      // Check if team is in the league
-      if (!league.teams.includes(team._id)) {
-        throw new Error('Team is not in this league');
-      }
-      
-      // Check if user is authorized (must be a team member or league organizer)
-      const isTeamMember = team.players.some((player: TeamPlayer) => {
-        return player.userId && player.userId.toString() === session.user.id;
-      });
-      
-      const isLeagueOrganizer = league.organizer.toString() === session.user.id;
-      
-      if (!isTeamMember && !isLeagueOrganizer) {
-        throw new Error('You must be a team member or league organizer to remove a team');
-      }
-      
-      // Remove the team from the league
-      league.teams = league.teams.filter((id: ObjectId | string) => id.toString() !== teamId);
-      await league.save();
-      
-      return LeagueModel.findById(leagueId)
-        .populate('teams')
-        .populate('organizer', 'name email');
-    });
-    
-    return NextResponse.json(updatedLeague);
-  } catch (error) {
-    console.error('Error removing team from league:', error);
-    
-    if (error instanceof Error) {
-      if (error.message === 'League not found' || error.message === 'Team not found') {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 404 }
-        );
-      }
-      
-      if (error.message === 'You must be a team member or league organizer to remove a team') {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 403 }
-        );
-      }
-      
-      // Other validation errors
-      if (error.message === 'Teams cannot be removed once the league is active or completed' ||
-          error.message === 'Team is not in this league') {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 400 }
-        );
-      }
-    }
-    
-    return NextResponse.json(
-      { error: 'Failed to remove team from league' },
+      { error: 'Failed to fetch teams' },
       { status: 500 }
     );
   }
