@@ -35,6 +35,7 @@ import {
   PlusCircle,
   Dumbbell,
   HandMetal,
+  Trash2,
 } from "lucide-react";
 import { Player } from "@/hooks/useLeagueData";
 
@@ -45,6 +46,7 @@ interface PlayerListProps {
   playersInTeams: Set<string>;
   onAddPlayer: (player: Player) => void;
   onCreatePlayer: (playerData: any) => Promise<Player | null>;
+  onDeletePlayer?: (playerId: string) => Promise<boolean>;
   isCreatingPlayer: boolean;
 }
 
@@ -116,6 +118,7 @@ export default function PlayerList({
   playersInTeams,
   onAddPlayer,
   onCreatePlayer,
+  onDeletePlayer,
   isCreatingPlayer,
 }: PlayerListProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -179,6 +182,18 @@ export default function PlayerList({
     if (newPlayer) {
       resetNewPlayerForm();
       setShowNewPlayerDialog(false);
+    }
+  };
+  
+  const handleDeletePlayer = async (playerId: string, e: React.MouseEvent) => {
+    // Stop event propagation to prevent adding the player
+    e.stopPropagation();
+    
+    if (!onDeletePlayer) return;
+    
+    const success = await onDeletePlayer(playerId);
+    if (success) {
+      toast.success("Player deleted successfully");
     }
   };
 
@@ -380,8 +395,20 @@ export default function PlayerList({
                       )}
                     </div>
                     
-                    {/* Add button (visible on hover) */}
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* Action buttons (visible on hover) */}
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                      {onDeletePlayer && (
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="h-8 w-8 rounded-full p-0 bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive"
+                          onClick={(e) => handleDeletePlayer(player.id, e)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete player</span>
+                        </Button>
+                      )}
+                      
                       <Button 
                         size="sm" 
                         variant="ghost" 
@@ -419,3 +446,6 @@ export default function PlayerList({
     </Card>
   );
 }
+
+// Add toast import
+import { toast } from "sonner";
