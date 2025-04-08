@@ -509,9 +509,9 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
       </AlertDialog>
 
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left Column: Available Players */}
-          <Card className="overflow-hidden border-2 border-muted">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Column 1: Available Players */}
+          <Card className="h-full overflow-hidden border-2 border-muted">
             <CardHeader className="bg-muted/50 pb-4">
               <div className="flex justify-between items-center">
                 <CardTitle className="text-xl">
@@ -696,8 +696,8 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
             </CardContent>
           </Card>
 
-          {/* Right Column: Team Creation */}
-          <Card className="border-2 border-muted">
+          {/* Column 2: Create Team */}
+          <Card className="h-full border-2 border-muted">
             <CardHeader className="bg-muted/50">
               <CardTitle className="text-xl">Create Team</CardTitle>
               <CardDescription>Select players and create a team for this league</CardDescription>
@@ -788,7 +788,7 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex-col space-y-3 bg-muted/20 border-t p-6">
+            <CardFooter className="flex-col space-y-3 bg-muted/20 border-t p-6 mt-auto">
               {selectedPlayers.length === 0 ? (
                 <div className="text-sm text-muted-foreground text-center pb-2">
                   Select at least one player to create a team
@@ -825,37 +825,34 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
               )}
             </CardFooter>
           </Card>
-        </div>
 
-        {/* Teams List Below */}
-        <Card className="border-2 border-muted mt-6">
-          <CardHeader className="bg-muted/50 pb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-xl flex items-center">
-                  <Users className="h-5 w-5 mr-2" />
-                  Teams in This League
-                </CardTitle>
-                <CardDescription>
-                  {leagueTeams.length} teams registered {leagueTeams.length > 0 ? `(${leagueTeams.reduce((count, team) => count + team.players.length, 0)} players total)` : ''}
-                </CardDescription>
+          {/* Column 3: Teams in This League */}
+          <Card className="h-full border-2 border-muted">
+            <CardHeader className="bg-muted/50 pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl flex items-center">
+                    <Users className="h-5 w-5 mr-2" />
+                    Teams in This League
+                  </CardTitle>
+                  <CardDescription>
+                    {leagueTeams.length} team{leagueTeams.length !== 1 ? 's' : ''} registered
+                    {leagueTeams.length > 0 ? ` (${leagueTeams.reduce((count, team) => count + team.players.length, 0)} players total)` : ''}
+                  </CardDescription>
+                </div>
               </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {isLoadingTeams ? (
-              <div className="flex items-center justify-center h-32">
-                <Loader2 className="h-6 w-6 animate-spin" />
-              </div>
-            ) : leagueTeams.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {leagueTeams.map((team) => (
-                  <Card key={team.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                    <CardHeader className="bg-primary/5 pb-3">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center">
-                          {team.name}
-                        </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 overflow-y-auto" style={{ maxHeight: "500px" }}>
+              {isLoadingTeams ? (
+                <div className="flex items-center justify-center h-32">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                </div>
+              ) : leagueTeams.length > 0 ? (
+                <div className="divide-y">
+                  {leagueTeams.map((team) => (
+                    <div key={team.id} className="p-4 hover:bg-muted/30 transition-colors">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="font-medium text-lg">{team.name}</div>
                         <Button 
                           variant="ghost" 
                           size="sm" 
@@ -866,17 +863,14 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                           <span className="sr-only">Delete team</span>
                         </Button>
                       </div>
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="mb-2">
                         {team.players.length} player{team.players.length !== 1 ? 's' : ''}
                       </Badge>
-                    </CardHeader>
-                    
-                    <CardContent className="p-0">
-                      <div className="divide-y">
+                      <div className="space-y-2 mt-2">
                         {team.players.map((player) => (
-                          <div key={player.id} className="p-4 flex items-center">
-                            <div className={`w-8 h-8 rounded-full bg-muted flex items-center justify-center font-medium mr-3`}>
-                              {player.nickname.charAt(0)}
+                          <div key={player.id} className="flex items-center p-2 bg-muted rounded-md">
+                            <div className={`w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-medium mr-3`}>
+                              {player.nickname.charAt(0).toUpperCase()}
                             </div>
                             <div>
                               <div className="font-medium">{player.nickname}</div>
@@ -893,20 +887,20 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                           </div>
                         ))}
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-32 text-center">
-                <Users className="h-12 w-12 text-muted-foreground opacity-20 mb-2" />
-                <p className="text-muted-foreground">
-                  No teams have been created yet. Create your first team above.
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full p-6 text-center">
+                  <Users className="h-12 w-12 text-muted-foreground opacity-20 mb-2" />
+                  <p className="text-muted-foreground">
+                    No teams have been created yet. Create your first team using the form.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
