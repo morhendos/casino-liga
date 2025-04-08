@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Trash } from "lucide-react";
 import { Team } from "@/hooks/useLeagueData";
+import { useEffect, useState } from "react";
 
 interface TeamCardProps {
   team: Team;
@@ -18,12 +19,41 @@ export default function TeamCard({
   onDelete,
   variant = 'compact'
 }: TeamCardProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
   
   // Format player names as a comma-separated string
   const playerNames = team.players.map(player => player.nickname).join(' & ');
   
+  // Animate entry when component mounts
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 50); // Small delay for the animation to work
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  const handleDelete = () => {
+    if (!onDelete) return;
+    
+    // Animate removal before actually calling onDelete
+    setIsRemoving(true);
+    
+    // Wait for animation to complete before calling delete
+    setTimeout(() => {
+      onDelete(team);
+    }, 300);
+  };
+  
   return (
-    <Card className="p-4 hover:bg-muted/10 transition-colors">
+    <Card 
+      className={`p-4 hover:bg-muted/10 transition-all duration-300 ease-in-out ${
+        isVisible ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-4'
+      } ${
+        isRemoving ? 'opacity-0 transform -translate-x-4' : ''
+      }`}
+    >
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <h3 className="text-lg font-semibold">{team.name}</h3>
@@ -50,7 +80,7 @@ export default function TeamCard({
               variant="ghost"
               size="sm"
               className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-              onClick={() => onDelete(team)}
+              onClick={handleDelete}
             >
               <Trash className="h-4 w-4" />
               <span className="sr-only">Delete team</span>
