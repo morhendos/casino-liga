@@ -120,16 +120,38 @@ export const useLeagueTeams = (leagueId: string) => {
   // Delete a team from the league
   const deleteTeam = async (teamId: string) => {
     try {
+      // Optimistically update UI first
+      const teamToDelete = leagueTeams.find(team => team.id === teamId);
+      if (!teamToDelete) return false;
+      
+      // Remove team from local state immediately
+      setLeagueTeams(prevTeams => prevTeams.filter(team => team.id !== teamId));
+      
+      // Update players in teams set
+      const updatedPlayersInTeams = new Set(playersInTeams);
+      teamToDelete.players.forEach(player => {
+        updatedPlayersInTeams.delete(player.id);
+      });
+      setPlayersInTeams(updatedPlayersInTeams);
+
+      // Send request to server
       const response = await fetch(`/api/teams/${teamId}`, {
         method: "DELETE",
       });
 
       if (!response.ok) {
+        // If failed, revert the optimistic update
+        setLeagueTeams(prevTeams => [...prevTeams, teamToDelete]);
+        
+        // Restore players in teams set
+        teamToDelete.players.forEach(player => {
+          updatedPlayersInTeams.add(player.id);
+        });
+        setPlayersInTeams(updatedPlayersInTeams);
+        
         throw new Error("Failed to delete team");
       }
 
-      // Refresh the teams list
-      await fetchLeagueTeams();
       return true;
     } catch (error) {
       console.error("Error deleting team:", error);
@@ -141,8 +163,30 @@ export const useLeagueTeams = (leagueId: string) => {
   };
 
   // Create a team in the league
-  const createTeam = async (name: string, playerIds: string[]) => {
+  const createTeam = async (name: string, playerIds: string[], playerDetails: Player[]) => {
     try {
+      // Create a temporary ID for the optimistic update
+      const tempId = `temp-${Date.now()}`;
+      
+      // Create a new team object with the selected players
+      const newTeam: Team = {
+        id: tempId,
+        _id: tempId,
+        name,
+        players: playerDetails
+      };
+      
+      // Optimistically update UI immediately
+      setLeagueTeams(prevTeams => [...prevTeams, newTeam]);
+      
+      // Update players in teams set
+      const updatedPlayersInTeams = new Set(playersInTeams);
+      playerIds.forEach(id => {
+        updatedPlayersInTeams.add(id);
+      });
+      setPlayersInTeams(updatedPlayersInTeams);
+
+      // Send the actual request to the server
       const response = await fetch(`/api/leagues/${leagueId}/teams`, {
         method: "POST",
         headers: {
@@ -155,12 +199,35 @@ export const useLeagueTeams = (leagueId: string) => {
       });
 
       if (!response.ok) {
+        // If failed, revert the optimistic update
+        setLeagueTeams(prevTeams => prevTeams.filter(team => team.id !== tempId));
+        
+        // Restore players in teams set
+        playerIds.forEach(id => {
+          updatedPlayersInTeams.delete(id);
+        });
+        setPlayersInTeams(updatedPlayersInTeams);
+        
         const error = await response.json();
         throw new Error(error.error || "Failed to create team");
       }
+      
+      // Get the real team data from response
+      const serverTeam = await response.json();
+      
+      // Update the team in state with the real ID from server
+      setLeagueTeams(prevTeams => 
+        prevTeams.map(team => 
+          team.id === tempId 
+            ? {
+                ...team,
+                id: serverTeam._id || serverTeam.id,
+                _id: serverTeam._id || serverTeam.id
+              } 
+            : team
+        )
+      );
 
-      // Refresh the teams list
-      await fetchLeagueTeams();
       return true;
     } catch (error) {
       console.error("Error creating team:", error);
