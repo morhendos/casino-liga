@@ -28,7 +28,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Loader2, Plus, UserPlus, X, Users, UserCheck, RefreshCw, ListOrdered, Sparkles, Trash } from "lucide-react";
+import { Loader2, Plus, UserPlus, X, Users, UserCheck, RefreshCw, ListOrdered, Sparkles, Trash, AlertCircle, ArrowRight, Check } from "lucide-react";
 import { getRandomTeamName } from "@/utils/teamNameSuggestions";
 
 interface Player {
@@ -38,6 +38,8 @@ interface Player {
   skillLevel: number;
   email?: string;
   status?: string;
+  handedness?: string;
+  preferredPosition?: string;
 }
 
 interface Team {
@@ -75,6 +77,7 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
   const [isDeletingTeam, setIsDeletingTeam] = useState(false);
   const [teamToDelete, setTeamToDelete] = useState<Team | null>(null);
   const [deleteTeamDialogOpen, setDeleteTeamDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('players');
   
   // New player creation state
   const [showNewPlayerDialog, setShowNewPlayerDialog] = useState(false);
@@ -284,6 +287,9 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
       if (onPlayersUpdated) {
         onPlayersUpdated();
       }
+      
+      // Switch to teams tab to show the new team
+      setActiveTab('teams');
     } catch (error) {
       console.error('Error creating team:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to create team');
@@ -413,8 +419,22 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
     return null;
   };
 
+  // Get player skill level display with colored badge
+  const getSkillLevelBadge = (level: number) => {
+    let color;
+    if (level >= 8) color = "bg-green-100 text-green-800 border-green-300";
+    else if (level >= 5) color = "bg-blue-100 text-blue-800 border-blue-300";
+    else color = "bg-gray-100 text-gray-800 border-gray-300";
+    
+    return (
+      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${color}`}>
+        Level {level}
+      </span>
+    );
+  };
+
   return (
-    <div className="space-y-6">
+    <div>
       {/* Delete Team Confirmation Dialog */}
       <AlertDialog open={deleteTeamDialogOpen} onOpenChange={setDeleteTeamDialogOpen}>
         <AlertDialogContent>
@@ -445,29 +465,35 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Left column: Available players and Create team */}
-        <div className="space-y-6">
-          {/* Available Players Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Add Players to League</CardTitle>
-              <CardDescription>
-                Select players to form teams for this league
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                <div className="flex items-center gap-2">
-                  <Input
-                    placeholder="Search players..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="flex-1"
-                  />
+      {/* Main Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="w-full mb-6 grid grid-cols-2">
+          <TabsTrigger value="players" className="text-base py-3">
+            <Users className="h-4 w-4 mr-2" />
+            Select Players
+          </TabsTrigger>
+          <TabsTrigger value="teams" className="text-base py-3">
+            <Badge className="mr-2" variant="secondary">{leagueTeams.length}</Badge>
+            View Teams
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Players Tab - Player Selection & Team Creation */}
+        <TabsContent value="players" className="mt-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Left Column: Available Players */}
+            <Card className="overflow-hidden border-2 border-muted">
+              <CardHeader className="bg-muted/50 pb-4">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-xl">
+                    <span className="flex items-center">
+                      <Users className="mr-2 h-5 w-5" />
+                      Available Players
+                    </span>
+                  </CardTitle>
                   <Dialog open={showNewPlayerDialog} onOpenChange={setShowNewPlayerDialog}>
                     <DialogTrigger asChild>
-                      <Button variant="outline">
+                      <Button>
                         <UserPlus className="h-4 w-4 mr-2" />
                         New Player
                       </Button>
@@ -577,14 +603,26 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                     </DialogContent>
                   </Dialog>
                 </div>
-                
-                <div className="h-96 overflow-y-auto border rounded-md p-2">
+                <div className="relative mt-2">
+                  <Input
+                    placeholder="Search players by name or email..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pr-10"
+                  />
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
+                    <Search className="h-4 w-4" />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="h-[400px] overflow-y-auto">
                   {isLoading ? (
                     <div className="flex items-center justify-center h-full">
                       <Loader2 className="h-6 w-6 animate-spin" />
                     </div>
                   ) : filteredPlayers.length > 0 ? (
-                    <div className="space-y-2">
+                    <div className="divide-y">
                       {filteredPlayers.map((player) => {
                         const isInTeam = isPlayerInTeam(player.id);
                         const teamName = isInTeam ? getPlayerTeamName(player.id) : null;
@@ -592,7 +630,10 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                         return (
                           <div
                             key={player.id}
-                            className={`flex items-center justify-between p-2 border rounded-md ${isInTeam ? 'bg-gray-50' : ''}`}
+                            className={`flex items-center justify-between p-4 hover:bg-muted/50 transition-colors ${
+                              selectedPlayers.some(p => p.id === player.id) ? 'bg-primary/5 border-l-4 border-primary' : 
+                              isInTeam ? 'bg-muted/30' : ''
+                            }`}
                           >
                             <div className="flex-1">
                               <div className="font-medium flex items-center">
@@ -600,202 +641,306 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                                 {isInTeam && (
                                   <Badge variant="outline" className="ml-2 flex items-center gap-1 text-xs">
                                     <UserCheck className="h-3 w-3" />
-                                    In Team
+                                    {teamName}
                                   </Badge>
                                 )}
                               </div>
-                              <div className="text-sm text-muted-foreground">
-                                {player.email || 'No email'} • Level: {player.skillLevel}
-                                {teamName && (
-                                  <span className="ml-2 text-primary">Team: {teamName}</span>
+                              <div className="text-sm text-muted-foreground flex items-center mt-1">
+                                <span className="inline-block mr-2">{getSkillLevelBadge(player.skillLevel)}</span>
+                                {player.email && (
+                                  <span className="text-xs truncate max-w-[150px]">{player.email}</span>
                                 )}
                               </div>
                             </div>
                             <Button
                               size="sm"
-                              variant={isInTeam ? "outline" : "ghost"}
+                              variant={selectedPlayers.some(p => p.id === player.id) ? "default" : 
+                                     isInTeam ? "outline" : "secondary"}
                               onClick={() => handleAddPlayer(player)}
                               disabled={isInTeam}
                               title={isInTeam ? `Already in team: ${teamName}` : "Add to team"}
+                              className={selectedPlayers.some(p => p.id === player.id) ? "bg-primary text-primary-foreground" : ""}
                             >
-                              <Plus className="h-4 w-4" />
+                              {selectedPlayers.some(p => p.id === player.id) ? (
+                                <>
+                                  <Check className="h-4 w-4 mr-1" />
+                                  Selected
+                                </>
+                              ) : isInTeam ? (
+                                "In Team"
+                              ) : (
+                                <>
+                                  <Plus className="h-4 w-4 mr-1" />
+                                  Select
+                                </>
+                              )}
                             </Button>
                           </div>
                         );
                       })}
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center h-full text-muted-foreground">
-                      No players found
+                    <div className="flex flex-col items-center justify-center h-full p-6 text-center">
+                      <AlertCircle className="h-10 w-10 text-muted-foreground mb-4" />
+                      <p className="font-medium">No players found</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {searchQuery ? "Try another search term or create a new player" : "Create new players using the button above"}
+                      </p>
                     </div>
                   )}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Create Team Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Create Team</CardTitle>
-              <CardDescription>
-                Form a team with selected players
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="teamName">Team Name</Label>
-                  <div className="space-y-2">
-                    <Tabs defaultValue="manual" onValueChange={(value) => setTeamNameMode(value as 'manual' | 'sequential' | 'funny')}>                    
-                      <TabsList className="grid grid-cols-3">
-                        <TabsTrigger value="manual" className="flex items-center gap-1">
-                          <span>Manual</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="sequential" className="flex items-center gap-1">
+            {/* Right Column: Team Creation */}
+            <Card className="border-2 border-muted">
+              <CardHeader className="bg-muted/50">
+                <CardTitle className="text-xl">Create Team</CardTitle>
+                <CardDescription>Select players and create a team for this league</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-6">
+                  {/* Team Name Selection */}
+                  <div className="space-y-3">
+                    <Label htmlFor="teamName" className="text-base font-medium">Team Name</Label>
+                    <Tabs 
+                      defaultValue="manual" 
+                      onValueChange={(value) => setTeamNameMode(value as 'manual' | 'sequential' | 'funny')}
+                      className="w-full"
+                    >                    
+                      <TabsList className="grid grid-cols-3 w-full mb-4">
+                        <TabsTrigger value="manual">Manual</TabsTrigger>
+                        <TabsTrigger value="sequential">
                           <ListOrdered className="h-4 w-4 mr-1" />
-                          <span>Team A, B, C...</span>
+                          Sequential
                         </TabsTrigger>
-                        <TabsTrigger value="funny" className="flex items-center gap-1">
+                        <TabsTrigger value="funny">
                           <Sparkles className="h-4 w-4 mr-1" />
-                          <span>Funny Names</span>
+                          Random
                         </TabsTrigger>
                       </TabsList>
+                      
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          id="teamName"
+                          placeholder={teamNameMode === 'manual' ? "Enter team name" : "Team name will be generated"}
+                          value={teamName}
+                          onChange={(e) => setTeamName(e.target.value)}
+                          className="flex-1"
+                          disabled={teamNameMode !== 'manual'}
+                        />
+                        {teamNameMode !== 'manual' && (
+                          <Button type="button" variant="outline" onClick={updateTeamName} title="Generate another name">
+                            <RefreshCw className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </Tabs>
-                    
-                    <div className="flex gap-2">
-                      <Input
-                        id="teamName"
-                        placeholder="Enter team name"
-                        value={teamName}
-                        onChange={(e) => setTeamName(e.target.value)}
-                        className="flex-1"
-                      />
-                      {teamNameMode === 'funny' && (
-                        <Button type="button" variant="outline" onClick={generateRandomFunnyName} title="Generate another funny name">
-                          <RefreshCw className="h-4 w-4" />
-                        </Button>
+                  </div>
+                  
+                  {/* Selected Players */}
+                  <div className="space-y-3">
+                    <Label className="text-base font-medium">Selected Players ({selectedPlayers.length}/2)</Label>
+                    <div className="space-y-3">
+                      {selectedPlayers.length > 0 ? (
+                        selectedPlayers.map((player, index) => (
+                          <div
+                            key={player.id}
+                            className="flex items-center justify-between p-3 border rounded-md bg-primary/5"
+                          >
+                            <div className="flex items-center">
+                              <div className={`w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-medium mr-3`}>
+                                {index + 1}
+                              </div>
+                              <div>
+                                <div className="font-medium">{player.nickname}</div>
+                                <div className="text-sm text-muted-foreground">
+                                  {getSkillLevelBadge(player.skillLevel)}
+                                </div>
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleRemovePlayer(player.id)}
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-6 border rounded-md text-center bg-muted/20">
+                          <div className="flex flex-col items-center justify-center">
+                            <Users className="h-10 w-10 text-muted-foreground mb-2" />
+                            <p className="font-medium">No players selected</p>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Select players from the left panel to form a team
+                            </p>
+                          </div>
+                        </div>
                       )}
                     </div>
                   </div>
                 </div>
-                
-                <div>
-                  <Label>Selected Players</Label>
-                  <div className="mt-2 space-y-2">
-                    {selectedPlayers.length > 0 ? (
-                      selectedPlayers.map((player) => (
-                        <div
-                          key={player.id}
-                          className="flex items-center justify-between p-2 border rounded-md"
-                        >
-                          <div>
-                            <div className="font-medium">{player.nickname}</div>
-                            <div className="text-sm text-muted-foreground">
-                              Level: {player.skillLevel}
-                            </div>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleRemovePlayer(player.id)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="p-4 text-center text-muted-foreground border rounded-md">
-                        No players selected
-                      </div>
-                    )}
+              </CardContent>
+              <CardFooter className="flex-col space-y-3 bg-muted/20 border-t p-6">
+                {selectedPlayers.length === 0 ? (
+                  <div className="text-sm text-muted-foreground text-center pb-2">
+                    Select at least one player to create a team
                   </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button
-                onClick={handleCreateTeam}
-                disabled={selectedPlayers.length === 0 || !teamName.trim() || isCreatingTeam}
-                className="w-full"
-              >
-                {isCreatingTeam ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  'Create Team & Add to League'
+                ) : !teamName.trim() ? (
+                  <div className="text-sm text-muted-foreground text-center pb-2">
+                    Enter a team name to continue
+                  </div>
+                ) : null}
+                
+                <Button
+                  onClick={handleCreateTeam}
+                  disabled={selectedPlayers.length === 0 || !teamName.trim() || isCreatingTeam}
+                  className="w-full"
+                  size="lg"
+                >
+                  {isCreatingTeam ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      Create Team
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </>
+                  )}
+                </Button>
+                
+                {selectedPlayers.length > 0 && teamName.trim() && (
+                  <p className="text-sm text-center mt-2">
+                    Team will be automatically added to this league
+                  </p>
                 )}
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
-        
-        {/* Right column: Teams in this league */}
-        <div>
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle>Teams in This League</CardTitle>
-              <CardDescription>
-                {leagueTeams.length} teams have been added to this league
-              </CardDescription>
+              </CardFooter>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Teams Tab - Shows all teams in the league */}
+        <TabsContent value="teams" className="mt-0">
+          <Card className="border-2 border-muted">
+            <CardHeader className="bg-muted/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl flex items-center">
+                    <Users className="h-5 w-5 mr-2" />
+                    Teams in This League
+                  </CardTitle>
+                  <CardDescription>
+                    {leagueTeams.length} teams registered {leagueTeams.length > 0 ? `(${leagueTeams.reduce((count, team) => count + team.players.length, 0)} players total)` : ''}
+                  </CardDescription>
+                </div>
+                
+                <Button 
+                  onClick={() => setActiveTab('players')}
+                  disabled={isLoadingTeams}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Team
+                </Button>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               {isLoadingTeams ? (
                 <div className="flex items-center justify-center h-64">
                   <Loader2 className="h-6 w-6 animate-spin" />
                 </div>
               ) : leagueTeams.length > 0 ? (
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
                   {leagueTeams.map((team) => (
-                    <div key={team.id} className="border rounded-md p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-lg font-semibold">{team.name}</h3>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="secondary">
-                            {team.players.length} player{team.players.length !== 1 ? 's' : ''}
-                          </Badge>
+                    <Card key={team.id} className="overflow-hidden">
+                      <CardHeader className="bg-primary/5 pb-3">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="flex items-center">
+                            {team.name}
+                          </CardTitle>
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="h-8 w-8 p-0" 
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10" 
                             onClick={() => handleDeleteTeam(team)}
                           >
-                            <Trash className="h-4 w-4 text-destructive" />
+                            <Trash className="h-4 w-4" />
                             <span className="sr-only">Delete team</span>
                           </Button>
                         </div>
-                      </div>
+                        <Badge variant="secondary">
+                          {team.players.length} player{team.players.length !== 1 ? 's' : ''}
+                        </Badge>
+                      </CardHeader>
                       
-                      <div className="space-y-2">
-                        {team.players.map((player) => (
-                          <div key={player.id} className="flex items-center justify-between text-sm p-2 bg-gray-50 rounded-md">
-                            <div>
-                              <div className="font-medium">{player.nickname}</div>
-                              <div className="text-xs text-muted-foreground">
-                                Level: {player.skillLevel}
+                      <CardContent className="p-0">
+                        <div className="divide-y">
+                          {team.players.map((player) => (
+                            <div key={player.id} className="p-4 flex items-center">
+                              <div className={`w-8 h-8 rounded-full bg-muted flex items-center justify-center font-medium mr-3`}>
+                                {player.nickname.charAt(0)}
+                              </div>
+                              <div>
+                                <div className="font-medium">{player.nickname}</div>
+                                <div className="text-sm text-muted-foreground flex items-center mt-1">
+                                  {getSkillLevelBadge(player.skillLevel)}
+                                  {player.handedness && (
+                                    <Badge variant="outline" className="ml-2 text-xs">
+                                      {player.handedness === 'right' ? 'Right-handed' : 
+                                       player.handedness === 'left' ? 'Left-handed' : 'Ambidextrous'}
+                                    </Badge>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center h-64 text-center">
-                  <Users className="h-12 w-12 text-muted-foreground opacity-20 mb-4" />
-                  <p className="text-muted-foreground mb-2">No teams in this league yet</p>
-                  <p className="text-sm text-muted-foreground">
-                    Use the form on the left to create teams and add them to this league
+                <div className="flex flex-col items-center justify-center h-64 text-center p-6">
+                  <Users className="h-16 w-16 text-muted-foreground opacity-20 mb-4" />
+                  <h3 className="text-xl font-medium mb-2">No Teams Yet</h3>
+                  <p className="text-muted-foreground mb-6">
+                    This league doesn't have any teams yet. Create teams to get started.
                   </p>
+                  <Button onClick={() => setActiveTab('players')}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create First Team
+                  </Button>
                 </div>
               )}
             </CardContent>
           </Card>
-        </div>
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
+  );
+}
+
+// Search icon component
+function Search(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
   );
 }
