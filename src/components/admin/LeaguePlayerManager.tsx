@@ -28,7 +28,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Loader2, Plus, UserPlus, X, Users, UserCheck, RefreshCw, ListOrdered, Sparkles, Trash, AlertCircle, ArrowRight, Check, Filter, Eye } from "lucide-react";
+import { Loader2, Plus, UserPlus, X, Users, UserCheck, RefreshCw, ListOrdered, Sparkles, Trash, AlertCircle, ArrowRight } from "lucide-react";
 import { getRandomTeamName } from "@/utils/teamNameSuggestions";
 
 interface Player {
@@ -77,7 +77,6 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
   const [isDeletingTeam, setIsDeletingTeam] = useState(false);
   const [teamToDelete, setTeamToDelete] = useState<Team | null>(null);
   const [deleteTeamDialogOpen, setDeleteTeamDialogOpen] = useState(false);
-  const [playersFilterTab, setPlayersFilterTab] = useState('all');
   
   // New player creation state
   const [showNewPlayerDialog, setShowNewPlayerDialog] = useState(false);
@@ -94,35 +93,28 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
     fetchLeagueTeams();
   }, [leagueId]);
 
-  // Update filtered players based on search and filter tab
+  // Update filtered players based on search and selected players
   useEffect(() => {
-    let filtered = [...availablePlayers];
+    // Start with all players
+    let playerPool = [...availablePlayers];
     
-    // Apply search filter if provided
+    // Remove players that are already selected
+    playerPool = playerPool.filter(player => !selectedPlayers.some(p => p.id === player.id));
+    
+    // Remove players that are already in teams
+    playerPool = playerPool.filter(player => !playersInTeams.has(player.id));
+    
+    // Then apply search filter if provided
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(player => 
+      playerPool = playerPool.filter(player => 
         player.nickname.toLowerCase().includes(query) || 
         player.email?.toLowerCase().includes(query)
       );
     }
     
-    // Apply tab filter
-    if (playersFilterTab === 'available') {
-      // Show only players not in teams and not currently selected
-      filtered = filtered.filter(player => 
-        !playersInTeams.has(player.id) && 
-        !selectedPlayers.some(p => p.id === player.id)
-      );
-    } else if (playersFilterTab === 'selected') {
-      // Show only currently selected players
-      filtered = availablePlayers.filter(player => 
-        selectedPlayers.some(p => p.id === player.id)
-      );
-    }
-    
-    setFilteredPlayers(filtered);
-  }, [searchQuery, availablePlayers, playersFilterTab, selectedPlayers, playersInTeams]);
+    setFilteredPlayers(playerPool);
+  }, [searchQuery, availablePlayers, selectedPlayers, playersInTeams]);
 
   // Track which players are already in teams and update sequential letter
   useEffect(() => {
@@ -162,7 +154,6 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
       }));
       
       setAvailablePlayers(processedPlayers);
-      setFilteredPlayers(processedPlayers);
     } catch (error) {
       console.error('Error fetching players:', error);
       toast.error('Failed to load players');
@@ -252,12 +243,6 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
     }
     
     setSelectedPlayers([...selectedPlayers, player]);
-    
-    // If we're in "available" filter mode, player will disappear from the list
-    // So switch to "all" or "selected" mode for better UX
-    if (playersFilterTab === 'available') {
-      setPlayersFilterTab('selected');
-    }
   };
 
   const handleRemovePlayer = (playerId: string) => {
@@ -308,9 +293,6 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
       if (onPlayersUpdated) {
         onPlayersUpdated();
       }
-      
-      // Return to available players tab
-      setPlayersFilterTab('all');
     } catch (error) {
       console.error('Error creating team:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to create team');
@@ -364,8 +346,6 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
       // Add the new player to selected players if less than 2 already selected
       if (selectedPlayers.length < 2) {
         setSelectedPlayers([...selectedPlayers, playerWithId]);
-        // Switch to selected tab to show the newly selected player
-        setPlayersFilterTab('selected');
       }
       
       // Reset form and close dialog
@@ -426,21 +406,6 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
     setNewPlayerPosition('both');
   };
 
-  // Check if a player is already in any team
-  const isPlayerInTeam = (playerId: string): boolean => {
-    return playersInTeams.has(playerId);
-  };
-
-  // Get team name for a player
-  const getPlayerTeamName = (playerId: string): string | null => {
-    for (const team of leagueTeams) {
-      if (team.players.some(player => player.id === playerId)) {
-        return team.name;
-      }
-    }
-    return null;
-  };
-
   // Get player skill level display with colored badge
   const getSkillLevelBadge = (level: number) => {
     let color;
@@ -454,12 +419,6 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
       </span>
     );
   };
-
-  // Count players by status for the filter tabs
-  const availablePlayersCount = availablePlayers.filter(player => 
-    !playersInTeams.has(player.id) && 
-    !selectedPlayers.some(p => p.id === player.id)
-  ).length;
 
   return (
     <div>
@@ -502,7 +461,7 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                 <CardTitle className="text-xl">
                   <span className="flex items-center">
                     <Users className="mr-2 h-5 w-5" />
-                    Players
+                    Available Players
                   </span>
                 </CardTitle>
                 <Dialog open={showNewPlayerDialog} onOpenChange={setShowNewPlayerDialog}>
@@ -618,47 +577,6 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                 </Dialog>
               </div>
               
-              {/* Player filter tabs */}
-              <div className="mt-4 border-b flex">
-                <Tabs value={playersFilterTab} onValueChange={setPlayersFilterTab} className="w-full">
-                  <TabsList className="w-full grid grid-cols-3 mb-0 bg-transparent h-auto">
-                    <TabsTrigger 
-                      value="all" 
-                      className={`pb-2 rounded-none border-b-2 ${
-                        playersFilterTab === 'all' ? 'border-primary' : 'border-transparent'
-                      } data-[state=active]:bg-transparent data-[state=active]:shadow-none`}
-                    >
-                      All Players
-                      <Badge variant="secondary" className="ml-2">
-                        {availablePlayers.length}
-                      </Badge>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="available" 
-                      className={`pb-2 rounded-none border-b-2 ${
-                        playersFilterTab === 'available' ? 'border-primary' : 'border-transparent'
-                      } data-[state=active]:bg-transparent data-[state=active]:shadow-none`}
-                    >
-                      Available
-                      <Badge variant="secondary" className="ml-2">
-                        {availablePlayersCount}
-                      </Badge>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="selected" 
-                      className={`pb-2 rounded-none border-b-2 ${
-                        playersFilterTab === 'selected' ? 'border-primary' : 'border-transparent'
-                      } data-[state=active]:bg-transparent data-[state=active]:shadow-none`}
-                    >
-                      Selected
-                      <Badge variant="secondary" className="ml-2">
-                        {selectedPlayers.length}
-                      </Badge>
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-              
               <div className="relative mt-4">
                 <Input
                   placeholder="Search players by name or email..."
@@ -679,86 +597,43 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                   </div>
                 ) : filteredPlayers.length > 0 ? (
                   <div className="divide-y">
-                    {filteredPlayers.map((player) => {
-                      const isInTeam = isPlayerInTeam(player.id);
-                      const teamName = isInTeam ? getPlayerTeamName(player.id) : null;
-                      const isSelected = selectedPlayers.some(p => p.id === player.id);
-                      
-                      return (
-                        <div
-                          key={player.id}
-                          className={`flex items-center justify-between p-4 hover:bg-muted/50 transition-colors ${
-                            isSelected ? 'bg-primary/5 border-l-4 border-primary' : 
-                            isInTeam ? 'bg-muted/30' : ''
-                          }`}
-                        >
-                          <div className="flex-1">
-                            <div className="font-medium flex items-center">
-                              {player.nickname}
-                              {isInTeam && (
-                                <Badge variant="outline" className="ml-2 flex items-center gap-1 text-xs">
-                                  <UserCheck className="h-3 w-3" />
-                                  {teamName}
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="text-sm text-muted-foreground flex items-center mt-1">
-                              <span className="inline-block mr-2">{getSkillLevelBadge(player.skillLevel)}</span>
-                              {player.email && (
-                                <span className="text-xs truncate max-w-[150px]">{player.email}</span>
-                              )}
-                            </div>
+                    {filteredPlayers.map((player) => (
+                      <div
+                        key={player.id}
+                        className="flex items-center p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                        onClick={() => handleAddPlayer(player)}
+                      >
+                        <div className="flex-1">
+                          <div className="font-medium flex items-center">
+                            {player.nickname}
                           </div>
-                          {playersFilterTab === 'selected' ? (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                              onClick={() => handleRemovePlayer(player.id)}
-                            >
-                              <X className="h-4 w-4 mr-1" />
-                              Remove
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant={isSelected ? "default" : isInTeam ? "outline" : "secondary"}
-                              onClick={() => isSelected ? handleRemovePlayer(player.id) : handleAddPlayer(player)}
-                              disabled={isInTeam}
-                              title={isInTeam ? `Already in team: ${teamName}` : isSelected ? "Remove from selection" : "Add to team"}
-                              className={isSelected ? "bg-primary text-primary-foreground" : ""}
-                            >
-                              {isSelected ? (
-                                <>
-                                  <Check className="h-4 w-4 mr-1" />
-                                  Selected
-                                </>
-                              ) : isInTeam ? (
-                                "In Team"
-                              ) : (
-                                <>
-                                  <Plus className="h-4 w-4 mr-1" />
-                                  Select
-                                </>
-                              )}
-                            </Button>
-                          )}
+                          <div className="text-sm text-muted-foreground flex items-center mt-1">
+                            <span className="inline-block mr-2">{getSkillLevelBadge(player.skillLevel)}</span>
+                            {player.email && (
+                              <span className="text-xs truncate max-w-[150px]">{player.email}</span>
+                            )}
+                          </div>
                         </div>
-                      );
-                    })}
+                        <Plus className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full p-6 text-center">
                     <AlertCircle className="h-10 w-10 text-muted-foreground mb-4" />
-                    <p className="font-medium">
-                      {playersFilterTab === 'available' ? 'No available players' : 
-                       playersFilterTab === 'selected' ? 'No players selected' : 'No players found'}
-                    </p>
+                    <p className="font-medium">No available players</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {playersFilterTab === 'available' ? 'All players are already in teams or selected' : 
-                       playersFilterTab === 'selected' ? 'Select players from the Available tab' : 
-                       searchQuery ? "Try another search term or create a new player" : "Create new players using the button above"}
+                      {searchQuery ? "Try another search term or create a new player" : 
+                      "All players are already in teams or selected"}
                     </p>
+                    <Button 
+                      onClick={() => setShowNewPlayerDialog(true)}
+                      variant="outline" 
+                      className="mt-4"
+                    >
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Create New Player
+                    </Button>
                   </div>
                 )}
               </div>
@@ -848,7 +723,7 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                           <Users className="h-10 w-10 text-muted-foreground mb-2" />
                           <p className="font-medium">No players selected</p>
                           <p className="text-sm text-muted-foreground mt-1">
-                            Select players from the left panel to form a team
+                            Click on players from the left panel to add them to your team
                           </p>
                         </div>
                       </div>
