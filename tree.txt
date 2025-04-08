@@ -127,6 +127,8 @@ subscription-tracker/
 │   │   ├── GradientBackground.tsx
 │   │   ├── ThemeToggle.tsx
 │   │   ├── admin
+│   │   │   ├── DeleteLeagueButton.tsx
+│   │   │   ├── DeleteTeamButton.tsx
 │   │   │   ├── LeagueManagement.tsx
 │   │   │   ├── LeaguePlayerManager.tsx
 │   │   │   ├── PlayerInvitationManagement.tsx
