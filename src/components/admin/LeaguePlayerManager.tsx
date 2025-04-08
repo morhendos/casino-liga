@@ -828,7 +828,7 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
 
           {/* Column 3: Teams in This League */}
           <Card className="h-full border-2 border-muted">
-            <CardHeader className="bg-muted/50 pb-4">
+            <CardHeader className="bg-muted/50 pb-3">
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-xl flex items-center">
@@ -837,7 +837,6 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
                   </CardTitle>
                   <CardDescription>
                     {leagueTeams.length} team{leagueTeams.length !== 1 ? 's' : ''} registered
-                    {leagueTeams.length > 0 ? ` (${leagueTeams.reduce((count, team) => count + team.players.length, 0)} players total)` : ''}
                   </CardDescription>
                 </div>
               </div>
@@ -850,51 +849,60 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
               ) : leagueTeams.length > 0 ? (
                 <div className="divide-y">
                   {leagueTeams.map((team) => (
-                    <div key={team.id} className="p-4 hover:bg-muted/30 transition-colors">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="font-medium text-lg">{team.name}</div>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10" 
-                          onClick={() => handleDeleteTeam(team)}
-                        >
-                          <Trash className="h-4 w-4" />
-                          <span className="sr-only">Delete team</span>
-                        </Button>
+                    <div key={team.id} className="px-3 py-2 hover:bg-muted/30 transition-colors">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="font-medium">{team.name}</div>
+                        <div className="flex items-center gap-1">
+                          <Badge variant="secondary" className="text-xs py-0 px-2">
+                            {team.players.length}/2
+                          </Badge>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 w-6 p-0 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                            onClick={() => handleDeleteTeam(team)}
+                          >
+                            <Trash className="h-3.5 w-3.5" />
+                            <span className="sr-only">Delete team</span>
+                          </Button>
+                        </div>
                       </div>
-                      <Badge variant="secondary" className="mb-2">
-                        {team.players.length} player{team.players.length !== 1 ? 's' : ''}
-                      </Badge>
-                      <div className="space-y-2 mt-2">
+                      <div className="space-y-1 mt-1">
                         {team.players.map((player) => (
-                          <div key={player.id} className="flex items-center p-2 bg-muted rounded-md">
-                            <div className={`w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-medium mr-3`}>
+                          <div key={player.id} className="flex items-center p-1.5 bg-muted rounded-md text-sm">
+                            <div className={`w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-medium mr-2 text-xs`}>
                               {player.nickname.charAt(0).toUpperCase()}
                             </div>
-                            <div>
+                            <div className="flex items-center justify-between w-full">
                               <div className="font-medium">{player.nickname}</div>
-                              <div className="text-sm text-muted-foreground flex items-center mt-1">
-                                {getSkillLevelBadge(player.skillLevel)}
+                              <div className="flex items-center gap-1">
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border-blue-100">
+                                  L{player.skillLevel}
+                                </span>
                                 {player.handedness && (
-                                  <Badge variant="outline" className="ml-2 text-xs">
-                                    {player.handedness === 'right' ? 'Right-handed' : 
-                                     player.handedness === 'left' ? 'Left-handed' : 'Ambidextrous'}
-                                  </Badge>
+                                  <span className="text-xs text-muted-foreground">
+                                    {player.handedness === 'right' ? 'R' : 
+                                     player.handedness === 'left' ? 'L' : 'A'}
+                                  </span>
                                 )}
                               </div>
                             </div>
                           </div>
                         ))}
+                        {team.players.length < 2 && (
+                          <div className="text-xs text-center p-1 border border-dashed rounded-md text-muted-foreground">
+                            Needs one more player
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-                  <Users className="h-12 w-12 text-muted-foreground opacity-20 mb-2" />
-                  <p className="text-muted-foreground">
-                    No teams have been created yet. Create your first team using the form.
+                <div className="flex flex-col items-center justify-center h-32 p-6 text-center">
+                  <Users className="h-10 w-10 text-muted-foreground opacity-20 mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    No teams created yet
                   </p>
                 </div>
               )}
