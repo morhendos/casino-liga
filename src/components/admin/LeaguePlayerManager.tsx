@@ -6,7 +6,7 @@ import {
   PlayerList, 
   TeamCreationForm, 
   TeamList 
-} from "./LeaguePlayerManager";
+} from "./LeaguePlayerManager/index";
 import { 
   useAvailablePlayers, 
   useLeagueTeams,
