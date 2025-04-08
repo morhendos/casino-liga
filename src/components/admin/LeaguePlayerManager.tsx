@@ -31,8 +31,36 @@ import { toast } from "sonner";
 import { Loader2, Plus, UserPlus, X, Users, UserCheck, RefreshCw, ListOrdered, Sparkles, Trash, AlertCircle, ArrowRight } from "lucide-react";
 import { getRandomTeamName } from "@/utils/teamNameSuggestions";
 
-// Local storage key for team name mode preference
+// Type for team name mode
+type TeamNameMode = 'manual' | 'sequential' | 'funny';
+
+// LocalStorage key
 const TEAM_NAME_MODE_KEY = 'casino-liga-team-name-mode';
+
+// Function to get saved team name mode
+function getSavedTeamNameMode(): TeamNameMode {
+  try {
+    if (typeof window === 'undefined') return 'manual';
+    const saved = window.localStorage.getItem(TEAM_NAME_MODE_KEY);
+    if (saved === 'sequential' || saved === 'funny') return saved;
+    return 'manual';
+  } catch (error) {
+    console.error('Error reading from localStorage:', error);
+    return 'manual';
+  }
+}
+
+// Function to save team name mode
+function saveTeamNameMode(mode: TeamNameMode): void {
+  try {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(TEAM_NAME_MODE_KEY, mode);
+      console.log(`Team name mode saved: ${mode}`);
+    }
+  } catch (error) {
+    console.error('Error saving to localStorage:', error);
+  }
+}
 
 interface Player {
   id: string;
@@ -75,7 +103,7 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
   const [filteredPlayers, setFilteredPlayers] = useState<Player[]>([]);
   const [leagueTeams, setLeagueTeams] = useState<Team[]>([]);
   const [playersInTeams, setPlayersInTeams] = useState<Set<string>>(new Set());
-  const [teamNameMode, setTeamNameMode] = useState<'manual' | 'sequential' | 'funny'>('manual');
+  const [teamNameMode, setTeamNameMode] = useState<TeamNameMode>(getSavedTeamNameMode);
   const [nextSequentialLetter, setNextSequentialLetter] = useState('A');
   const [isDeletingTeam, setIsDeletingTeam] = useState(false);
   const [teamToDelete, setTeamToDelete] = useState<Team | null>(null);
@@ -90,23 +118,9 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
   const [newPlayerPosition, setNewPlayerPosition] = useState('both');
   const [isCreatingPlayer, setIsCreatingPlayer] = useState(false);
 
-  // Load team name mode preference from localStorage on mount
+  // Save team name mode when it changes
   useEffect(() => {
-    // Only run on client-side
-    if (typeof window !== 'undefined') {
-      const savedMode = localStorage.getItem(TEAM_NAME_MODE_KEY);
-      if (savedMode && (savedMode === 'manual' || savedMode === 'sequential' || savedMode === 'funny')) {
-        setTeamNameMode(savedMode as 'manual' | 'sequential' | 'funny');
-      }
-    }
-  }, []);
-
-  // Save team name mode preference when it changes
-  useEffect(() => {
-    // Only run on client-side
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(TEAM_NAME_MODE_KEY, teamNameMode);
-    }
+    saveTeamNameMode(teamNameMode);
   }, [teamNameMode]);
 
   // Fetch available players and league teams when component mounts
@@ -155,7 +169,7 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
     updateNextSequentialLetter(leagueTeams);
   }, [leagueTeams]);
   
-  // Update team name when team name mode changes
+  // Update team name when team name mode changes or upon initial load
   useEffect(() => {
     updateTeamName();
   }, [teamNameMode, nextSequentialLetter]);
@@ -243,13 +257,26 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
       case 'funny':
         setTeamName(getRandomTeamName());
         break;
-      // For manual mode, keep the existing name
+      // For manual mode, only set the name if it's currently empty
+      case 'manual':
+        if (!teamName.trim()) {
+          setTeamName('');
+        }
+        break;
     }
   };
   
   // Generate a new random funny team name
   const generateRandomFunnyName = () => {
     setTeamName(getRandomTeamName());
+  };
+
+  // Callback for when a user changes the team name mode
+  const handleTeamNameModeChange = (value: string) => {
+    const mode = value as TeamNameMode;
+    setTeamNameMode(mode);
+    // Save the preference
+    saveTeamNameMode(mode);
   };
 
   const handleAddPlayer = (player: Player) => {
@@ -304,12 +331,16 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
 
       toast.success('Team created and added to league successfully');
       
-      // Reset form (but keep the team name mode)
+      // Reset selected players
       setSelectedPlayers([]);
+      
+      // Clear the team name
       setTeamName('');
       
-      // Generate a new team name based on the current mode
-      updateTeamName();
+      // Generate a new team name based on the current mode (after a brief delay)
+      setTimeout(() => {
+        updateTeamName();
+      }, 50);
       
       // Refresh teams list
       await fetchLeagueTeams();
@@ -477,386 +508,400 @@ export default function LeaguePlayerManager({ leagueId, onPlayersUpdated }: Leag
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Main 3-column layout */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Column 1: Available Players */}
-        <Card className="overflow-hidden border-2 border-muted h-full">
-          <CardHeader className="bg-muted/50 pb-4">
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-lg">
-                <span className="flex items-center">
-                  <Users className="mr-2 h-5 w-5" />
-                  Available Players
-                </span>
-              </CardTitle>
-              <Dialog open={showNewPlayerDialog} onOpenChange={setShowNewPlayerDialog}>
-                <DialogTrigger asChild>
-                  <Button size="sm">
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    New
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Create New Player</DialogTitle>
-                    <DialogDescription>
-                      Add a new player to the system. Players with email addresses can be invited later.
-                    </DialogDescription>
-                  </DialogHeader>
-                  
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="nickname">Nickname *</Label>
-                      <Input
-                        id="nickname"
-                        value={newPlayerNickname}
-                        onChange={(e) => setNewPlayerNickname(e.target.value)}
-                        placeholder="Player nickname"
-                      />
-                    </div>
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left Column: Available Players */}
+          <Card className="overflow-hidden border-2 border-muted">
+            <CardHeader className="bg-muted/50 pb-4">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-xl">
+                  <span className="flex items-center">
+                    <Users className="mr-2 h-5 w-5" />
+                    Available Players
+                  </span>
+                </CardTitle>
+                <Dialog open={showNewPlayerDialog} onOpenChange={setShowNewPlayerDialog}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      New Player
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Create New Player</DialogTitle>
+                      <DialogDescription>
+                        Add a new player to the system. Players with email addresses can be invited later.
+                      </DialogDescription>
+                    </DialogHeader>
                     
-                    <div className="grid gap-2">
-                      <Label htmlFor="email">Email (optional)</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={newPlayerEmail}
-                        onChange={(e) => setNewPlayerEmail(e.target.value)}
-                        placeholder="player@example.com"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        If provided, the player can be invited to join the platform later
-                      </p>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid gap-4 py-4">
                       <div className="grid gap-2">
-                        <Label htmlFor="skillLevel">Skill Level</Label>
-                        <Select value={newPlayerSkillLevel} onValueChange={setNewPlayerSkillLevel}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select skill level" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(level => (
-                                <SelectItem key={level} value={level.toString()}>
-                                  {level}
-                                </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Label htmlFor="nickname">Nickname *</Label>
+                        <Input
+                          id="nickname"
+                          value={newPlayerNickname}
+                          onChange={(e) => setNewPlayerNickname(e.target.value)}
+                          placeholder="Player nickname"
+                        />
                       </div>
                       
                       <div className="grid gap-2">
-                        <Label htmlFor="handedness">Handedness</Label>
-                        <Select value={newPlayerHandedness} onValueChange={setNewPlayerHandedness}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select handedness" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="right">Right</SelectItem>
-                            <SelectItem value="left">Left</SelectItem>
-                            <SelectItem value="ambidextrous">Ambidextrous</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="grid gap-2">
-                        <Label htmlFor="position">Position</Label>
-                        <Select value={newPlayerPosition} onValueChange={setNewPlayerPosition}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select position" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="forehand">Forehand</SelectItem>
-                            <SelectItem value="backhand">Backhand</SelectItem>
-                            <SelectItem value="both">Both</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <DialogFooter>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setShowNewPlayerDialog(false)}
-                      disabled={isCreatingPlayer}
-                    >
-                      Cancel
-                    </Button>
-                    <Button 
-                      onClick={handleCreatePlayer}
-                      disabled={!newPlayerNickname.trim() || isCreatingPlayer}
-                    >
-                      {isCreatingPlayer ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Creating...
-                        </>
-                      ) : (
-                        'Create Player'
-                      )}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-            
-            <div className="relative mt-4">
-              <Input
-                placeholder="Search players..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pr-10"
-              />
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
-                <Search className="h-4 w-4" />
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="h-[500px] overflow-y-auto">
-              {isLoading ? (
-                <div className="flex items-center justify-center h-full">
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                </div>
-              ) : filteredPlayers.length > 0 ? (
-                <div className="divide-y">
-                  {filteredPlayers.map((player) => (
-                    <div
-                      key={player.id}
-                      className="flex items-center p-4 hover:bg-muted/50 transition-colors cursor-pointer"
-                      onClick={() => handleAddPlayer(player)}
-                    >
-                      <div className="flex-1">
-                        <div className="font-medium flex items-center">
-                          {player.nickname}
-                        </div>
-                        <div className="text-sm text-muted-foreground flex items-center mt-1">
-                          <span className="inline-block mr-2">{getSkillLevelBadge(player.skillLevel)}</span>
-                          {player.email && (
-                            <span className="text-xs truncate max-w-[150px]">{player.email}</span>
-                          )}
-                        </div>
-                      </div>
-                      <Plus className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-                  <AlertCircle className="h-10 w-10 text-muted-foreground mb-4" />
-                  <p className="font-medium">No available players</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {searchQuery ? "Try another search term or create a new player" : 
-                    "All players are already in teams or selected"}
-                  </p>
-                  <Button 
-                    onClick={() => setShowNewPlayerDialog(true)}
-                    variant="outline" 
-                    className="mt-4"
-                  >
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Create New Player
-                  </Button>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Column 2: Team Creation */}
-        <Card className="border-2 border-muted h-full">
-          <CardHeader className="bg-muted/50">
-            <CardTitle className="text-lg">Create Team</CardTitle>
-            <CardDescription>
-              Select players and create a team
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="space-y-6">
-              {/* Team Name Selection */}
-              <div className="space-y-3">
-                <Label htmlFor="teamName" className="text-base font-medium">Team Name</Label>
-                <Tabs 
-                  value={teamNameMode}
-                  onValueChange={(value) => setTeamNameMode(value as 'manual' | 'sequential' | 'funny')}
-                  className="w-full"
-                >                    
-                  <TabsList className="grid grid-cols-3 w-full mb-4">
-                    <TabsTrigger value="manual">Manual</TabsTrigger>
-                    <TabsTrigger value="sequential">
-                      <ListOrdered className="h-4 w-4 mr-1" />
-                      Sequential
-                    </TabsTrigger>
-                    <TabsTrigger value="funny">
-                      <Sparkles className="h-4 w-4 mr-1" />
-                      Random
-                    </TabsTrigger>
-                  </TabsList>
-                  
-                  <div className="flex gap-2 items-center">
-                    <Input
-                      id="teamName"
-                      placeholder={teamNameMode === 'manual' ? "Enter team name" : "Team name will be generated"}
-                      value={teamName}
-                      onChange={(e) => setTeamName(e.target.value)}
-                      className="flex-1"
-                      disabled={teamNameMode !== 'manual'}
-                    />
-                    {teamNameMode !== 'manual' && (
-                      <Button type="button" variant="outline" onClick={updateTeamName} title="Generate another name">
-                        <RefreshCw className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </Tabs>
-              </div>
-              
-              {/* Selected Players */}
-              <div className="space-y-3">
-                <Label className="text-base font-medium">Selected Players ({selectedPlayers.length}/2)</Label>
-                <div className="space-y-3">
-                  {selectedPlayers.length > 0 ? (
-                    selectedPlayers.map((player, index) => (
-                      <div
-                        key={player.id}
-                        className="flex items-center justify-between p-3 border rounded-md bg-primary/5"
-                      >
-                        <div className="flex items-center">
-                          <div className={`w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-medium mr-3`}>
-                            {index + 1}
-                          </div>
-                          <div>
-                            <div className="font-medium">{player.nickname}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {getSkillLevelBadge(player.skillLevel)}
-                            </div>
-                          </div>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleRemovePlayer(player.id)}
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-6 border rounded-md text-center bg-muted/20">
-                      <div className="flex flex-col items-center justify-center">
-                        <Users className="h-8 w-8 text-muted-foreground mb-2" />
-                        <p className="font-medium">No players selected</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Click on players from the left panel
+                        <Label htmlFor="email">Email (optional)</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={newPlayerEmail}
+                          onChange={(e) => setNewPlayerEmail(e.target.value)}
+                          placeholder="player@example.com"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          If provided, the player can be invited to join the platform later
                         </p>
                       </div>
+                      
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="skillLevel">Skill Level</Label>
+                          <Select value={newPlayerSkillLevel} onValueChange={setNewPlayerSkillLevel}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select skill level" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(level => (
+                                  <SelectItem key={level} value={level.toString()}>
+                                    {level}
+                                  </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="grid gap-2">
+                          <Label htmlFor="handedness">Handedness</Label>
+                          <Select value={newPlayerHandedness} onValueChange={setNewPlayerHandedness}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select handedness" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="right">Right</SelectItem>
+                              <SelectItem value="left">Left</SelectItem>
+                              <SelectItem value="ambidextrous">Ambidextrous</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="grid gap-2">
+                          <Label htmlFor="position">Position</Label>
+                          <Select value={newPlayerPosition} onValueChange={setNewPlayerPosition}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select position" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="forehand">Forehand</SelectItem>
+                              <SelectItem value="backhand">Backhand</SelectItem>
+                              <SelectItem value="both">Both</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
                     </div>
-                  )}
+                    
+                    <DialogFooter>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowNewPlayerDialog(false)}
+                        disabled={isCreatingPlayer}
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        onClick={handleCreatePlayer}
+                        disabled={!newPlayerNickname.trim() || isCreatingPlayer}
+                      >
+                        {isCreatingPlayer ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Creating...
+                          </>
+                        ) : (
+                          'Create Player'
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              
+              <div className="relative mt-4">
+                <Input
+                  placeholder="Search players by name or email..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pr-10"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
+                  <Search className="h-4 w-4" />
                 </div>
               </div>
-            </div>
-          </CardContent>
-          <CardFooter className="flex-col space-y-3 bg-muted/20 border-t p-6 mt-auto">
-            {selectedPlayers.length === 0 ? (
-              <div className="text-sm text-muted-foreground text-center pb-2">
-                Select at least one player to create a team
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="h-[400px] overflow-y-auto">
+                {isLoading ? (
+                  <div className="flex items-center justify-center h-full">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </div>
+                ) : filteredPlayers.length > 0 ? (
+                  <div className="divide-y">
+                    {filteredPlayers.map((player) => (
+                      <div
+                        key={player.id}
+                        className="flex items-center p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                        onClick={() => handleAddPlayer(player)}
+                      >
+                        <div className="flex-1">
+                          <div className="font-medium flex items-center">
+                            {player.nickname}
+                          </div>
+                          <div className="text-sm text-muted-foreground flex items-center mt-1">
+                            <span className="inline-block mr-2">{getSkillLevelBadge(player.skillLevel)}</span>
+                            {player.email && (
+                              <span className="text-xs truncate max-w-[150px]">{player.email}</span>
+                            )}
+                          </div>
+                        </div>
+                        <Plus className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full p-6 text-center">
+                    <AlertCircle className="h-10 w-10 text-muted-foreground mb-4" />
+                    <p className="font-medium">No available players</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {searchQuery ? "Try another search term or create a new player" : 
+                      "All players are already in teams or selected"}
+                    </p>
+                    <Button 
+                      onClick={() => setShowNewPlayerDialog(true)}
+                      variant="outline" 
+                      className="mt-4"
+                    >
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Create New Player
+                    </Button>
+                  </div>
+                )}
               </div>
-            ) : !teamName.trim() ? (
-              <div className="text-sm text-muted-foreground text-center pb-2">
-                Enter a team name to continue
-              </div>
-            ) : null}
-            
-            <Button
-              onClick={handleCreateTeam}
-              disabled={selectedPlayers.length === 0 || !teamName.trim() || isCreatingTeam}
-              className="w-full"
-              size="lg"
-            >
-              {isCreatingTeam ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  Create Team
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </>
-              )}
-            </Button>
-          </CardFooter>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Column 3: Teams List */}
-        <Card className="border-2 border-muted h-full">
+          {/* Right Column: Team Creation */}
+          <Card className="border-2 border-muted">
+            <CardHeader className="bg-muted/50">
+              <CardTitle className="text-xl">Create Team</CardTitle>
+              <CardDescription>Select players and create a team for this league</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="space-y-6">
+                {/* Team Name Selection */}
+                <div className="space-y-3">
+                  <Label htmlFor="teamName" className="text-base font-medium">Team Name</Label>
+                  <Tabs 
+                    value={teamNameMode}
+                    onValueChange={handleTeamNameModeChange}
+                    className="w-full"
+                  >                    
+                    <TabsList className="grid grid-cols-3 w-full mb-4">
+                      <TabsTrigger value="manual">Manual</TabsTrigger>
+                      <TabsTrigger value="sequential">
+                        <ListOrdered className="h-4 w-4 mr-1" />
+                        Sequential
+                      </TabsTrigger>
+                      <TabsTrigger value="funny">
+                        <Sparkles className="h-4 w-4 mr-1" />
+                        Random
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    <div className="flex gap-2 items-center">
+                      <Input
+                        id="teamName"
+                        placeholder={teamNameMode === 'manual' ? "Enter team name" : "Team name will be generated"}
+                        value={teamName}
+                        onChange={(e) => setTeamName(e.target.value)}
+                        className="flex-1"
+                        disabled={teamNameMode !== 'manual'}
+                      />
+                      {teamNameMode !== 'manual' && (
+                        <Button type="button" variant="outline" onClick={teamNameMode === 'funny' ? generateRandomFunnyName : updateTeamName} title="Generate another name">
+                          <RefreshCw className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </Tabs>
+                </div>
+                
+                {/* Selected Players */}
+                <div className="space-y-3">
+                  <Label className="text-base font-medium">Selected Players ({selectedPlayers.length}/2)</Label>
+                  <div className="space-y-3">
+                    {selectedPlayers.length > 0 ? (
+                      selectedPlayers.map((player, index) => (
+                        <div
+                          key={player.id}
+                          className="flex items-center justify-between p-3 border rounded-md bg-primary/5"
+                        >
+                          <div className="flex items-center">
+                            <div className={`w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-medium mr-3`}>
+                              {index + 1}
+                            </div>
+                            <div>
+                              <div className="font-medium">{player.nickname}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {getSkillLevelBadge(player.skillLevel)}
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleRemovePlayer(player.id)}
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-6 border rounded-md text-center bg-muted/20">
+                        <div className="flex flex-col items-center justify-center">
+                          <Users className="h-10 w-10 text-muted-foreground mb-2" />
+                          <p className="font-medium">No players selected</p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Click on players from the left panel to add them to your team
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="flex-col space-y-3 bg-muted/20 border-t p-6">
+              {selectedPlayers.length === 0 ? (
+                <div className="text-sm text-muted-foreground text-center pb-2">
+                  Select at least one player to create a team
+                </div>
+              ) : !teamName.trim() ? (
+                <div className="text-sm text-muted-foreground text-center pb-2">
+                  Enter a team name to continue
+                </div>
+              ) : null}
+              
+              <Button
+                onClick={handleCreateTeam}
+                disabled={selectedPlayers.length === 0 || !teamName.trim() || isCreatingTeam}
+                className="w-full"
+                size="lg"
+              >
+                {isCreatingTeam ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    Create Team
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </>
+                )}
+              </Button>
+              
+              {selectedPlayers.length > 0 && teamName.trim() && (
+                <p className="text-sm text-center mt-2">
+                  Team will be automatically added to this league
+                </p>
+              )}
+            </CardFooter>
+          </Card>
+        </div>
+
+        {/* Teams List Below */}
+        <Card className="border-2 border-muted mt-6">
           <CardHeader className="bg-muted/50 pb-4">
-            <div>
-              <CardTitle className="text-lg flex items-center">
-                <Users className="h-5 w-5 mr-2" />
-                Teams in This League
-              </CardTitle>
-              <CardDescription>
-                {leagueTeams.length} teams registered
-              </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-xl flex items-center">
+                  <Users className="h-5 w-5 mr-2" />
+                  Teams in This League
+                </CardTitle>
+                <CardDescription>
+                  {leagueTeams.length} teams registered {leagueTeams.length > 0 ? `(${leagueTeams.reduce((count, team) => count + team.players.length, 0)} players total)` : ''}
+                </CardDescription>
+              </div>
             </div>
           </CardHeader>
-          <CardContent className="p-4 h-[500px] overflow-y-auto">
+          <CardContent>
             {isLoadingTeams ? (
-              <div className="flex items-center justify-center h-full">
+              <div className="flex items-center justify-center h-32">
                 <Loader2 className="h-6 w-6 animate-spin" />
               </div>
             ) : leagueTeams.length > 0 ? (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {leagueTeams.map((team) => (
                   <Card key={team.id} className="overflow-hidden hover:shadow-md transition-shadow">
                     <CardHeader className="bg-primary/5 pb-3">
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-base">{team.name}</CardTitle>
+                        <CardTitle className="flex items-center">
+                          {team.name}
+                        </CardTitle>
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10" 
                           onClick={() => handleDeleteTeam(team)}
                         >
                           <Trash className="h-4 w-4" />
                           <span className="sr-only">Delete team</span>
                         </Button>
                       </div>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary">
                         {team.players.length} player{team.players.length !== 1 ? 's' : ''}
                       </Badge>
                     </CardHeader>
                     
-                    <CardContent className="p-0 divide-y">
-                      {team.players.map((player) => (
-                        <div key={player.id} className="p-3 flex items-center">
-                          <div className={`w-7 h-7 rounded-full bg-muted flex items-center justify-center font-medium mr-2 text-sm`}>
-                            {player.nickname.charAt(0)}
-                          </div>
-                          <div>
-                            <div className="font-medium text-sm">{player.nickname}</div>
-                            <div className="text-xs text-muted-foreground flex items-center mt-0.5">
-                              {getSkillLevelBadge(player.skillLevel)}
+                    <CardContent className="p-0">
+                      <div className="divide-y">
+                        {team.players.map((player) => (
+                          <div key={player.id} className="p-4 flex items-center">
+                            <div className={`w-8 h-8 rounded-full bg-muted flex items-center justify-center font-medium mr-3`}>
+                              {player.nickname.charAt(0)}
+                            </div>
+                            <div>
+                              <div className="font-medium">{player.nickname}</div>
+                              <div className="text-sm text-muted-foreground flex items-center mt-1">
+                                {getSkillLevelBadge(player.skillLevel)}
+                                {player.handedness && (
+                                  <Badge variant="outline" className="ml-2 text-xs">
+                                    {player.handedness === 'right' ? 'Right-handed' : 
+                                     player.handedness === 'left' ? 'Left-handed' : 'Ambidextrous'}
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center">
+              <div className="flex flex-col items-center justify-center h-32 text-center">
                 <Users className="h-12 w-12 text-muted-foreground opacity-20 mb-2" />
                 <p className="text-muted-foreground">
-                  No teams have been created yet. 
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Create your first team using the center panel.
+                  No teams have been created yet. Create your first team above.
                 </p>
               </div>
             )}
