@@ -36,7 +36,8 @@ export default function LeaguePlayerManager({
   const { 
     availablePlayers, 
     setAvailablePlayers, 
-    isLoading: isLoadingPlayers
+    isLoading: isLoadingPlayers,
+    deletePlayer
   } = useAvailablePlayers();
   
   const { 
@@ -128,9 +129,6 @@ export default function LeaguePlayerManager({
         
         // Generate a new team name based on the current mode
         updateTeamName();
-        
-        // DO NOT call onPlayersUpdated() - this is what's causing the page reload
-        // The UI updates are already being handled optimistically
       }
     } finally {
       setIsCreatingTeam(false);
@@ -155,14 +153,21 @@ export default function LeaguePlayerManager({
     return null;
   };
 
+  const handleDeletePlayer = async (playerId: string) => {
+    // Check if player is in selected players, remove if so
+    if (selectedPlayers.some(p => p.id === playerId)) {
+      setSelectedPlayers(prev => prev.filter(p => p.id !== playerId));
+    }
+    
+    const success = await deletePlayer(playerId);
+    return success;
+  };
+
   const handleDeleteTeam = async (teamId: string, teamName: string) => {
     const success = await deleteTeam(teamId);
     
     if (success) {
       toast.success(`Team "${teamName}" deleted successfully`);
-      
-      // DO NOT call onPlayersUpdated() - this is what's causing the page reload
-      // The UI updates are already being handled optimistically
     }
     
     return success;
@@ -196,6 +201,7 @@ export default function LeaguePlayerManager({
             playersInTeams={playersInTeams}
             onAddPlayer={handleAddPlayer}
             onCreatePlayer={handleCreatePlayer}
+            onDeletePlayer={handleDeletePlayer}
             isCreatingPlayer={isCreatingPlayer}
           />
 
