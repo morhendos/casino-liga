@@ -62,12 +62,12 @@ export default function ScheduleVisualization({
 }: ScheduleVisualizationProps) {
   const [viewType, setViewType] = useState<"calendar" | "list">("calendar");
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
-  const [filteredTeam, setFilteredTeam] = useState<string>("");
+  const [filteredTeam, setFilteredTeam] = useState<string>("all");
   const [filteredMatches, setFilteredMatches] = useState<Match[]>(matches);
   
   // Update filtered matches when filter changes
   useEffect(() => {
-    if (filteredTeam) {
+    if (filteredTeam && filteredTeam !== "all") {
       setFilteredMatches(
         matches.filter(
           match => 
@@ -321,7 +321,7 @@ export default function ScheduleVisualization({
                   <SelectValue placeholder="All Teams" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Teams</SelectItem>
+                  <SelectItem value="all">All Teams</SelectItem>
                   {teams.map(team => (
                     <SelectItem key={team.id || team._id} value={team.id || team._id}>
                       {team.name}
