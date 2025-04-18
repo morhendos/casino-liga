@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth';
 import { withConnection } from '@/lib/db';
 import { LeagueModel, MatchModel } from '@/models';
 import { createLeagueSchedule } from '@/utils/scheduleGenerator';
+import { authOptions } from '@/lib/auth';
+import { hasRole, ROLES } from '@/lib/auth/role-utils';
 
 // GET /api/leagues/[id]/schedule - Get the schedule for a league
 export async function GET(
@@ -65,7 +67,8 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    // Use authOptions to get the session properly
+    const session = await getServerSession(authOptions);
     
     if (!session?.user) {
       return NextResponse.json(
@@ -84,8 +87,11 @@ export async function POST(
         throw new Error('League not found');
       }
       
-      // Check if user is the league organizer
-      if (league.organizer.toString() !== session.user.id) {
+      // Allow league creation if the user is an admin OR the league organizer
+      const isAdmin = hasRole(session, ROLES.ADMIN);
+      const isOrganizer = league.organizer && league.organizer.toString() === session.user.id;
+      
+      if (!isAdmin && !isOrganizer) {
         throw new Error('Only the league organizer can generate a schedule');
       }
       
@@ -98,7 +104,9 @@ export async function POST(
       const existingMatches = await MatchModel.countDocuments({ league: leagueId });
       
       if (existingMatches > 0) {
-        throw new Error('Schedule already exists for this league');
+        // If matches exist, delete them (regenerate)
+        await MatchModel.deleteMany({ league: leagueId });
+        console.log('Cleared existing schedule for regeneration');
       }
       
       // Check if there are enough teams
@@ -160,7 +168,8 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    // Use authOptions to get the session properly
+    const session = await getServerSession(authOptions);
     
     if (!session?.user) {
       return NextResponse.json(
@@ -179,8 +188,11 @@ export async function DELETE(
         throw new Error('League not found');
       }
       
-      // Check if user is the league organizer
-      if (league.organizer.toString() !== session.user.id) {
+      // Allow operation if the user is an admin OR the league organizer
+      const isAdmin = hasRole(session, ROLES.ADMIN);
+      const isOrganizer = league.organizer && league.organizer.toString() === session.user.id;
+      
+      if (!isAdmin && !isOrganizer) {
         throw new Error('Only the league organizer can clear a schedule');
       }
       
