@@ -7,7 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Users, ArrowLeft, Trophy, Settings, Edit, UserPlus, Sliders } from "lucide-react";
+import { 
+  Calendar, 
+  Users, 
+  ArrowLeft, 
+  Trophy, 
+  Settings, 
+  Edit, 
+  UserPlus, 
+  InfoIcon,
+  CheckCircle2,
+  Clock,
+  AlertCircle
+} from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
@@ -161,6 +173,77 @@ function LeagueDetailsPage() {
     }
   }
 
+  // Get recommended next action based on league status and setup
+  const getRecommendedAction = () => {
+    if (!league) return null;
+    
+    // If the league has no teams, recommend adding teams first
+    if (league.teams.length === 0) {
+      return {
+        label: "Add Teams",
+        action: () => setActiveTab("teams"),
+        description: "Start creating teams for this league",
+        icon: <Users className="h-5 w-5" />
+      };
+    }
+    
+    // If the league has teams but no schedule, recommend generating schedule
+    if (!league.scheduleGenerated && league.teams.length >= 2) {
+      return {
+        label: "Generate Schedule", 
+        action: () => setActiveTab("schedule"),
+        description: "Create a match schedule for the league",
+        icon: <Calendar className="h-5 w-5" />
+      };
+    }
+    
+    // Status-specific actions
+    switch(league.status) {
+      case 'draft':
+        return {
+          label: "Open Registration",
+          action: () => document.getElementById("open-registration-btn")?.click(),
+          description: "Allow teams to register for this league",
+          icon: <Users className="h-5 w-5" />
+        };
+        
+      case 'registration':
+        if (league.scheduleGenerated && league.teams.length >= league.minTeams) {
+          return {
+            label: "Start League",
+            action: () => document.getElementById("start-league-btn")?.click(),
+            description: "Activate the league to begin matches",
+            icon: <Trophy className="h-5 w-5" />
+          };
+        }
+        break;
+        
+      case 'active':
+        return {
+          label: "Record Results",
+          action: () => router.push(`/dashboard/leagues/${league.id}/matches`),
+          description: "Enter scores and results for matches",
+          icon: <Edit className="h-5 w-5" />
+        };
+    }
+    
+    return null;
+  };
+
+  // Calculate setup completion percentage
+  const getSetupCompletionPercentage = () => {
+    if (!league) return 0;
+    
+    let completed = 0;
+    const totalSteps = 3; // Create league, add teams, generate schedule
+    
+    completed += 1; // League already created
+    if (league.teams.length >= league.minTeams) completed += 1;
+    if (league.scheduleGenerated) completed += 1;
+    
+    return Math.round((completed / totalSteps) * 100);
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-12">
@@ -196,6 +279,9 @@ function LeagueDetailsPage() {
       </div>
     );
   }
+
+  const recommendedAction = getRecommendedAction();
+  const setupCompletionPercentage = getSetupCompletionPercentage();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -285,136 +371,254 @@ function LeagueDetailsPage() {
             
             {/* League Overview Tab - Visible to all users */}
             <TabsContent value="overview">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="md:col-span-2">
+              {/* Admin overview is dashboard-style */}
+              {isAdmin ? (
+                <div className="space-y-6">
+                  {/* Newly created league message */}
+                  {fromCreate && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                      <h3 className="text-blue-800 font-medium">Your league has been created successfully!</h3>
+                      <p className="text-blue-600 text-sm mt-1">
+                        Follow the steps in the sidebar to complete the setup process.
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* League status summary */}
                   <Card>
-                    <CardHeader>
-                      <CardTitle>League Details</CardTitle>
+                    <CardHeader className="pb-3">
+                      <CardTitle>League Status</CardTitle>
                       <CardDescription>
-                        {league.description || "No description provided"}
+                        Quick overview of your league
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <div className="text-sm text-muted-foreground">Format</div>
-                            <div>{formatMatchType(league.matchFormat)}</div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="flex flex-col justify-between border rounded-md p-4">
+                          <div className="text-sm text-muted-foreground mb-1">Teams</div>
+                          <div className="flex items-end justify-between">
+                            <div className="text-2xl font-bold">{league.teams.length}</div>
+                            <div className="text-sm text-muted-foreground">of {league.maxTeams} max</div>
                           </div>
-                          <div>
-                            <div className="text-sm text-muted-foreground">Venue</div>
-                            <div>{league.venue || "Not specified"}</div>
-                          </div>
-                          <div>
-                            <div className="text-sm text-muted-foreground">Start Date</div>
-                            <div>{formatDate(league.startDate)}</div>
-                          </div>
-                          <div>
-                            <div className="text-sm text-muted-foreground">End Date</div>
-                            <div>{formatDate(league.endDate)}</div>
-                          </div>
-                          {league.status === 'registration' && (
-                            <div>
-                              <div className="text-sm text-muted-foreground">Registration Deadline</div>
-                              <div>{formatDate(league.registrationDeadline)}</div>
+                          {league.teams.length < league.minTeams && (
+                            <div className="flex items-center mt-2 text-xs text-amber-600">
+                              <AlertCircle className="h-3 w-3 mr-1" />
+                              <span>Need {league.minTeams - league.teams.length} more team(s)</span>
                             </div>
                           )}
-                          <div>
-                            <div className="text-sm text-muted-foreground">Teams</div>
-                            <div>{league.teams.length} / {league.maxTeams}</div>
+                        </div>
+                        
+                        <div className="flex flex-col justify-between border rounded-md p-4">
+                          <div className="text-sm text-muted-foreground mb-1">Schedule</div>
+                          <div className="flex items-end justify-between">
+                            <div className="text-2xl font-bold">{league.scheduleGenerated ? "Generated" : "Not Created"}</div>
                           </div>
-                          <div>
-                            <div className="text-sm text-muted-foreground">Points System</div>
-                            <div>Win: {league.pointsPerWin} / Loss: {league.pointsPerLoss}</div>
+                          {!league.scheduleGenerated && league.teams.length >= 2 && (
+                            <div className="flex items-center mt-2 text-xs text-amber-600">
+                              <Clock className="h-3 w-3 mr-1" />
+                              <span>Schedule needs to be generated</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex flex-col justify-between border rounded-md p-4">
+                          <div className="text-sm text-muted-foreground mb-1">Setup Progress</div>
+                          <div className="flex items-end justify-between">
+                            <div className="text-2xl font-bold">{setupCompletionPercentage}%</div>
+                            <div className="text-sm text-muted-foreground">Completed</div>
                           </div>
-                          <div>
-                            <div className="text-sm text-muted-foreground">Organizer</div>
-                            <div>{league.organizer?.name || "Unknown"}</div>
+                          <div className="w-full bg-gray-100 rounded-full h-1.5 mt-2">
+                            <div
+                              className="bg-primary h-1.5 rounded-full transition-all duration-500 ease-in-out"
+                              style={{ width: `${setupCompletionPercentage}%` }}
+                            ></div>
                           </div>
                         </div>
                       </div>
                     </CardContent>
-                    <CardFooter className="flex gap-2">
-                      <Button asChild>
-                        <Link href={`/dashboard/leagues/${league.id}/schedule`}>
-                          <Calendar className="w-4 h-4 mr-2" />
-                          View Schedule
-                        </Link>
-                      </Button>
-                      <Button variant="outline" asChild>
-                        <Link href={`/dashboard/leagues/${league.id}/rankings`}>
-                          <Trophy className="w-4 h-4 mr-2" />
-                          View Rankings
+                  </Card>
+                  
+                  {/* Recommended action card */}
+                  {recommendedAction && (
+                    <Card className="bg-primary/5 border-primary/20">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="flex items-center text-lg">
+                          <InfoIcon className="h-5 w-5 mr-2 text-primary" />
+                          Recommended Action
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex items-start gap-4">
+                          <div className="bg-primary/10 rounded-full p-3">
+                            {recommendedAction.icon}
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-medium text-lg mb-1">{recommendedAction.label}</h3>
+                            <p className="text-muted-foreground">{recommendedAction.description}</p>
+                          </div>
+                          <Button onClick={recommendedAction.action}>
+                            {recommendedAction.label}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                  
+                  {/* Key league info summary */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle>League Information</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <div className="text-sm text-muted-foreground">Format</div>
+                          <div>{formatMatchType(league.matchFormat)}</div>
+                        </div>
+                        <div>
+                          <div className="text-sm text-muted-foreground">Venue</div>
+                          <div>{league.venue || "Not specified"}</div>
+                        </div>
+                        <div>
+                          <div className="text-sm text-muted-foreground">Dates</div>
+                          <div>
+                            {formatDate(league.startDate)} to {formatDate(league.endDate)}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-sm text-muted-foreground">Points System</div>
+                          <div>Win: {league.pointsPerWin} / Loss: {league.pointsPerLoss}</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/dashboard/leagues/${league.id}/edit`}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit League Details
                         </Link>
                       </Button>
                     </CardFooter>
                   </Card>
                 </div>
-                
-                <div>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Teams</CardTitle>
-                      <CardDescription>
-                        {league.teams.length} of {league.maxTeams} teams registered
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {league.teams.length > 0 ? (
+              ) : (
+                // Regular user view - keep existing layout
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div className="md:col-span-2">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>League Details</CardTitle>
+                        <CardDescription>
+                          {league.description || "No description provided"}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
                         <div className="space-y-4">
-                          {league.teams.map((team) => (
-                            <div 
-                              key={team.id || team._id} 
-                              className="flex items-center p-3 rounded-md border"
-                            >
-                              <div className="flex-1">
-                                <div className="font-medium">{team.name}</div>
-                                <div className="text-sm text-muted-foreground">
-                                  {team.players?.map(player => player.nickname).join(' & ')}
-                                </div>
-                              </div>
-                              <Button size="sm" variant="ghost" asChild>
-                                <Link href={`/dashboard/teams/${team.id || team._id}`}>
-                                  View
-                                </Link>
-                              </Button>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <div className="text-sm text-muted-foreground">Format</div>
+                              <div>{formatMatchType(league.matchFormat)}</div>
                             </div>
-                          ))}
+                            <div>
+                              <div className="text-sm text-muted-foreground">Venue</div>
+                              <div>{league.venue || "Not specified"}</div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-muted-foreground">Start Date</div>
+                              <div>{formatDate(league.startDate)}</div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-muted-foreground">End Date</div>
+                              <div>{formatDate(league.endDate)}</div>
+                            </div>
+                            {league.status === 'registration' && (
+                              <div>
+                                <div className="text-sm text-muted-foreground">Registration Deadline</div>
+                                <div>{formatDate(league.registrationDeadline)}</div>
+                              </div>
+                            )}
+                            <div>
+                              <div className="text-sm text-muted-foreground">Teams</div>
+                              <div>{league.teams.length} / {league.maxTeams}</div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-muted-foreground">Points System</div>
+                              <div>Win: {league.pointsPerWin} / Loss: {league.pointsPerLoss}</div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-muted-foreground">Organizer</div>
+                              <div>{league.organizer?.name || "Unknown"}</div>
+                            </div>
+                          </div>
                         </div>
-                      ) : (
-                        <div className="py-8 text-center text-muted-foreground">
-                          <Users className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                          <p>No teams have joined this league yet.</p>
-                          {isAdmin && (
-                            <p className="text-sm mt-2">
-                              Use the Teams tab to add teams to this league.
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </CardContent>
-                    {league.status === 'registration' && !isAdmin && (
-                      <CardFooter>
-                        <Button className="w-full" asChild>
-                          <Link href={`/dashboard/leagues/${league.id}/join`}>
-                            Join League
+                      </CardContent>
+                      <CardFooter className="flex gap-2">
+                        <Button asChild>
+                          <Link href={`/dashboard/leagues/${league.id}/schedule`}>
+                            <Calendar className="w-4 h-4 mr-2" />
+                            View Schedule
+                          </Link>
+                        </Button>
+                        <Button variant="outline" asChild>
+                          <Link href={`/dashboard/leagues/${league.id}/rankings`}>
+                            <Trophy className="w-4 h-4 mr-2" />
+                            View Rankings
                           </Link>
                         </Button>
                       </CardFooter>
-                    )}
-                    {isAdmin && league.teams.length === 0 && (
-                      <CardFooter>
-                        <Button 
-                          className="w-full" 
-                          onClick={() => setActiveTab("teams")}
-                        >
-                          Add Teams to League
-                        </Button>
-                      </CardFooter>
-                    )}
-                  </Card>
+                    </Card>
+                  </div>
+                  
+                  <div>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Teams</CardTitle>
+                        <CardDescription>
+                          {league.teams.length} of {league.maxTeams} teams registered
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {league.teams.length > 0 ? (
+                          <div className="space-y-4">
+                            {league.teams.map((team) => (
+                              <div 
+                                key={team.id || team._id} 
+                                className="flex items-center p-3 rounded-md border"
+                              >
+                                <div className="flex-1">
+                                  <div className="font-medium">{team.name}</div>
+                                  <div className="text-sm text-muted-foreground">
+                                    {team.players?.map(player => player.nickname).join(' & ')}
+                                  </div>
+                                </div>
+                                <Button size="sm" variant="ghost" asChild>
+                                  <Link href={`/dashboard/teams/${team.id || team._id}`}>
+                                    View
+                                  </Link>
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="py-8 text-center text-muted-foreground">
+                            <Users className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                            <p>No teams have joined this league yet.</p>
+                          </div>
+                        )}
+                      </CardContent>
+                      {league.status === 'registration' && !isAdmin && (
+                        <CardFooter>
+                          <Button className="w-full" asChild>
+                            <Link href={`/dashboard/leagues/${league.id}/join`}>
+                              Join League
+                            </Link>
+                          </Button>
+                        </CardFooter>
+                      )}
+                    </Card>
+                  </div>
                 </div>
-              </div>
+              )}
             </TabsContent>
             
             {/* Teams Tab - Consolidated team management for all users */}
