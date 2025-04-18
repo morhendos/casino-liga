@@ -5,9 +5,15 @@ import { useParams, useRouter } from "next/navigation";
 import withAuth from "@/components/auth/withAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Calendar, List, Settings } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { hasRole, ROLES } from "@/lib/auth/role-utils";
+import { useSession } from "next-auth/react";
+import ScheduleGenerationForm from "@/components/admin/ScheduleGenerationForm";
+import ScheduleManagementTable from "@/components/admin/ScheduleManagementTable";
+import ScheduleVisualization from "@/components/admin/ScheduleVisualization";
 
 interface Match {
   id: string;
@@ -34,26 +40,49 @@ interface Match {
   };
 }
 
+interface Team {
+  id: string;
+  _id: string;
+  name: string;
+  players: any[];
+}
+
 interface League {
   id: string;
   _id: string;
   name: string;
+  description?: string;
+  startDate: string;
+  endDate: string;
+  teams: Team[];
   scheduleGenerated: boolean;
   status: string;
   organizer: any;
+  venue?: string;
+  minTeams: number;
 }
 
 function LeagueSchedulePage() {
   const params = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const [matches, setMatches] = useState<Match[]>([]);
   const [league, setLeague] = useState<League | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingLeague, setIsLoadingLeague] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("view");
 
   // Extract the ID from params
   const leagueId = params?.id as string;
+
+  useEffect(() => {
+    if (session) {
+      const userIsAdmin = hasRole(session, ROLES.ADMIN);
+      setIsAdmin(userIsAdmin);
+    }
+  }, [session]);
 
   useEffect(() => {
     async function fetchLeagueDetails() {
@@ -76,7 +105,11 @@ function LeagueSchedulePage() {
         // Ensure ID is available in the expected format
         const processedLeague = {
           ...leagueData,
-          id: leagueData._id || leagueData.id
+          id: leagueData._id || leagueData.id,
+          teams: leagueData.teams?.map((team: any) => ({
+            ...team,
+            id: team._id || team.id
+          })) || []
         };
         
         setLeague(processedLeague);
@@ -92,69 +125,126 @@ function LeagueSchedulePage() {
     fetchLeagueDetails();
   }, [leagueId]);
 
-  useEffect(() => {
-    async function fetchSchedule() {
-      if (!leagueId || leagueId === "undefined") {
-        setError("Invalid league ID");
-        setIsLoading(false);
-        return;
-      }
-      
-      try {
-        setIsLoading(true);
-        const response = await fetch(`/api/leagues/${leagueId}/schedule`);
-        
-        if (!response.ok) {
-          throw new Error(`Error fetching schedule: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.matches) {
-          // Ensure each match has an id property
-          const processedMatches = data.matches.map((match: any) => ({
-            ...match,
-            id: match._id || match.id,
-            teamA: {
-              ...match.teamA,
-              id: match.teamA._id || match.teamA.id
-            },
-            teamB: {
-              ...match.teamB,
-              id: match.teamB._id || match.teamB.id
-            }
-          }));
-          
-          setMatches(processedMatches);
-        } else {
-          setMatches([]);
-        }
-      } catch (error) {
-        console.error("Error fetching schedule:", error);
-        setError("Failed to load schedule");
-        toast.error("Failed to load schedule");
-      } finally {
-        setIsLoading(false);
-      }
+  const fetchSchedule = async () => {
+    if (!leagueId || leagueId === "undefined") {
+      setError("Invalid league ID");
+      setIsLoading(false);
+      return;
     }
     
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/leagues/${leagueId}/schedule`);
+      
+      if (!response.ok) {
+        throw new Error(`Error fetching schedule: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Process matches
+      const processedMatches = data.map((match: any) => ({
+        ...match,
+        id: match._id || match.id,
+        teamA: {
+          ...match.teamA,
+          id: match.teamA._id || match.teamA.id
+        },
+        teamB: {
+          ...match.teamB,
+          id: match.teamB._id || match.teamB.id
+        }
+      }));
+      
+      setMatches(processedMatches);
+    } catch (error) {
+      console.error("Error fetching schedule:", error);
+      setError("Failed to load schedule");
+      toast.error("Failed to load schedule");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchSchedule();
   }, [leagueId]);
 
-  // Group matches by scheduled date
-  const matchesByDate: Record<string, Match[]> = {};
-  matches.forEach(match => {
-    const date = new Date(match.scheduledDate).toLocaleDateString();
-    if (!matchesByDate[date]) {
-      matchesByDate[date] = [];
+  const handleScheduleGenerated = () => {
+    fetchSchedule();
+    
+    // Reload league to update scheduleGenerated flag
+    async function reloadLeague() {
+      try {
+        const response = await fetch(`/api/leagues/${leagueId}`);
+        
+        if (!response.ok) {
+          throw new Error(`Error fetching league: ${response.statusText}`);
+        }
+        
+        const leagueData = await response.json();
+        
+        // Ensure ID is available in the expected format
+        const processedLeague = {
+          ...leagueData,
+          id: leagueData._id || leagueData.id,
+          teams: leagueData.teams?.map((team: any) => ({
+            ...team,
+            id: team._id || team.id
+          })) || []
+        };
+        
+        setLeague(processedLeague);
+        
+        // Switch to view tab after schedule is generated
+        setActiveTab("view");
+      } catch (error) {
+        console.error("Error reloading league:", error);
+      }
     }
-    matchesByDate[date].push(match);
-  });
+    
+    reloadLeague();
+  };
 
-  // Sort dates
-  const sortedDates = Object.keys(matchesByDate).sort((a, b) => {
-    return new Date(a).getTime() - new Date(b).getTime();
-  });
+  const handleScheduleCleared = () => {
+    setMatches([]);
+    
+    // Reload league to update scheduleGenerated flag
+    async function reloadLeague() {
+      try {
+        const response = await fetch(`/api/leagues/${leagueId}`);
+        
+        if (!response.ok) {
+          throw new Error(`Error fetching league: ${response.statusText}`);
+        }
+        
+        const leagueData = await response.json();
+        
+        // Ensure ID is available in the expected format
+        const processedLeague = {
+          ...leagueData,
+          id: leagueData._id || leagueData.id,
+          teams: leagueData.teams?.map((team: any) => ({
+            ...team,
+            id: team._id || team.id
+          })) || []
+        };
+        
+        setLeague(processedLeague);
+        
+        // Switch to generate tab after schedule is cleared
+        setActiveTab("generate");
+      } catch (error) {
+        console.error("Error reloading league:", error);
+      }
+    }
+    
+    reloadLeague();
+  };
+
+  const handleMatchClick = (matchId: string) => {
+    router.push(`/dashboard/matches/${matchId}`);
+  };
 
   if (isLoading || isLoadingLeague) {
     return (
@@ -211,105 +301,81 @@ function LeagueSchedulePage() {
         </h1>
       </div>
       
-      {!league?.scheduleGenerated ? (
+      {!league?.scheduleGenerated && !isAdmin ? (
         <Card className="max-w-3xl mx-auto text-center p-8">
           <CardHeader>
             <CardTitle>No Schedule Generated</CardTitle>
             <CardDescription>
-              This league doesn't have a schedule yet.
+              This league doesn't have a schedule yet. The league administrator will generate the schedule soon.
             </CardDescription>
           </CardHeader>
-          {league?.organizer?.id === "user_id_here" && (
-            <CardContent className="pt-4">
-              <Button>
-                Generate Schedule
-              </Button>
-            </CardContent>
-          )}
         </Card>
-      ) : matches.length === 0 ? (
+      ) : league?.scheduleGenerated && matches.length === 0 ? (
         <Card className="max-w-3xl mx-auto text-center p-8">
           <CardHeader>
-            <CardTitle>No Matches Scheduled</CardTitle>
+            <CardTitle>Loading Schedule</CardTitle>
             <CardDescription>
-              There are no matches scheduled for this league yet.
+              The schedule is being loaded. If this persists, please refresh the page.
             </CardDescription>
           </CardHeader>
         </Card>
       ) : (
-        <div className="space-y-8">
-          {sortedDates.map(date => (
-            <Card key={date} className="overflow-hidden">
-              <CardHeader className="bg-muted">
-                <CardTitle className="text-xl">
-                  {new Date(date).toLocaleDateString(undefined, { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="divide-y">
-                  {matchesByDate[date].map((match) => (
-                    <div 
-                      key={match.id || match._id} 
-                      className="p-4 hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="font-medium">{match.teamA.name}</div>
-                        </div>
-                        
-                        <div className="px-4 text-center">
-                          {match.status === 'completed' && match.result ? (
-                            <div className="font-bold">
-                              {match.result.teamAScore.join('-')} vs {match.result.teamBScore.join('-')}
-                            </div>
-                          ) : (
-                            <div className="text-muted-foreground">
-                              {match.scheduledTime || 'TBD'}
-                            </div>
-                          )}
-                          
-                          <div className="text-xs text-muted-foreground uppercase mt-1">
-                            {match.status === 'scheduled' && 'Upcoming'}
-                            {match.status === 'in_progress' && 'In Progress'}
-                            {match.status === 'completed' && 'Final'}
-                            {match.status === 'canceled' && 'Canceled'}
-                            {match.status === 'postponed' && 'Postponed'}
-                          </div>
-                        </div>
-                        
-                        <div className="flex-1 text-right">
-                          <div className="font-medium">{match.teamB.name}</div>
-                        </div>
-                      </div>
-                      
-                      {match.location && (
-                        <div className="text-sm text-muted-foreground mt-2">
-                          Location: {match.location}
-                        </div>
-                      )}
-                      
-                      <div className="mt-3 flex justify-end">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          asChild
-                        >
-                          <Link href={`/dashboard/matches/${match.id || match._id}`}>
-                            Match Details
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div>
+          {isAdmin ? (
+            <Tabs defaultValue={league?.scheduleGenerated ? "view" : "generate"} value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="mb-6">
+                <TabsTrigger value="view" disabled={!league?.scheduleGenerated}>
+                  <Calendar className="w-4 h-4 mr-2" />
+                  View Schedule
+                </TabsTrigger>
+                <TabsTrigger value="manage" disabled={!league?.scheduleGenerated}>
+                  <List className="w-4 h-4 mr-2" />
+                  Manage Matches
+                </TabsTrigger>
+                <TabsTrigger value="generate">
+                  <Settings className="w-4 h-4 mr-2" />
+                  {league?.scheduleGenerated ? 'Regenerate Schedule' : 'Generate Schedule'}
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="view">
+                <ScheduleVisualization 
+                  matches={matches} 
+                  teams={league?.teams || []} 
+                  onMatchClick={handleMatchClick} 
+                />
+              </TabsContent>
+              
+              <TabsContent value="manage">
+                <ScheduleManagementTable 
+                  matches={matches} 
+                  leagueId={leagueId} 
+                  isAdmin={isAdmin}
+                  onMatchUpdated={fetchSchedule}
+                  onScheduleCleared={handleScheduleCleared}
+                />
+              </TabsContent>
+              
+              <TabsContent value="generate">
+                <ScheduleGenerationForm 
+                  leagueId={leagueId}
+                  teamsCount={league?.teams?.length || 0}
+                  minTeams={league?.minTeams || 2}
+                  startDate={league?.startDate || new Date()}
+                  endDate={league?.endDate || new Date()}
+                  venue={league?.venue}
+                  onScheduleGenerated={handleScheduleGenerated}
+                />
+              </TabsContent>
+            </Tabs>
+          ) : (
+            // Non-admin view
+            <ScheduleVisualization 
+              matches={matches} 
+              teams={league?.teams || []} 
+              onMatchClick={handleMatchClick} 
+            />
+          )}
         </div>
       )}
     </div>
