@@ -5,6 +5,7 @@ root/
 ├── docs
 │   ├── ADMIN-INVITATION-FLOW.md
 │   ├── ADMIN-WORKFLOW-CHECKLIST.md
+│   ├── LEAGUE-MANAGEMENT-IMPLEMENTATION-PLAN.md
 │   ├── PLAYER-TEAM-LEAGUE-FLOW.md
 │   ├── PROGRESS-REPORT.md
 │   ├── ROLE-BASED-ACCESS-PLAN.md
@@ -53,6 +54,8 @@ root/
 │   │   │   │   │   ├── route.ts
 │   │   │   │   │   ├── schedule
 │   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── status
+│   │   │   │   │   │   └── route.ts
 │   │   │   │   │   └── teams
 │   │   │   │   │       └── route.ts
 │   │   │   │   └── route.ts
@@ -87,6 +90,8 @@ root/
 │   │   │   ├── leagues
 │   │   │   │   ├── [id]
 │   │   │   │   │   ├── edit
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   ├── manage
 │   │   │   │   │   │   └── page.tsx
 │   │   │   │   │   ├── page.tsx
 │   │   │   │   │   ├── rankings
@@ -137,6 +142,8 @@ root/
 │   │   │   │   ├── TeamList.tsx
 │   │   │   │   └── index.ts
 │   │   │   ├── LeaguePlayerManager.tsx
+│   │   │   ├── LeagueSetupProgress.tsx
+│   │   │   ├── LeagueStatusManager.tsx
 │   │   │   ├── PlayerInvitationManagement.tsx
 │   │   │   ├── PlayerManagement.tsx
 │   │   │   ├── RoleManagement.tsx
