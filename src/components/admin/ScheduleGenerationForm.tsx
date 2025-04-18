@@ -9,26 +9,15 @@ import {
   CardContent, 
   CardFooter 
 } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarIcon, Info, Check, Loader2 } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { Label } from "@/components/ui/label";
 
 interface ScheduleGenerationFormProps {
   leagueId: string;
@@ -45,17 +34,6 @@ const schedulingAlgorithms = [
   { id: "double-round-robin", name: "Double Round Robin", description: "Each team plays against every other team twice (home and away)", disabled: true },
 ];
 
-// Define the form schema
-const formSchema = z.object({
-  algorithm: z.string().default("round-robin"),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
-  matchesPerDay: z.coerce.number().int().min(1).default(1),
-  venue: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
 export default function ScheduleGenerationForm({
   leagueId,
   teamsCount,
@@ -67,6 +45,15 @@ export default function ScheduleGenerationForm({
 }: ScheduleGenerationFormProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [algorithm, setAlgorithm] = useState("round-robin");
+  const [selectedStartDate, setSelectedStartDate] = useState<Date | undefined>(
+    typeof startDate === 'string' ? new Date(startDate) : startDate
+  );
+  const [selectedEndDate, setSelectedEndDate] = useState<Date | undefined>(
+    typeof endDate === 'string' ? new Date(endDate) : endDate
+  );
+  const [matchesPerDay, setMatchesPerDay] = useState(1);
+  const [venueValue, setVenueValue] = useState(venue || "");
 
   // Parse the date strings into Date objects
   const defaultStartDate = typeof startDate === 'string' ? new Date(startDate) : startDate;
@@ -75,20 +62,8 @@ export default function ScheduleGenerationForm({
   // Calculate required matches for round-robin
   const requiredMatches = teamsCount > 0 ? (teamsCount * (teamsCount - 1)) / 2 : 0;
 
-  // Create form
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      algorithm: "round-robin",
-      startDate: defaultStartDate,
-      endDate: defaultEndDate,
-      matchesPerDay: 1,
-      venue: venue || "",
-    },
-  });
-
   // Handle form submission
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async () => {
     try {
       setIsGenerating(true);
       
@@ -98,7 +73,13 @@ export default function ScheduleGenerationForm({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          algorithm,
+          startDate: selectedStartDate,
+          endDate: selectedEndDate,
+          matchesPerDay,
+          venue: venueValue
+        }),
       });
 
       if (!response.ok) {
@@ -125,12 +106,11 @@ export default function ScheduleGenerationForm({
   const hasEnoughTeams = teamsCount >= minTeams;
 
   // Calculate available days between start and end dates
-  const availableDays = form.watch("startDate") && form.watch("endDate") ? 
-    Math.floor((form.watch("endDate")!.getTime() - form.watch("startDate")!.getTime()) / (1000 * 60 * 60 * 24)) + 1 
+  const availableDays = selectedStartDate && selectedEndDate ? 
+    Math.floor((selectedEndDate.getTime() - selectedStartDate.getTime()) / (1000 * 60 * 60 * 24)) + 1 
     : 0;
 
   // Calculate if there are enough days for the schedule
-  const matchesPerDay = form.watch("matchesPerDay") || 1;
   const daysNeeded = Math.ceil(requiredMatches / matchesPerDay);
   const hasEnoughDays = availableDays >= daysNeeded;
 
@@ -176,203 +156,163 @@ export default function ScheduleGenerationForm({
       )}
 
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="algorithm"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Scheduling Algorithm</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value}
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="algorithm">Scheduling Algorithm</Label>
+            <Select 
+              value={algorithm} 
+              onValueChange={setAlgorithm}
+              disabled={isGenerating}
+            >
+              <SelectTrigger id="algorithm">
+                <SelectValue placeholder="Select an algorithm" />
+              </SelectTrigger>
+              <SelectContent>
+                {schedulingAlgorithms.map((algo) => (
+                  <SelectItem 
+                    key={algo.id} 
+                    value={algo.id}
+                    disabled={algo.disabled}
+                  >
+                    {algo.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-sm text-muted-foreground">
+              {schedulingAlgorithms.find(a => a.id === algorithm)?.description}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="startDate">Start Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="startDate"
+                    variant={"outline"}
+                    className={"w-full pl-3 text-left font-normal"}
                     disabled={isGenerating}
                   >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an algorithm" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {schedulingAlgorithms.map((algorithm) => (
-                        <SelectItem 
-                          key={algorithm.id} 
-                          value={algorithm.id}
-                          disabled={algorithm.disabled}
-                        >
-                          {algorithm.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    {schedulingAlgorithms.find(a => a.id === field.value)?.description}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="startDate"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Start Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={
-                              "w-full pl-3 text-left font-normal"
-                            }
-                            disabled={isGenerating}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) =>
-                            date < new Date(new Date().setHours(0, 0, 0, 0)) ||
-                            (form.watch("endDate") ? date > form.watch("endDate")! : false)
-                          }
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="endDate"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>End Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={
-                              "w-full pl-3 text-left font-normal"
-                            }
-                            disabled={isGenerating}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) =>
-                            form.watch("startDate") ? date < form.watch("startDate")! : date < new Date(new Date().setHours(0, 0, 0, 0))
-                          }
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    {selectedStartDate ? (
+                      format(selectedStartDate, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={selectedStartDate}
+                    onSelect={setSelectedStartDate}
+                    disabled={(date) =>
+                      date < new Date(new Date().setHours(0, 0, 0, 0)) ||
+                      (selectedEndDate ? date > selectedEndDate : false)
+                    }
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
 
-            <FormField
-              control={form.control}
-              name="matchesPerDay"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Matches Per Day</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      min={1} 
-                      {...field} 
-                      disabled={isGenerating} 
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    For {requiredMatches} total matches, you need at least {daysNeeded} days at this rate
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <div className="space-y-2">
+              <Label htmlFor="endDate">End Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="endDate"
+                    variant={"outline"}
+                    className={"w-full pl-3 text-left font-normal"}
+                    disabled={isGenerating}
+                  >
+                    {selectedEndDate ? (
+                      format(selectedEndDate, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={selectedEndDate}
+                    onSelect={setSelectedEndDate}
+                    disabled={(date) =>
+                      selectedStartDate ? date < selectedStartDate : date < new Date(new Date().setHours(0, 0, 0, 0))
+                    }
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="matchesPerDay">Matches Per Day</Label>
+            <Input 
+              id="matchesPerDay"
+              type="number" 
+              min={1} 
+              value={matchesPerDay}
+              onChange={(e) => setMatchesPerDay(parseInt(e.target.value) || 1)}
+              disabled={isGenerating} 
             />
+            <p className="text-sm text-muted-foreground">
+              For {requiredMatches} total matches, you need at least {daysNeeded} days at this rate
+            </p>
+          </div>
 
-            <FormField
-              control={form.control}
-              name="venue"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Default Venue (Optional)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="e.g., Main Sports Hall" 
-                      {...field} 
-                      value={field.value || ""}
-                      disabled={isGenerating} 
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Will be applied to all matches
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
+          <div className="space-y-2">
+            <Label htmlFor="venue">Default Venue (Optional)</Label>
+            <Input 
+              id="venue"
+              placeholder="e.g., Main Sports Hall" 
+              value={venueValue}
+              onChange={(e) => setVenueValue(e.target.value)}
+              disabled={isGenerating} 
             />
+            <p className="text-sm text-muted-foreground">
+              Will be applied to all matches
+            </p>
+          </div>
 
-            {!hasEnoughTeams && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 text-sm text-yellow-800">
-                <p className="font-medium">Not Enough Teams</p>
-                <p>You need at least {minTeams} teams to generate a schedule. Currently have {teamsCount}.</p>
-              </div>
-            )}
+          {!hasEnoughTeams && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 text-sm text-yellow-800">
+              <p className="font-medium">Not Enough Teams</p>
+              <p>You need at least {minTeams} teams to generate a schedule. Currently have {teamsCount}.</p>
+            </div>
+          )}
 
-            {hasEnoughTeams && availableDays > 0 && !hasEnoughDays && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 text-sm text-yellow-800">
-                <p className="font-medium">Not Enough Days</p>
-                <p>
-                  You need at least {daysNeeded} days for {requiredMatches} matches at {matchesPerDay} matches per day. 
-                  Current date range has {availableDays} days.
-                </p>
-              </div>
-            )}
-          </form>
-        </Form>
+          {hasEnoughTeams && availableDays > 0 && !hasEnoughDays && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 text-sm text-yellow-800">
+              <p className="font-medium">Not Enough Days</p>
+              <p>
+                You need at least {daysNeeded} days for {requiredMatches} matches at {matchesPerDay} matches per day. 
+                Current date range has {availableDays} days.
+              </p>
+            </div>
+          )}
+        </div>
       </CardContent>
 
       <CardFooter className="flex justify-between">
         <Button 
-          onClick={() => form.reset()}
+          onClick={() => {
+            setAlgorithm("round-robin");
+            setSelectedStartDate(typeof startDate === 'string' ? new Date(startDate) : startDate);
+            setSelectedEndDate(typeof endDate === 'string' ? new Date(endDate) : endDate);
+            setMatchesPerDay(1);
+            setVenueValue(venue || "");
+          }}
           variant="outline"
           disabled={isGenerating}
         >
           Reset
         </Button>
         <Button 
-          onClick={form.handleSubmit(onSubmit)} 
+          onClick={onSubmit} 
           disabled={isGenerating || !hasEnoughTeams || !hasEnoughDays}
         >
           {isGenerating ? (
