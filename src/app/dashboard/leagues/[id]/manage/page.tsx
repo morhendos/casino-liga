@@ -5,10 +5,10 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import withRoleAuth from "@/components/auth/withRoleAuth";
 import { ROLES } from "@/lib/auth/role-utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { ArrowLeft, LayoutDashboard, Users, CalendarDays, Settings } from "lucide-react";
+import { ArrowLeft, LayoutDashboard, Users, CalendarDays, Settings, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import LeaguePlayerManager from "@/components/admin/LeaguePlayerManager";
 import LeagueStatusManager from "@/components/admin/LeagueStatusManager";
@@ -325,8 +325,19 @@ function LeagueManagePage() {
                       </Button>
                     </div>
                   ) : league.scheduleGenerated ? (
-                    <div className="text-center py-12">
-                      <p>Schedule viewer will be implemented in the next phase.</p>
+                    <div className="space-y-6">
+                      <div className="text-center bg-green-50 border border-green-100 rounded-md p-6">
+                        <CheckCircle2 className="h-12 w-12 mx-auto text-green-500 mb-4" />
+                        <h3 className="text-lg font-medium mb-2 text-green-700">Schedule Generated</h3>
+                        <p className="text-green-600 mb-6">
+                          Your league schedule has been created and is ready for use.
+                        </p>
+                        <Button asChild>
+                          <Link href={`/dashboard/leagues/${league.id}/schedule`}>
+                            View & Manage Schedule
+                          </Link>
+                        </Button>
+                      </div>
                     </div>
                   ) : (
                     <div className="text-center py-12">
@@ -335,8 +346,10 @@ function LeagueManagePage() {
                       <p className="text-muted-foreground mb-6">
                         Create a round-robin schedule for all teams in this league.
                       </p>
-                      <Button>
-                        Generate Schedule
+                      <Button asChild>
+                        <Link href={`/dashboard/leagues/${league.id}/schedule?tab=generate`}>
+                          Generate Schedule
+                        </Link>
                       </Button>
                     </div>
                   )}
