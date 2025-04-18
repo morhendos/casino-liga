@@ -36,6 +36,12 @@ The application has a solid foundation for league management with:
   - [x] Show completion status for each step
   - [x] Add quick links to complete missing steps
 
+- [x] **UI Integration**
+  - [x] Integrate status management into league details page
+  - [x] Add sidebar layout for admin controls
+  - [x] Ensure responsive design on all screen sizes
+  - [x] Provide consistent visual style with existing UI
+
 ### 2. Schedule Generation and Management
 
 **Goal**: Enable admins to create, visualize, and manage league schedules.
@@ -137,6 +143,7 @@ The application has a solid foundation for league management with:
 1. **League Workflow Management (1-2 weeks)**
    - ✅ Starting with `LeagueStatusManager` component
    - ✅ Focusing on clear status transitions and guidance
+   - ✅ Integrated into existing league details page
 
 2. **Schedule Generation and Management (1-2 weeks)**
    - Implementation after team creation is working well
@@ -153,19 +160,6 @@ The application has a solid foundation for league management with:
 5. **User Experience Enhancements (ongoing)**
    - Applying throughout the implementation process
    - Focusing on pain points identified during testing
-
-## First Steps
-
-- [x] Create `LeagueStatusManager` component
-  - [x] Display current league status
-  - [x] Show available status transitions
-  - [x] Implement validation for status changes
-  - [x] Add confirmation modals for irreversible changes
-
-- [x] Implement league overview dashboard
-  - [x] Show league completion status
-  - [x] Display next recommended actions
-  - [x] Create quick access to management functions
 
 ## Next Steps
 
