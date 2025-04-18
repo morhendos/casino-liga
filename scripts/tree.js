@@ -22,7 +22,7 @@ function generateTree(startPath, prefix = "") {
   return tree;
 }
 
-const treeOutput = "subscription-tracker/\n" + generateTree(process.cwd());
+const treeOutput = "root/\n" + generateTree(process.cwd());
 console.log(treeOutput);
 
 // Save to file

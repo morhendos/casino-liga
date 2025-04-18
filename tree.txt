@@ -1,4 +1,4 @@
-subscription-tracker/
+root/
 ├── IMPLEMENTATION-STATUS.md
 ├── README.md
 ├── SETUP.md
@@ -130,6 +130,12 @@ subscription-tracker/
 │   │   │   ├── DeleteLeagueButton.tsx
 │   │   │   ├── DeleteTeamButton.tsx
 │   │   │   ├── LeagueManagement.tsx
+│   │   │   ├── LeaguePlayerManager
+│   │   │   │   ├── PlayerList.tsx
+│   │   │   │   ├── TeamCard.tsx
+│   │   │   │   ├── TeamCreationForm.tsx
+│   │   │   │   ├── TeamList.tsx
+│   │   │   │   └── index.ts
 │   │   │   ├── LeaguePlayerManager.tsx
 │   │   │   ├── PlayerInvitationManagement.tsx
 │   │   │   ├── PlayerManagement.tsx
@@ -157,6 +163,9 @@ subscription-tracker/
 │   │   ├── loading.tsx
 │   │   ├── settings
 │   │   │   └── HeaderControls.tsx
+│   │   ├── teams
+│   │   │   ├── TeamsListSection.tsx
+│   │   │   └── index.ts
 │   │   ├── ui
 │   │   │   ├── IconButton.tsx
 │   │   │   ├── alert-dialog.tsx
@@ -190,7 +199,9 @@ subscription-tracker/
 │   │   ├── environment.ts
 │   │   └── index.ts
 │   ├── hooks
+│   │   ├── useLeagueData.ts
 │   │   ├── useLocalStorage.ts
+│   │   ├── useTeamNameMode.ts
 │   │   └── useTheme.ts
 │   ├── lib
 │   │   ├── auth
