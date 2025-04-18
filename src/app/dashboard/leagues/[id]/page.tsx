@@ -427,9 +427,9 @@ function LeagueDetailsPage() {
                             <div className="text-2xl font-bold">{setupCompletionPercentage}%</div>
                             <div className="text-sm text-muted-foreground">Completed</div>
                           </div>
-                          <div className="w-full bg-gray-100 rounded-full h-1.5 mt-2">
+                          <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
                             <div
-                              className="bg-primary h-1.5 rounded-full transition-all duration-500 ease-in-out"
+                              className="bg-blue-600 h-1.5 rounded-full transition-all duration-500 ease-in-out"
                               style={{ width: `${setupCompletionPercentage}%` }}
                             ></div>
                           </div>
