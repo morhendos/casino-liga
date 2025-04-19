@@ -1,101 +1,61 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { withConnection } from '@/lib/db';
-import { PlayerModel, TeamModel, LeagueModel } from '@/models';
+import { LeagueModel, TeamModel, PlayerModel } from '@/models';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 /**
- * GET /api/players/leagues
- * 
- * Get all leagues where the current authenticated player is participating via their teams
+ * API endpoint to get all players in a league
+ * GET /api/players/leagues?leagueId=123
  */
 export async function GET(request: Request) {
   try {
-    const session = await getServerSession();
-    
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // Verify user is authenticated
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
-    // Get parameters
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
-    const active = searchParams.get('active') === 'true';
-    
-    const playerLeaguesData = await withConnection(async () => {
-      // 1. Find the player profile for the current user
-      const player = await PlayerModel.findOne({ userId: session.user.id });
-      
-      if (!player) {
-        return {
-          leagues: [],
-          pagination: {
-            total: 0,
-            page: 1,
-            limit: 10,
-            pages: 0
-          }
-        };
+
+    // Get query parameters
+    const url = new URL(request.url);
+    const leagueId = url.searchParams.get('leagueId');
+
+    if (!leagueId) {
+      return NextResponse.json({ error: 'League ID is required' }, { status: 400 });
+    }
+
+    // Get players for the specified league
+    const players = await withConnection(async () => {
+      // First, check if the league exists
+      const league = await LeagueModel.findById(leagueId);
+      if (!league) {
+        throw new Error('League not found');
       }
+
+      // Get all teams in the league
+      const teams = await TeamModel.find({ _id: { $in: league.teams } });
       
-      // 2. Find teams where the player is a member
-      const teams = await TeamModel.find({ players: player._id });
+      // Extract player IDs from all teams
+      const playerIds = teams.reduce((acc, team) => {
+        return [...acc, ...(team.players || [])];
+      }, []);
+
+      // Get all players
+      const players = await PlayerModel.find({ _id: { $in: playerIds } });
       
-      if (teams.length === 0) {
-        return {
-          leagues: [],
-          pagination: {
-            total: 0,
-            page: 1,
-            limit: 10,
-            pages: 0
-          }
-        };
-      }
-      
-      const teamIds = teams.map(team => team._id);
-      
-      // 3. Find leagues where these teams are participating
-      let leagueQuery: any = { teams: { $in: teamIds } };
-      
-      // Add status filter if provided
-      if (status) {
-        leagueQuery.status = status;
-      } else if (active) {
-        // If active=true is specified, filter to active and registration leagues
-        leagueQuery.status = { $in: ['active', 'registration'] };
-      }
-      
-      const leagues = await LeagueModel.find(leagueQuery)
-        .populate('organizer', 'name email')
-        .populate({
-          path: 'teams',
-          populate: {
-            path: 'players',
-            select: 'nickname skillLevel'
-          }
-        })
-        .sort({ startDate: -1 });
-      
-      return {
-        leagues,
-        pagination: {
-          total: leagues.length,
-          page: 1,
-          limit: leagues.length,
-          pages: 1
-        }
-      };
+      // Format the response
+      return players.map(player => ({
+        id: player._id,
+        nickname: player.nickname || 'Unnamed Player',
+        name: player.name
+      }));
     });
-    
-    return NextResponse.json(playerLeaguesData);
+
+    return NextResponse.json({ players });
   } catch (error) {
-    console.error('Error fetching player leagues:', error);
-    
+    console.error('Error fetching players by league:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch player leagues' },
+      { error: 'Failed to fetch players', message: error instanceof Error ? error.message : 'Unknown error' }, 
       { status: 500 }
     );
   }
