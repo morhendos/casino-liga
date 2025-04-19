@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Activity, Users, FileText, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { PlayerAnalyticsPanel } from '@/components/analytics/PlayerAnalyticsPanel';
 
 export const metadata: Metadata = {
   title: 'League Analytics',
@@ -65,20 +66,7 @@ export default async function LeagueAnalyticsPage({ params }: { params: { id: st
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground mb-6">
-                Select a player to view their performance metrics for this league.
-                This section will be expanded to show all players in the league with search and filtering.
-              </p>
-              
-              {/* Just show a message about future implementation */}
-              <div className="text-center py-8 border rounded-md">
-                <p className="text-muted-foreground">
-                  Player analytics will be available in a future update.
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  This feature will allow you to view detailed statistics for each player in the league.
-                </p>
-              </div>
+              <PlayerAnalyticsPanel leagueId={leagueId} />
             </CardContent>
           </Card>
         </TabsContent>
