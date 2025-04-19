@@ -4,51 +4,43 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import withAuth from "@/components/auth/withAuth";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, RefreshCw, Trophy, Calendar, FileBarChart } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-
-interface Ranking {
-  id: string;
-  _id: string;
-  league: string;
-  team: {
-    id: string;
-    name: string;
-    players: any[];
-  };
-  rank: number;
-  matchesPlayed: number;
-  matchesWon: number;
-  matchesLost: number;
-  setsWon: number;
-  setsLost: number;
-  gamesWon: number;
-  gamesLost: number;
-  points: number;
-}
+import { hasRole, ROLES } from "@/lib/auth/role-utils";
+import { useSession } from "next-auth/react";
+import LeagueRankingsTable from "@/components/league/LeagueRankingsTable";
 
 interface League {
   id: string;
-  _id: string;
   name: string;
-  teams: any[];
+  description?: string;
   status: string;
+  scheduleGenerated: boolean;
+  teams: any[];
 }
 
 function LeagueRankingsPage() {
   const params = useParams();
   const router = useRouter();
-  const [rankings, setRankings] = useState<Ranking[]>([]);
+  const { data: session } = useSession();
   const [league, setLeague] = useState<League | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isLoadingLeague, setIsLoadingLeague] = useState(true);
+  const [isRecalculating, setIsRecalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const [isAdmin, setIsAdmin] = useState(false);
+  
   // Extract the ID from params
   const leagueId = params?.id as string;
-
+  
+  useEffect(() => {
+    if (session) {
+      const userIsAdmin = hasRole(session, ROLES.ADMIN);
+      setIsAdmin(userIsAdmin);
+    }
+  }, [session]);
+  
   useEffect(() => {
     async function fetchLeagueDetails() {
       if (!leagueId || leagueId === "undefined") {
@@ -70,11 +62,7 @@ function LeagueRankingsPage() {
         // Ensure ID is available in the expected format
         const processedLeague = {
           ...leagueData,
-          id: leagueData._id || leagueData.id,
-          teams: leagueData.teams?.map((team: any) => ({
-            ...team,
-            id: team._id || team.id
-          })) || []
+          id: leagueData._id || leagueData.id
         };
         
         setLeague(processedLeague);
@@ -89,62 +77,42 @@ function LeagueRankingsPage() {
     
     fetchLeagueDetails();
   }, [leagueId]);
-
-  useEffect(() => {
-    async function fetchRankings() {
-      if (!leagueId || leagueId === "undefined") {
-        setError("Invalid league ID");
-        setIsLoading(false);
-        return;
+  
+  // Function to handle recalculation of rankings
+  const handleRecalculateRankings = async () => {
+    if (!leagueId) return;
+    
+    try {
+      setIsRecalculating(true);
+      const response = await fetch(`/api/leagues/${leagueId}/rankings/recalculate`, {
+        method: 'POST'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error recalculating rankings: ${response.statusText}`);
       }
       
-      try {
-        setIsLoading(true);
-        const response = await fetch(`/api/leagues/${leagueId}/rankings`);
-        
-        if (!response.ok) {
-          throw new Error(`Error fetching rankings: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.rankings) {
-          // Ensure each ranking has an id property and team has an id property
-          const processedRankings = data.rankings.map((ranking: any) => ({
-            ...ranking,
-            id: ranking._id || ranking.id,
-            team: {
-              ...ranking.team,
-              id: ranking.team._id || ranking.team.id
-            }
-          }));
-          
-          // Sort rankings by rank or points
-          const sortedRankings = processedRankings.sort((a: Ranking, b: Ranking) => a.rank - b.rank);
-          
-          setRankings(sortedRankings);
-        } else {
-          setRankings([]);
-        }
-      } catch (error) {
-        console.error("Error fetching rankings:", error);
-        setError("Failed to load rankings");
-        toast.error("Failed to load rankings");
-      } finally {
-        setIsLoading(false);
-      }
+      const result = await response.json();
+      
+      // Refresh the page to show updated rankings
+      router.refresh();
+      
+      toast.success(result.message || "Rankings recalculated successfully");
+    } catch (error) {
+      console.error("Error recalculating rankings:", error);
+      toast.error("Failed to recalculate rankings");
+    } finally {
+      setIsRecalculating(false);
     }
-    
-    fetchRankings();
-  }, [leagueId]);
-
-  if (isLoading || isLoadingLeague) {
+  };
+  
+  if (isLoadingLeague) {
     return (
       <div className="container mx-auto px-4 py-12">
         <div className="animate-pulse text-center">
           <h2 className="h-8 bg-gray-200 rounded w-1/3 mx-auto mb-4"></h2>
           <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto mb-8"></div>
-          <div className="h-32 bg-gray-200 rounded w-full max-w-3xl mx-auto"></div>
+          <div className="h-64 bg-gray-200 rounded w-full max-w-3xl mx-auto"></div>
         </div>
       </div>
     );
@@ -173,97 +141,139 @@ function LeagueRankingsPage() {
       </div>
     );
   }
-
+  
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center mb-8">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="mr-4"
-          asChild
-        >
-          <Link href={`/dashboard/leagues/${leagueId}`}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to League
-          </Link>
-        </Button>
-        <h1 className="text-3xl font-bold">
-          {league?.name} - Rankings
-        </h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex items-center">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="mr-4"
+            asChild
+          >
+            <Link href={`/dashboard/leagues/${leagueId}`}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to League
+            </Link>
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">{league?.name} - Rankings</h1>
+            {league?.description && (
+              <p className="text-muted-foreground">{league.description}</p>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+          >
+            <Link href={`/dashboard/leagues/${leagueId}/schedule`}>
+              <Calendar className="w-4 h-4 mr-2" />
+              View Schedule
+            </Link>
+          </Button>
+          {isAdmin && (
+            <Button
+              size="sm"
+              onClick={handleRecalculateRankings}
+              disabled={isRecalculating}
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${isRecalculating ? 'animate-spin' : ''}`} />
+              {isRecalculating ? 'Recalculating...' : 'Recalculate Rankings'}
+            </Button>
+          )}
+        </div>
       </div>
       
-      {league?.teams.length === 0 ? (
-        <Card className="max-w-3xl mx-auto text-center p-8">
-          <CardHeader>
-            <CardTitle>No Teams</CardTitle>
-            <CardDescription>
-              This league doesn't have any teams yet.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      ) : rankings.length === 0 ? (
-        <Card className="max-w-3xl mx-auto text-center p-8">
-          <CardHeader>
-            <CardTitle>No Rankings Available</CardTitle>
-            <CardDescription>
-              Rankings will be available once matches have been played.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Current Standings</CardTitle>
-            <CardDescription>
-              Updated rankings based on match results
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-2">Rank</th>
-                    <th className="text-left py-3 px-2">Team</th>
-                    <th className="text-center py-3 px-2">Played</th>
-                    <th className="text-center py-3 px-2">Won</th>
-                    <th className="text-center py-3 px-2">Lost</th>
-                    <th className="text-center py-3 px-2">Sets W-L</th>
-                    <th className="text-center py-3 px-2">Games W-L</th>
-                    <th className="text-center py-3 px-2">Points</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rankings.map((ranking) => (
-                    <tr key={ranking.id} className="border-b hover:bg-muted/50">
-                      <td className="py-4 px-2 font-medium">{ranking.rank}</td>
-                      <td className="py-4 px-2">
-                        <Link 
-                          href={`/dashboard/teams/${ranking.team.id}`}
-                          className="hover:underline font-medium"
-                        >
-                          {ranking.team.name}
-                        </Link>
-                      </td>
-                      <td className="py-4 px-2 text-center">{ranking.matchesPlayed}</td>
-                      <td className="py-4 px-2 text-center">{ranking.matchesWon}</td>
-                      <td className="py-4 px-2 text-center">{ranking.matchesLost}</td>
-                      <td className="py-4 px-2 text-center">
-                        {ranking.setsWon}-{ranking.setsLost}
-                      </td>
-                      <td className="py-4 px-2 text-center">
-                        {ranking.gamesWon}-{ranking.gamesLost}
-                      </td>
-                      <td className="py-4 px-2 text-center font-bold">{ranking.points}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      {/* League status indicators */}
+      {!league?.scheduleGenerated && (
+        <Card className="max-w-3xl mx-auto mb-6">
+          <CardContent className="pt-6">
+            <div className="bg-amber-50 text-amber-800 border border-amber-200 rounded-md p-4 text-center">
+              <p className="font-medium mb-2">No Schedule Generated</p>
+              <p className="text-sm">
+                Rankings will be available after matches have been scheduled and played.
+              </p>
             </div>
           </CardContent>
         </Card>
       )}
+      
+      {league?.scheduleGenerated && league?.status === 'completed' && (
+        <Card className="max-w-3xl mx-auto mb-6">
+          <CardContent className="pt-6">
+            <div className="bg-green-50 text-green-800 border border-green-200 rounded-md p-4 flex items-center">
+              <Trophy className="h-5 w-5 mr-2 text-yellow-500" />
+              <div>
+                <p className="font-medium">League Completed</p>
+                <p className="text-sm">
+                  This shows the final standings for the league.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {/* Rankings table */}
+      <div className="max-w-4xl mx-auto">
+        <LeagueRankingsTable 
+          leagueId={leagueId} 
+          title={league?.status === 'completed' ? "Final Standings" : "Current Standings"}
+          description={league?.status === 'completed' 
+            ? "Final rankings for all teams in the completed league" 
+            : "Current rankings and statistics for all teams in the league"}
+        />
+      </div>
+      
+      {/* Statistics section */}
+      <div className="max-w-4xl mx-auto mt-10">
+        <div className="flex items-center mb-4">
+          <FileBarChart className="h-5 w-5 mr-2" />
+          <h2 className="text-xl font-semibold">League Statistics</h2>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Total Matches</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">
+                {/* This would ideally be fetched from an API */}
+                {league?.stats?.matchesPlayed || "0"}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Completed Matches</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">
+                {/* This would ideally be fetched from an API */}
+                {league?.stats?.matchesCompleted || "0"}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Teams</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">
+                {league?.teams?.length || "0"}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
