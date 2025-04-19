@@ -122,7 +122,11 @@ export default function PlayerPerformanceCard({ playerId, leagueId }: PlayerPerf
               <span className="text-sm">Win Rate</span>
               <span className="font-medium">{stats.winRate}%</span>
             </div>
-            <Progress value={stats.winRate} className="h-2" />
+            <Progress 
+              value={stats.winRate} 
+              variant={stats.winRate >= stats.leagueAvgWinRate ? "success" : "default"}
+              className="h-2" 
+            />
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>vs. League Avg: {stats.leagueAvgWinRate}%</span>
               {stats.winRate > stats.leagueAvgWinRate ? (
@@ -144,7 +148,11 @@ export default function PlayerPerformanceCard({ playerId, leagueId }: PlayerPerf
               <span className="text-sm">Sets Won</span>
               <span className="font-medium">{stats.setsWonPercentage}%</span>
             </div>
-            <Progress value={stats.setsWonPercentage} className="h-2" />
+            <Progress 
+              value={stats.setsWonPercentage} 
+              variant="info"
+              className="h-2" 
+            />
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>Total: {stats.setsWon} / {stats.totalSets}</span>
               <span>Avg Score: {stats.averageScore}</span>
