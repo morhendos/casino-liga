@@ -75,7 +75,7 @@ export default function MatchResultForm({
     }
   };
   
-  // Initialize scores
+  // Initialize scores with default values
   const [scores, setScores] = useState<{
     teamA: number[];
     teamB: number[];
@@ -281,6 +281,12 @@ export default function MatchResultForm({
     return `Current score: ${teamA.name} ${teamAWins} - ${teamBWins} ${teamB.name}`;
   };
   
+  // String representations of scores for inputs to avoid uncontrolled/controlled switching
+  const getScoreStringValue = (team: 'teamA' | 'teamB', index: number): string => {
+    const score = scores[team][index];
+    return score === 0 && index >= visibleSets ? '' : score.toString();
+  };
+  
   return (
     <Card className="max-w-3xl mx-auto">
       <CardHeader>
@@ -326,7 +332,7 @@ export default function MatchResultForm({
                     type="number"
                     min="0"
                     max={MAX_SET_SCORE}
-                    value={scores.teamA[index]}
+                    value={getScoreStringValue('teamA', index)}
                     onChange={(e) => handleScoreChange('teamA', index, e.target.value)}
                     className={validationErrors[`teamA-${index}`] ? "border-red-500" : ""}
                     disabled={isSubmitting}
@@ -345,7 +351,7 @@ export default function MatchResultForm({
                     type="number"
                     min="0"
                     max={MAX_SET_SCORE}
-                    value={scores.teamB[index]}
+                    value={getScoreStringValue('teamB', index)}
                     onChange={(e) => handleScoreChange('teamB', index, e.target.value)}
                     className={validationErrors[`teamB-${index}`] ? "border-red-500" : ""}
                     disabled={isSubmitting}
