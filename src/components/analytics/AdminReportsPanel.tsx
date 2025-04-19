@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, Download, Calendar, Users, Trophy } from 'lucide-react';
+import { FileText, Download, Calendar, Users, Trophy, Info } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 
 interface AdminReportsPanelProps {
   leagueId: string;
@@ -17,6 +19,11 @@ export default function AdminReportsPanel({ leagueId }: AdminReportsPanelProps) 
   const [format, setFormat] = useState('csv');
   
   const handleGenerateReport = async () => {
+    // Only allow CSV format for now
+    if (format !== 'csv') {
+      return;
+    }
+    
     setIsGenerating(true);
     try {
       // API endpoint to generate and download the report
@@ -120,18 +127,29 @@ export default function AdminReportsPanel({ leagueId }: AdminReportsPanelProps) 
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="csv">CSV</SelectItem>
-                  <SelectItem value="xlsx">Excel (XLSX)</SelectItem>
-                  <SelectItem value="pdf">PDF</SelectItem>
+                  <SelectItem value="xlsx" disabled>
+                    Excel (XLSX) <Badge variant="outline" className="ml-2 text-xs">Coming Soon</Badge>
+                  </SelectItem>
+                  <SelectItem value="pdf" disabled>
+                    PDF <Badge variant="outline" className="ml-2 text-xs">Coming Soon</Badge>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
         </div>
+        
+        <Alert className="mt-4">
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            Currently, only CSV export format is available. Excel and PDF exports will be added in a future update.
+          </AlertDescription>
+        </Alert>
       </CardContent>
       <CardFooter>
         <Button 
           onClick={handleGenerateReport} 
-          disabled={isGenerating}
+          disabled={isGenerating || format !== 'csv'}
           className="w-full"
         >
           {isGenerating ? (
