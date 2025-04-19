@@ -162,15 +162,9 @@ function LeagueSchedulePage() {
         throw new Error("Received invalid data format from API");
       }
       
-      // Process matches
+      // Process matches - with safety checks for both teamA and teamB
       const processedMatches = data.map((match: any) => {
         console.log("Processing match:", match);
-        
-        // Validate team data
-        if (!match.teamA || !match.teamB) {
-          console.error("Match is missing team data:", match);
-          throw new Error("Match data is incomplete - missing team information");
-        }
         
         try {
           return {
@@ -178,16 +172,30 @@ function LeagueSchedulePage() {
             id: match._id || match.id,
             teamA: {
               ...match.teamA,
-              id: match.teamA._id || match.teamA.id
+              id: match.teamA._id || match.teamA.id || 'missing-id'
             },
             teamB: {
               ...match.teamB,
-              id: match.teamB._id || match.teamB.id
+              id: match.teamB._id || match.teamB.id || 'missing-id'
             }
           };
         } catch (err) {
           console.error("Error processing match:", err, match);
-          throw new Error("Error processing match data");
+          // Return a sanitized match with default values for any missing data
+          return {
+            ...match,
+            id: match._id || match.id || 'unknown-id',
+            teamA: match.teamA || { 
+              id: 'missing-team-a', 
+              name: 'Unknown Team A',
+              players: []
+            },
+            teamB: match.teamB || { 
+              id: 'missing-team-b', 
+              name: 'Unknown Team B',
+              players: []
+            }
+          };
         }
       });
       
