@@ -19,6 +19,8 @@ This document summarizes the improvements made to address several concerns ident
 - Implemented player selection dropdown with dynamic data loading
 - Added proper loading states and error handling
 - Connected to the player stats API with proper filtering
+- Created missing API endpoint for fetching players by league ID
+- Added authentication checks and user-friendly error handling
 
 ### 4. Fixed Report Format Discrepancy
 - Updated UI to clearly indicate that only CSV format is currently available
@@ -37,10 +39,22 @@ This document summarizes the improvements made to address several concerns ident
 4. `src/app/dashboard/leagues/[id]/analytics/page.tsx`
 5. `src/components/analytics/AdminReportsPanel.tsx`
 6. `src/components/analytics/index.ts`
+7. `src/components/analytics/PlayerAnalyticsPanel.tsx`
 
 ### New Files Added
-1. `src/components/analytics/PlayerAnalyticsPanel.tsx`
-2. `src/components/ui/alert.tsx`
+1. `src/components/ui/alert.tsx`
+2. `src/app/api/players/leagues/route.ts`
+
+## Authentication Fixes
+
+To resolve the 401 Unauthorized errors in the player analytics section:
+
+1. **Created new API endpoint**: Implemented the missing `/api/players/leagues` endpoint that serves player data filtered by league ID
+2. **Added authentication checks**: Ensured proper session validation in the API route
+3. **Enhanced error handling**:
+   - Added specific detection for 401 errors
+   - Implemented user-friendly error messages
+   - Added retry functionality with a button for easy recovery
 
 ## Future Improvements
 
@@ -51,3 +65,4 @@ Areas for further enhancement:
 3. Expand player analytics with more detailed metrics
 4. Add data visualization charts for league statistics
 5. Implement team comparison feature
+6. Improve authentication flow with better session persistence
