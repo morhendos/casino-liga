@@ -225,44 +225,6 @@ async function calculateLeagueStats(leagueId) {
       return count + (team.players?.length || 0);
     }, 0);
     
-    // If there's no real data yet, add some mock data to make the dashboard look good
-    // This is temporary and should be removed once real data is available
-    if (completedMatches === 0) {
-      console.log('No completed matches found, using mock data');
-      return {
-        totalMatches: Math.max(totalMatches, 20),
-        completedMatches: 13,
-        completionPercentage: 65,
-        totalPlayers: Math.max(totalPlayers, 20),
-        activePlayers: 18,
-        participationRate: 90,
-        averageSetsPerMatch: 2.4,
-        mostCommonScore: "6-4, 6-3",
-        matchTypes: {
-          decisive: 7,
-          close: 4,
-          tiebreak: 2
-        },
-        setsDistribution: {
-          twoSets: 62,
-          threeSets: 38
-        },
-        matchesThisWeek: 3,
-        matchesLastWeek: 4,
-        daysRemaining: league.endDate ? daysRemaining : 14,
-        topTeams: teams.length > 0 ? topTeams : [
-          { id: "1", name: "Team Alpha", wins: 5, losses: 0, winRate: 100, totalMatches: 5 },
-          { id: "2", name: "Team Beta", wins: 4, losses: 1, winRate: 80, totalMatches: 5 },
-          { id: "3", name: "Team Gamma", wins: 3, losses: 2, winRate: 60, totalMatches: 5 },
-          { id: "4", name: "Team Delta", wins: 1, losses: 4, winRate: 20, totalMatches: 5 },
-          { id: "5", name: "Team Epsilon", wins: 0, losses: 5, winRate: 0, totalMatches: 5 }
-        ],
-        averagePoints: 6.5,
-        leagueName: league.name,
-        generatedAt: new Date().toISOString()
-      };
-    }
-    
     return {
       // General stats
       totalMatches,
