@@ -16,7 +16,8 @@ import {
   ClipboardList, 
   Clock,
   MapPin,
-  AlertTriangle
+  AlertTriangle,
+  BarChart
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -236,6 +237,14 @@ function LeagueDetailsPage() {
               </Link>
             </Button>
           )}
+          
+          {/* Analytics button */}
+          <Button variant="outline" asChild>
+            <Link href={`/dashboard/leagues/${leagueId}/analytics`}>
+              <BarChart className="w-4 h-4 mr-2" />
+              Analytics
+            </Link>
+          </Button>
         </div>
       </div>
       
@@ -441,6 +450,14 @@ function LeagueDetailsPage() {
                 <Link href={`/dashboard/leagues/${leagueId}/schedule`}>
                   <CalendarDays className="w-4 h-4 mr-2" />
                   Schedule
+                </Link>
+              </Button>
+              
+              {/* Analytics quick link */}
+              <Button variant="outline" className="w-full justify-start" asChild>
+                <Link href={`/dashboard/leagues/${leagueId}/analytics`}>
+                  <BarChart className="w-4 h-4 mr-2" />
+                  Analytics & Reports
                 </Link>
               </Button>
             </CardContent>
