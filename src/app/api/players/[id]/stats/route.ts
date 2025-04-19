@@ -20,19 +20,19 @@ async function calculatePlayerStats(playerId, leagueId = null) {
     // Find matches for these teams, optionally filtered by league
     const matchQuery: any = {
       $or: [
-        { homeTeam: { $in: teamIds } },
-        { awayTeam: { $in: teamIds } }
+        { teamA: { $in: teamIds } },
+        { teamB: { $in: teamIds } }
       ],
       status: 'completed' // Only include completed matches
     };
     
     // Add league filter if specified
     if (leagueId) {
-      matchQuery.leagueId = leagueId;
+      matchQuery.league = leagueId;
     }
     
     const matches = await MatchModel.find(matchQuery)
-      .populate('homeTeam awayTeam')
+      .populate('teamA teamB')
       .sort({ scheduledDate: -1 }); // Most recent first
     
     // Calculate basic stats
@@ -48,13 +48,13 @@ async function calculatePlayerStats(playerId, leagueId = null) {
     // Process matches
     matches.forEach(match => {
       const playerTeamId = teamIds.find(
-        id => id.equals(match.homeTeam._id) || id.equals(match.awayTeam._id)
+        id => id.equals(match.teamA._id) || id.equals(match.teamB._id)
       );
       
-      if (!playerTeamId) return; // Skip if player's team not found in match
+      if (!playerTeamId || !match.result) return; // Skip if player's team not found in match or no result
       
-      const isHome = playerTeamId.equals(match.homeTeam._id);
-      const isWinner = match.winner && match.winner.equals(playerTeamId);
+      const isTeamA = playerTeamId.equals(match.teamA._id);
+      const isWinner = match.result.winner && match.result.winner.equals(playerTeamId);
       
       // Record win/loss
       if (isWinner) {
@@ -66,12 +66,12 @@ async function calculatePlayerStats(playerId, leagueId = null) {
       }
       
       // Count sets won and total sets
-      if (match.sets && match.sets.length > 0) {
-        match.sets.forEach(set => {
+      if (match.result.teamAScore && match.result.teamAScore.length > 0) {
+        match.result.teamAScore.forEach((score, idx) => {
           totalSets++;
           
-          const playerTeamScore = isHome ? set.homeScore : set.awayScore;
-          const opponentScore = isHome ? set.awayScore : set.homeScore;
+          const playerTeamScore = isTeamA ? score : match.result.teamBScore[idx];
+          const opponentScore = isTeamA ? match.result.teamBScore[idx] : score;
           
           if (playerTeamScore > opponentScore) {
             setsWon++;
@@ -117,32 +117,32 @@ async function calculatePlayerStats(playerId, leagueId = null) {
         const allTeamIds = allTeamsInLeague.map(team => team._id);
         
         const allLeagueMatches = await MatchModel.find({
-          leagueId,
+          league: leagueId,
           status: 'completed',
           $or: [
-            { homeTeam: { $in: allTeamIds } },
-            { awayTeam: { $in: allTeamIds } }
+            { teamA: { $in: allTeamIds } },
+            { teamB: { $in: allTeamIds } }
           ]
         });
         
         const teamStats = {};
         
         allLeagueMatches.forEach(match => {
-          if (match.winner) {
-            const winnerId = match.winner.toString();
-            const homeId = match.homeTeam.toString();
-            const awayId = match.awayTeam.toString();
+          if (match.result && match.result.winner) {
+            const winnerId = match.result.winner.toString();
+            const teamAId = match.teamA.toString();
+            const teamBId = match.teamB.toString();
             
             // Initialize team stats if needed
-            if (!teamStats[homeId]) teamStats[homeId] = { wins: 0, matches: 0 };
-            if (!teamStats[awayId]) teamStats[awayId] = { wins: 0, matches: 0 };
+            if (!teamStats[teamAId]) teamStats[teamAId] = { wins: 0, matches: 0 };
+            if (!teamStats[teamBId]) teamStats[teamBId] = { wins: 0, matches: 0 };
             
             // Record win for winner
             teamStats[winnerId].wins++;
             
             // Record match for both teams
-            teamStats[homeId].matches++;
-            teamStats[awayId].matches++;
+            teamStats[teamAId].matches++;
+            teamStats[teamBId].matches++;
           }
         });
         
@@ -175,10 +175,12 @@ async function calculatePlayerStats(playerId, leagueId = null) {
       const earlierMatches = matches.slice(3, 6);
       if (earlierMatches.length >= 3) {
         const earlierWins = earlierMatches.filter(match => {
+          if (!match.result || !match.result.winner) return false;
+          
           const playerTeamId = teamIds.find(
-            id => id.equals(match.homeTeam._id) || id.equals(match.awayTeam._id)
+            id => id.equals(match.teamA._id) || id.equals(match.teamB._id)
           );
-          return match.winner && match.winner.equals(playerTeamId);
+          return match.result.winner && playerTeamId && match.result.winner.equals(playerTeamId);
         }).length;
         
         const earlierWinRate = (earlierWins / 3) * 100;
@@ -193,22 +195,22 @@ async function calculatePlayerStats(playerId, leagueId = null) {
       let totalOpponentPoints = 0;
       
       matches.forEach(match => {
+        if (!match.result || !match.result.teamAScore) return;
+        
         const playerTeamId = teamIds.find(
-          id => id.equals(match.homeTeam._id) || id.equals(match.awayTeam._id)
+          id => id.equals(match.teamA._id) || id.equals(match.teamB._id)
         );
         if (!playerTeamId) return;
         
-        const isHome = playerTeamId.equals(match.homeTeam._id);
+        const isTeamA = playerTeamId.equals(match.teamA._id);
         
-        if (match.sets && match.sets.length > 0) {
-          match.sets.forEach(set => {
-            const playerTeamScore = isHome ? set.homeScore : set.awayScore;
-            const opponentScore = isHome ? set.awayScore : set.homeScore;
-            
-            totalPlayerPoints += playerTeamScore;
-            totalOpponentPoints += opponentScore;
-          });
-        }
+        match.result.teamAScore.forEach((score, idx) => {
+          const playerTeamScore = isTeamA ? score : match.result.teamBScore[idx];
+          const opponentScore = isTeamA ? match.result.teamBScore[idx] : score;
+          
+          totalPlayerPoints += playerTeamScore;
+          totalOpponentPoints += opponentScore;
+        });
       });
       
       const avgPlayerPoints = (totalPlayerPoints / totalSets).toFixed(1);
