@@ -6,7 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Users, AlertCircle } from 'lucide-react';
+import { Users, AlertCircle, Lock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface Player {
   id: string;
@@ -23,15 +24,24 @@ export function PlayerAnalyticsPanel({ leagueId }: PlayerAnalyticsPanelProps) {
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthError, setIsAuthError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Fetch all players in the league
   useEffect(() => {
     async function fetchPlayers() {
       setIsLoading(true);
       setError(null);
+      setIsAuthError(false);
+      
       try {
         // Get all players for this league
         const response = await fetch(`/api/players/leagues?leagueId=${leagueId}`);
+        
+        if (response.status === 401) {
+          setIsAuthError(true);
+          throw new Error('You must be logged in to view player analytics');
+        }
         
         if (!response.ok) {
           throw new Error('Failed to fetch players');
@@ -48,14 +58,20 @@ export function PlayerAnalyticsPanel({ leagueId }: PlayerAnalyticsPanelProps) {
         }
       } catch (error) {
         console.error('Error fetching players:', error);
-        setError('An error occurred while fetching players');
+        setError(error instanceof Error ? error.message : 'An error occurred while fetching players');
       } finally {
         setIsLoading(false);
       }
     }
     
-    fetchPlayers();
-  }, [leagueId]);
+    if (leagueId) {
+      fetchPlayers();
+    }
+  }, [leagueId, retryCount]);
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+  };
 
   if (isLoading) {
     return (
@@ -78,11 +94,30 @@ export function PlayerAnalyticsPanel({ leagueId }: PlayerAnalyticsPanelProps) {
     );
   }
 
+  if (isAuthError) {
+    return (
+      <Alert className="bg-amber-50">
+        <Lock className="h-4 w-4" />
+        <AlertDescription className="flex flex-col space-y-2">
+          <span>You need to be signed in to view player analytics</span>
+          <Button variant="outline" size="sm" className="w-fit" onClick={handleRetry}>
+            Retry
+          </Button>
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   if (error) {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>{error}</AlertDescription>
+        <AlertDescription className="flex flex-col space-y-2">
+          <span>{error}</span>
+          <Button variant="outline" size="sm" className="w-fit" onClick={handleRetry}>
+            Retry
+          </Button>
+        </AlertDescription>
       </Alert>
     );
   }
