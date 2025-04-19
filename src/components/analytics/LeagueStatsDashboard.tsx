@@ -115,7 +115,7 @@ export default function LeagueStatsDashboard({ leagueId }: LeagueStatsProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.completionPercentage}%</div>
-                <Progress value={stats.completionPercentage} className="h-2 mt-2" />
+                <Progress value={stats.completionPercentage} variant="success" className="h-2 mt-2" />
                 <p className="text-xs text-muted-foreground mt-2">
                   {stats.completedMatches} of {stats.totalMatches} matches completed
                 </p>
@@ -128,7 +128,7 @@ export default function LeagueStatsDashboard({ leagueId }: LeagueStatsProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.participationRate}%</div>
-                <Progress value={stats.participationRate} className="h-2 mt-2" />
+                <Progress value={stats.participationRate} variant="info" className="h-2 mt-2" />
                 <p className="text-xs text-muted-foreground mt-2">
                   {stats.activePlayers} of {stats.totalPlayers} players active
                 </p>
@@ -203,21 +203,19 @@ export default function LeagueStatsDashboard({ leagueId }: LeagueStatsProps) {
                 <div>
                   <h3 className="text-sm font-medium mb-2">Sets Distribution</h3>
                   <div className="flex items-center space-x-2">
-                    <div className="flex-1 bg-muted h-2 rounded-full overflow-hidden">
-                      <div 
-                        className="bg-primary h-full rounded-full" 
-                        style={{ width: `${stats.setsDistribution?.twoSets || 0}%` }}
-                      />
-                    </div>
+                    <Progress 
+                      value={stats.setsDistribution?.twoSets || 0} 
+                      className="flex-1 h-2" 
+                      variant="success" 
+                    />
                     <span className="text-xs">{stats.setsDistribution?.twoSets || 0}% in 2 sets</span>
                   </div>
                   <div className="flex items-center space-x-2 mt-2">
-                    <div className="flex-1 bg-muted h-2 rounded-full overflow-hidden">
-                      <div 
-                        className="bg-primary h-full rounded-full" 
-                        style={{ width: `${stats.setsDistribution?.threeSets || 0}%` }}
-                      />
-                    </div>
+                    <Progress 
+                      value={stats.setsDistribution?.threeSets || 0} 
+                      className="flex-1 h-2"
+                      variant="info"
+                    />
                     <span className="text-xs">{stats.setsDistribution?.threeSets || 0}% in 3 sets</span>
                   </div>
                 </div>
