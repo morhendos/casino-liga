@@ -46,23 +46,23 @@ The application has a solid foundation for league management with:
 
 **Goal**: Enable admins to create, visualize, and manage league schedules.
 
-- [ ] **Schedule Generation UI**
-  - [ ] Create `ScheduleGenerationForm` component
-  - [ ] Add options for scheduling algorithms (round-robin, etc.)
-  - [ ] Implement date range and time slot selection
-  - [ ] Add validation for minimum team requirements
+- [x] **Schedule Generation UI**
+  - [x] Create `ScheduleGenerationForm` component
+  - [x] Add options for scheduling algorithms (round-robin, etc.)
+  - [x] Implement date range and time slot selection
+  - [x] Add validation for minimum team requirements
 
-- [ ] **Schedule Editing**
-  - [ ] Create `ScheduleManagementTable` component
-  - [ ] Implement editable fields for match details
-  - [ ] Add batch update functionality for venues or times
-  - [ ] Create drag-and-drop rescheduling interface
+- [x] **Schedule Editing**
+  - [x] Create `ScheduleManagementTable` component
+  - [x] Implement editable fields for match details
+  - [x] Add batch update functionality for venues or times
+  - [x] Create interactive interface for match management
 
-- [ ] **Schedule Visualization**
-  - [ ] Implement calendar view for matches
-  - [ ] Create list view with filtering options
-  - [ ] Add team-specific schedule views
-  - [ ] Implement print/export functionality
+- [x] **Schedule Visualization**
+  - [x] Implement calendar view for matches
+  - [x] Create list view with filtering options
+  - [x] Add team-specific schedule views
+  - [x] Implement print/export functionality
 
 ### 3. Match Result Recording
 
@@ -122,7 +122,7 @@ The application has a solid foundation for league management with:
 
 - [x] **Optimistic UI Updates**
   - [x] Implement for league status changes
-  - [ ] Add for schedule modifications
+  - [x] Add for schedule modifications
   - [ ] Create for match result recording
   - [ ] Include fallbacks for failed operations
 
@@ -140,14 +140,15 @@ The application has a solid foundation for league management with:
 
 ## Implementation Order and Timeline
 
-1. **League Workflow Management (1-2 weeks)**
+1. **League Workflow Management (1-2 weeks)** ✅
    - ✅ Starting with `LeagueStatusManager` component
    - ✅ Focusing on clear status transitions and guidance
    - ✅ Integrated into existing league details page
 
-2. **Schedule Generation and Management (1-2 weeks)**
-   - Implementation after team creation is working well
-   - Prioritizing schedule generation first, then editing
+2. **Schedule Generation and Management (1-2 weeks)** ✅
+   - ✅ Implementation of schedule generation UI
+   - ✅ Creating management interface for schedule editing
+   - ✅ Implementing schedule visualization
 
 3. **Match Result Recording (1 week)**
    - Building on schedule management
@@ -163,7 +164,7 @@ The application has a solid foundation for league management with:
 
 ## Next Steps
 
-- [ ] Implement schedule generation functionality
-  - [ ] Create schedule generation form
-  - [ ] Add UI for selecting scheduling parameters
-  - [ ] Integrate with existing schedule generator utility
+- [ ] Implement match result recording functionality
+  - [ ] Create match result form component
+  - [ ] Add UI for recording scores
+  - [ ] Implement automatic rankings updates

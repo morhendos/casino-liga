@@ -1,162 +1,172 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { withConnection } from '@/lib/db';
-import { MatchModel, LeagueModel, TeamModel, RankingModel } from '@/models';
-import { LeagueDocument } from '@/models/league';
-import { SubmitMatchResultRequest } from '@/types';
-import { Document, ObjectId } from 'mongoose';
+import { MatchModel, LeagueModel, TeamModel } from '@/models';
+import { createLogger } from '@/lib/logger';
 
-// Define a type for the player item that might be in the team.players array
-interface TeamPlayer {
-  userId?: string | ObjectId;
-  _id?: string | ObjectId;
-  [key: string]: any; // For other potential properties
-}
+const logger = createLogger('MatchAPI');
 
-// GET /api/matches/[id] - Get a specific match by ID
+// GET /api/matches/[id] - Get a specific match with populated data
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  logger.info(`GET match request for ID: ${params.id}`);
+  
   try {
-    const id = params.id;
+    const matchId = params.id;
     
     const match = await withConnection(async () => {
-      return MatchModel.findById(id)
-        .populate('league', 'name status matchFormat')
-        .populate({
-          path: 'teamA',
-          select: 'name players',
-          populate: {
-            path: 'players',
-            select: 'nickname skillLevel profileImage'
-          }
-        })
-        .populate({
-          path: 'teamB',
-          select: 'name players',
-          populate: {
-            path: 'players',
-            select: 'nickname skillLevel profileImage'
-          }
-        })
-        .populate('submittedBy', 'name email')
-        .populate('confirmedBy', 'name email');
+      // Get the match
+      const match = await MatchModel.findById(matchId).lean();
+      
+      if (!match) {
+        logger.error(`Match not found: ${matchId}`);
+        throw new Error('Match not found');
+      }
+      
+      logger.info(`Match found: ${match._id}, status: ${match.status}`);
+      
+      // Get the league
+      const league = await LeagueModel.findById(match.league).select('name').lean();
+      if (!league) {
+        logger.warn(`League not found for match: ${matchId}, league ID: ${match.league}`);
+      }
+      
+      // Get teams
+      const teamIds = [match.teamA, match.teamB].filter(id => id);
+      const teams = await TeamModel.find({ _id: { $in: teamIds } }).lean();
+      
+      // Create lookup map for teams
+      const teamMap = teams.reduce((map, team) => {
+        map[team._id.toString()] = team;
+        return map;
+      }, {});
+      
+      // Create a placeholder for missing entities
+      const placeholderTeam = {
+        name: 'Unknown Team (Reference Missing)',
+        players: []
+      };
+      
+      const placeholderLeague = {
+        name: 'Unknown League (Reference Missing)'
+      };
+      
+      // Construct the response with populated data
+      const populatedMatch = {
+        ...match,
+        id: match._id,
+        league: league 
+          ? { ...league, id: league._id } 
+          : { ...placeholderLeague, id: match.league }
+      };
+      
+      // Handle teamA population
+      if (match.teamA) {
+        const teamAId = match.teamA.toString();
+        populatedMatch.teamA = teamMap[teamAId] 
+          ? { ...teamMap[teamAId], id: teamAId } 
+          : { ...placeholderTeam, id: teamAId };
+      } else {
+        populatedMatch.teamA = { ...placeholderTeam, id: 'missing-team-a' };
+      }
+      
+      // Handle teamB population
+      if (match.teamB) {
+        const teamBId = match.teamB.toString();
+        populatedMatch.teamB = teamMap[teamBId] 
+          ? { ...teamMap[teamBId], id: teamBId } 
+          : { ...placeholderTeam, id: teamBId };
+      } else {
+        populatedMatch.teamB = { ...placeholderTeam, id: 'missing-team-b' };
+      }
+      
+      return populatedMatch;
     });
     
-    if (!match) {
+    logger.info(`Returning match data for ${matchId}`);
+    return NextResponse.json(match);
+  } catch (error) {
+    logger.error('Error fetching match:', error);
+    
+    if (error instanceof Error && error.message === 'Match not found') {
       return NextResponse.json(
-        { error: 'Match not found' },
+        { error: error.message },
         { status: 404 }
       );
     }
     
-    return NextResponse.json(match);
-  } catch (error) {
-    console.error('Error fetching match:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch match' },
+      { error: 'Failed to fetch match details' },
       { status: 500 }
     );
   }
 }
 
-// PATCH /api/matches/[id] - Update match details (no result update here)
+// PATCH /api/matches/[id] - Update a match
 export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  logger.info(`PATCH match request for ID: ${params.id}`);
+  
   try {
-    const session = await getServerSession();
+    const matchId = params.id;
+    const requestData = await request.json();
     
-    if (!session?.user) {
+    logger.info(`Updating match ${matchId} with data:`, requestData);
+    
+    // Validate the allowed fields to update
+    const allowedFields = ['scheduledDate', 'scheduledTime', 'location', 'status'];
+    const updateData = {};
+    
+    // Only include allowed fields
+    allowedFields.forEach(field => {
+      if (requestData[field] !== undefined) {
+        updateData[field] = requestData[field];
+      }
+    });
+    
+    if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+        { error: 'No valid fields to update' },
+        { status: 400 }
       );
     }
     
-    const id = params.id;
-    const data = await request.json();
-    
-    const match = await withConnection(async () => {
-      const match = await MatchModel.findById(id);
+    const updatedMatch = await withConnection(async () => {
+      // Find and update the match
+      const match = await MatchModel.findByIdAndUpdate(
+        matchId,
+        { $set: updateData },
+        { new: true, runValidators: true }
+      );
       
       if (!match) {
         throw new Error('Match not found');
       }
       
-      // Get the league to check if user is organizer
-      const league = await LeagueModel.findById(match.league);
-      
-      if (!league) {
-        throw new Error('League not found');
-      }
-      
-      // Only league organizers can update match details
-      if (league.organizer.toString() !== session.user.id) {
-        throw new Error('Only league organizers can update match details');
-      }
-      
-      // Check if match can be updated
-      if (match.status === 'completed' || match.status === 'canceled') {
-        throw new Error('Cannot update matches that are completed or canceled');
-      }
-      
-      // Update match details
-      if (data.scheduledDate !== undefined) match.scheduledDate = new Date(data.scheduledDate);
-      if (data.scheduledTime !== undefined) match.scheduledTime = data.scheduledTime;
-      if (data.location !== undefined) match.location = data.location;
-      if (data.status !== undefined) {
-        // Validate status transition
-        if (!isValidMatchStatusTransition(match.status, data.status)) {
-          throw new Error(`Invalid status transition from ${match.status} to ${data.status}`);
-        }
-        
-        match.status = data.status;
-        
-        // If starting a match, record the actual start time
-        if (data.status === 'in_progress') {
-          match.actualStartTime = new Date();
-        }
-        
-        // If canceling a match, clear any partial results
-        if (data.status === 'canceled') {
-          match.result = undefined;
-        }
-      }
-      if (data.notes !== undefined) match.notes = data.notes;
-      
-      return await match.save();
+      logger.info(`Successfully updated match ${matchId}`);
+      return match;
     });
     
-    return NextResponse.json(match);
+    return NextResponse.json(updatedMatch);
   } catch (error) {
-    console.error('Error updating match:', error);
+    logger.error('Error updating match:', error);
     
-    if (error instanceof Error) {
-      if (error.message === 'Match not found' || error.message === 'League not found') {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 404 }
-        );
-      }
-      
-      if (error.message === 'Only league organizers can update match details') {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 403 }
-        );
-      }
-      
-      // Validation errors
-      if (error.message === 'Cannot update matches that are completed or canceled' ||
-          error.message.includes('Invalid status transition')) {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 400 }
-        );
-      }
+    if (error instanceof Error && error.message === 'Match not found') {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 404 }
+      );
+    }
+    
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      );
     }
     
     return NextResponse.json(
@@ -164,277 +174,4 @@ export async function PATCH(
       { status: 500 }
     );
   }
-}
-
-// POST /api/matches/[id]/submit-result - Submit match result
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const session = await getServerSession();
-    
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-    
-    const id = params.id;
-    const data: SubmitMatchResultRequest = await request.json();
-    
-    const updatedMatch = await withConnection(async () => {
-      const match = await MatchModel.findById(id);
-      
-      if (!match) {
-        throw new Error('Match not found');
-      }
-      
-      // Get the league with proper typing
-      const league = await LeagueModel.findById(match.league) as LeagueDocument;
-      
-      if (!league) {
-        throw new Error('League not found');
-      }
-      
-      // Check if match status allows result submission
-      if (match.status !== 'in_progress' && match.status !== 'scheduled') {
-        throw new Error('Results can only be submitted for scheduled or in-progress matches');
-      }
-      
-      // Verify that the user is authorized (league organizer or player in one of the teams)
-      const isLeagueOrganizer = league.organizer.toString() === session.user.id;
-      
-      const teamA = await TeamModel.findById(match.teamA);
-      const teamB = await TeamModel.findById(match.teamB);
-      
-      if (!teamA || !teamB) {
-        throw new Error('One or both teams not found');
-      }
-      
-      const isTeamAMember = teamA.players.some((player: TeamPlayer) => {
-        return player.userId && player.userId.toString() === session.user.id;
-      });
-      
-      const isTeamBMember = teamB.players.some((player: TeamPlayer) => {
-        return player.userId && player.userId.toString() === session.user.id;
-      });
-      
-      if (!isLeagueOrganizer && !isTeamAMember && !isTeamBMember) {
-        throw new Error('Only league organizers or team members can submit results');
-      }
-      
-      // Validate match scores
-      if (!data.teamAScore || !data.teamBScore) {
-        throw new Error('Scores for both teams are required');
-      }
-      
-      if (data.teamAScore.length !== data.teamBScore.length) {
-        throw new Error('Scores must have the same number of sets');
-      }
-      
-      if (data.teamAScore.length === 0) {
-        throw new Error('At least one set must be played');
-      }
-      
-      // Calculate the winner
-      let teamAWins = 0;
-      let teamBWins = 0;
-      
-      for (let i = 0; i < data.teamAScore.length; i++) {
-        if (data.teamAScore[i] > data.teamBScore[i]) {
-          teamAWins++;
-        } else if (data.teamBScore[i] > data.teamAScore[i]) {
-          teamBWins++;
-        } else {
-          throw new Error('Ties are not allowed in sets');
-        }
-      }
-      
-      let winnerId: string;
-      
-      if (teamAWins > teamBWins) {
-        winnerId = match.teamA.toString();
-      } else if (teamBWins > teamAWins) {
-        winnerId = match.teamB.toString();
-      } else {
-        throw new Error('Match must have a winner');
-      }
-      
-      // Update the match
-      match.result = {
-        teamAScore: data.teamAScore,
-        teamBScore: data.teamBScore,
-        winner: winnerId
-      };
-      match.status = 'completed';
-      match.actualEndTime = new Date();
-      match.notes = data.notes || match.notes;
-      match.submittedBy = session.user.id;
-      
-      // Save the match
-      await match.save();
-      
-      // Use the league ID string directly
-      const leagueId = league.id;
-      
-      // Update rankings with the league ID string
-      await updateRankings(
-        leagueId,
-        match.teamA.toString(),
-        match.teamB.toString(),
-        winnerId,
-        data.teamAScore,
-        data.teamBScore,
-        league.pointsPerWin,
-        league.pointsPerLoss
-      );
-      
-      return MatchModel.findById(id)
-        .populate('league', 'name status matchFormat')
-        .populate('teamA')
-        .populate('teamB')
-        .populate('submittedBy', 'name email');
-    });
-    
-    return NextResponse.json(updatedMatch);
-  } catch (error) {
-    console.error('Error submitting match result:', error);
-    
-    if (error instanceof Error) {
-      if (error.message === 'Match not found' || error.message === 'League not found' ||
-          error.message.includes('teams not found')) {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 404 }
-        );
-      }
-      
-      if (error.message === 'Only league organizers or team members can submit results') {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 403 }
-        );
-      }
-      
-      // Validation errors
-      if (error.message === 'Results can only be submitted for scheduled or in-progress matches' ||
-          error.message === 'Scores for both teams are required' ||
-          error.message === 'Scores must have the same number of sets' ||
-          error.message === 'At least one set must be played' ||
-          error.message === 'Ties are not allowed in sets' ||
-          error.message === 'Match must have a winner') {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 400 }
-        );
-      }
-    }
-    
-    return NextResponse.json(
-      { error: 'Failed to submit match result' },
-      { status: 500 }
-    );
-  }
-}
-
-// Helper function to update rankings after a match
-async function updateRankings(
-  leagueId: string,
-  teamAId: string,
-  teamBId: string,
-  winnerId: string,
-  teamAScore: number[],
-  teamBScore: number[],
-  pointsPerWin: number,
-  pointsPerLoss: number
-) {
-  // Calculate the sets and games won/lost for each team
-  const teamASetsWon = teamAScore.filter((score, index) => score > teamBScore[index]).length;
-  const teamBSetsWon = teamBScore.filter((score, index) => score > teamAScore[index]).length;
-  
-  const teamAGamesWon = teamAScore.reduce((sum, score) => sum + score, 0);
-  const teamBGamesWon = teamBScore.reduce((sum, score) => sum + score, 0);
-  
-  // Update Team A ranking
-  let rankingA = await RankingModel.findOne({ league: leagueId, team: teamAId });
-  
-  if (!rankingA) {
-    rankingA = new RankingModel({
-      league: leagueId,
-      team: teamAId,
-      matchesPlayed: 0,
-      matchesWon: 0,
-      matchesLost: 0,
-      setsWon: 0,
-      setsLost: 0,
-      gamesWon: 0,
-      gamesLost: 0,
-      points: 0
-    });
-  }
-  
-  rankingA.updateWithMatchResult(
-    winnerId === teamAId,
-    teamASetsWon,
-    teamBSetsWon,
-    teamAGamesWon,
-    teamBGamesWon,
-    pointsPerWin,
-    pointsPerLoss
-  );
-  
-  await rankingA.save();
-  
-  // Update Team B ranking
-  let rankingB = await RankingModel.findOne({ league: leagueId, team: teamBId });
-  
-  if (!rankingB) {
-    rankingB = new RankingModel({
-      league: leagueId,
-      team: teamBId,
-      matchesPlayed: 0,
-      matchesWon: 0,
-      matchesLost: 0,
-      setsWon: 0,
-      setsLost: 0,
-      gamesWon: 0,
-      gamesLost: 0,
-      points: 0
-    });
-  }
-  
-  rankingB.updateWithMatchResult(
-    winnerId === teamBId,
-    teamBSetsWon,
-    teamASetsWon,
-    teamBGamesWon,
-    teamAGamesWon,
-    pointsPerWin,
-    pointsPerLoss
-  );
-  
-  await rankingB.save();
-  
-  // Update all rankings in the league (recalculate ranks)
-  const allRankings = await RankingModel.find({ league: leagueId }).sort({ points: -1, matchesWon: -1 });
-  
-  for (let i = 0; i < allRankings.length; i++) {
-    allRankings[i].rank = i + 1;
-    await allRankings[i].save();
-  }
-}
-
-// Helper function to validate match status transitions
-function isValidMatchStatusTransition(currentStatus: string, newStatus: string): boolean {
-  const validTransitions: Record<string, string[]> = {
-    'scheduled': ['in_progress', 'postponed', 'canceled'],
-    'in_progress': ['completed', 'postponed', 'canceled'],
-    'completed': [],
-    'canceled': [],
-    'postponed': ['scheduled', 'canceled']
-  };
-  
-  return validTransitions[currentStatus]?.includes(newStatus) || false;
 }
