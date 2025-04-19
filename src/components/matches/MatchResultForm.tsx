@@ -423,36 +423,40 @@ export default function MatchResultForm({
             <AlertDialogTitle>Confirm Match Result</AlertDialogTitle>
             <AlertDialogDescription>
               You are about to record the following result:
-              <div className="mt-2 p-3 bg-muted rounded-md">
-                <div className="grid grid-cols-3 gap-2 text-center font-medium">
-                  <div>{teamA.name}</div>
-                  <div>Score</div>
-                  <div>{teamB.name}</div>
-                </div>
-                {scores.teamA.map((score, index) => {
-                  // Only show sets that have scores
-                  if (index >= visibleSets || (score === 0 && scores.teamB[index] === 0)) {
-                    return null;
-                  }
-                  return (
-                    <div key={`confirm-set-${index}`} className="grid grid-cols-3 gap-2 text-center">
-                      <div>{score}</div>
-                      <div className="text-muted-foreground">Set {index + 1}</div>
-                      <div>{scores.teamB[index]}</div>
-                    </div>
-                  );
-                })}
-                <div className="mt-2 pt-2 border-t">
-                  <div className="text-center font-medium">
-                    Winner: {calculateWinner() === teamA.id ? teamA.name : teamB.name}
-                  </div>
-                </div>
-              </div>
-              <div className="mt-2">
-                This will mark the match as completed and update rankings. Are you sure?
-              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
+          
+          {/* Move the div content outside of AlertDialogDescription to avoid nesting divs in p tags */}
+          <div className="mt-4 p-3 bg-muted rounded-md">
+            <div className="grid grid-cols-3 gap-2 text-center font-medium">
+              <div>{teamA.name}</div>
+              <div>Score</div>
+              <div>{teamB.name}</div>
+            </div>
+            {scores.teamA.map((score, index) => {
+              // Only show sets that have scores
+              if (index >= visibleSets || (score === 0 && scores.teamB[index] === 0)) {
+                return null;
+              }
+              return (
+                <div key={`confirm-set-${index}`} className="grid grid-cols-3 gap-2 text-center">
+                  <div>{score}</div>
+                  <div className="text-muted-foreground">Set {index + 1}</div>
+                  <div>{scores.teamB[index]}</div>
+                </div>
+              );
+            })}
+            <div className="mt-2 pt-2 border-t">
+              <div className="text-center font-medium">
+                Winner: {calculateWinner() === teamA.id ? teamA.name : teamB.name}
+              </div>
+            </div>
+          </div>
+          
+          <p className="mt-4 text-sm text-muted-foreground">
+            This will mark the match as completed and update rankings. Are you sure?
+          </p>
+          
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
