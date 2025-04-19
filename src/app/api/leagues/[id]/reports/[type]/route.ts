@@ -41,16 +41,16 @@ async function generateTeamsReport(leagueId, format) {
     for (const team of teams) {
       // Get match data for this team
       const matches = await MatchModel.find({
-        leagueId,
+        league: leagueId,
         $or: [
-          { homeTeam: team._id },
-          { awayTeam: team._id }
+          { teamA: team._id },
+          { teamB: team._id }
         ]
       });
       
       const totalMatches = matches.length;
       const completedMatches = matches.filter(m => m.status === 'completed').length;
-      const wins = matches.filter(m => m.winner && m.winner.equals(team._id)).length;
+      const wins = matches.filter(m => m.result && m.result.winner && m.result.winner.equals(team._id)).length;
       
       // Create player info string
       const playerInfo = team.players
@@ -88,8 +88,8 @@ async function generateScheduleReport(leagueId, format) {
     const league = await LeagueModel.findById(leagueId);
     if (!league) throw new Error('League not found');
     
-    const matches = await MatchModel.find({ leagueId })
-      .populate('homeTeam awayTeam')
+    const matches = await MatchModel.find({ league: leagueId })
+      .populate('teamA teamB')
       .sort({ scheduledDate: 1 });
     
     // Create rows for the report
@@ -105,12 +105,12 @@ async function generateScheduleReport(leagueId, format) {
       return {
         Date: date,
         Time: time,
-        Location: match.venue || 'TBD',
-        HomeTeam: match.homeTeam ? match.homeTeam.name : 'TBD',
-        AwayTeam: match.awayTeam ? match.awayTeam.name : 'TBD',
+        Location: match.location || 'TBD',
+        TeamA: match.teamA ? match.teamA.name : 'TBD',
+        TeamB: match.teamB ? match.teamB.name : 'TBD',
         Status: match.status.charAt(0).toUpperCase() + match.status.slice(1),
-        Result: match.status === 'completed' 
-          ? `${match.sets.map(s => `${s.homeScore}-${s.awayScore}`).join(', ')}` 
+        Result: match.status === 'completed' && match.result 
+          ? `${match.result.teamAScore.map((s, idx) => `${s}-${match.result.teamBScore[idx]}`).join(', ')}` 
           : ''
       };
     });
@@ -143,11 +143,11 @@ async function generateStandingsReport(leagueId, format) {
     for (const team of teams) {
       // Get match data for this team
       const matches = await MatchModel.find({
-        leagueId,
+        league: leagueId,
         status: 'completed',
         $or: [
-          { homeTeam: team._id },
-          { awayTeam: team._id }
+          { teamA: team._id },
+          { teamB: team._id }
         ]
       });
       
@@ -159,8 +159,10 @@ async function generateStandingsReport(leagueId, format) {
       let pointsAgainst = 0;
       
       matches.forEach(match => {
-        const isHome = match.homeTeam.equals(team._id);
-        const isWinner = match.winner && match.winner.equals(team._id);
+        if (!match.result) return;
+        
+        const isTeamA = match.teamA.equals(team._id);
+        const isWinner = match.result.winner && match.result.winner.equals(team._id);
         
         if (isWinner) {
           wins++;
@@ -169,10 +171,11 @@ async function generateStandingsReport(leagueId, format) {
         }
         
         // Count sets and points
-        if (match.sets && match.sets.length > 0) {
-          match.sets.forEach(set => {
-            const teamScore = isHome ? set.homeScore : set.awayScore;
-            const opponentScore = isHome ? set.awayScore : set.homeScore;
+        if (match.result.teamAScore && match.result.teamBScore && 
+            match.result.teamAScore.length > 0) {
+          match.result.teamAScore.forEach((setScore, idx) => {
+            const teamScore = isTeamA ? setScore : match.result.teamBScore[idx];
+            const opponentScore = isTeamA ? match.result.teamBScore[idx] : setScore;
             
             if (teamScore > opponentScore) {
               setsWon++;
