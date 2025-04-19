@@ -283,8 +283,14 @@ export default function MatchResultForm({
   
   // String representations of scores for inputs to avoid uncontrolled/controlled switching
   const getScoreStringValue = (team: 'teamA' | 'teamB', index: number): string => {
+    // Make sure we have a valid score array and index
+    if (!scores || !scores[team] || scores[team][index] === undefined) {
+      return '0';
+    }
+    
     const score = scores[team][index];
-    return score === 0 && index >= visibleSets ? '' : score.toString();
+    // Return empty string for hidden sets with zero scores
+    return score === 0 && index >= visibleSets ? '' : String(score);
   };
   
   return (
