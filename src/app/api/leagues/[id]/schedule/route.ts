@@ -35,9 +35,10 @@ export async function GET(
       // Get all matches for this league, sorted by date
       logger.info(`Fetching matches for league: ${leagueId}`);
       const matches = await MatchModel.find({ league: leagueId })
-        .sort({ scheduledDate: 1 });
+        .sort({ scheduledDate: 1 })
+        .lean(); // Using lean() for better performance
         
-      logger.info(`Found ${matches.length} matches, now populating team data`);
+      logger.info(`Found ${matches.length} matches, now performing manual population`);
       
       // If no matches found, return empty array early
       if (matches.length === 0) {
@@ -45,69 +46,71 @@ export async function GET(
         return [];
       }
       
-      // Debug the first match
-      if (matches.length > 0) {
-        const firstMatch = matches[0];
-        logger.info(`Sample match before population - ID: ${firstMatch._id}, teamA: ${firstMatch.teamA}, teamB: ${firstMatch.teamB}`);
-      }
+      // Extract all team IDs from the matches
+      const teamIds = new Set();
+      matches.forEach(match => {
+        if (match.teamA) teamIds.add(match.teamA.toString());
+        if (match.teamB) teamIds.add(match.teamB.toString());
+      });
       
-      try {
-        // Perform population with error handling
-        const populatedMatches = await MatchModel.find({ league: leagueId })
-          .sort({ scheduledDate: 1 })
-          .populate({
-            path: 'teamA',
-            select: 'name players',
-            populate: {
-              path: 'players',
-              select: 'nickname'
-            }
-          })
-          .populate({
-            path: 'teamB',
-            select: 'name players',
-            populate: {
-              path: 'players',
-              select: 'nickname'
-            }
-          });
-          
-        // Log a sample of populated match
-        if (populatedMatches.length > 0) {
-          const sampleMatch = populatedMatches[0];
-          logger.info(`Sample match after population - teamA: ${sampleMatch.teamA?.name || 'undefined'}, teamB: ${sampleMatch.teamB?.name || 'undefined'}`);
+      logger.info(`Found ${teamIds.size} unique team IDs referenced in matches`);
+      
+      // Fetch all teams in one go
+      const teams = await TeamModel.find({ 
+        _id: { $in: Array.from(teamIds) } 
+      }).lean();
+      
+      logger.info(`Found ${teams.length} teams out of ${teamIds.size} referenced teams`);
+      
+      // Create a lookup map for teams
+      const teamMap = teams.reduce((map, team) => {
+        map[team._id.toString()] = team;
+        return map;
+      }, {});
+      
+      // Create a placeholder for missing teams
+      const placeholderTeam = {
+        name: 'Unknown Team (Reference Missing)',
+        players: []
+      };
+      
+      // Manually populate the matches
+      const populatedMatches = matches.map(match => {
+        // Create shallow copy of the match
+        const result = { ...match };
+        
+        // Handle teamA - use the team from the map if it exists, otherwise use placeholder
+        if (match.teamA) {
+          const teamAId = match.teamA.toString();
+          result.teamA = teamMap[teamAId] 
+            ? { ...teamMap[teamAId], id: teamAId } 
+            : { ...placeholderTeam, id: teamAId, _id: teamAId };
+        } else {
+          // If teamA is null or undefined, use a placeholder with a generated ID
+          result.teamA = { ...placeholderTeam, id: 'missing-team-a', _id: 'missing-team-a' };
         }
         
-        return populatedMatches;
-      } catch (populateError) {
-        logger.error('Error during populate operation:', populateError);
+        // Handle teamB - use the team from the map if it exists, otherwise use placeholder
+        if (match.teamB) {
+          const teamBId = match.teamB.toString();
+          result.teamB = teamMap[teamBId] 
+            ? { ...teamMap[teamBId], id: teamBId } 
+            : { ...placeholderTeam, id: teamBId, _id: teamBId };
+        } else {
+          // If teamB is null or undefined, use a placeholder with a generated ID
+          result.teamB = { ...placeholderTeam, id: 'missing-team-b', _id: 'missing-team-b' };
+        }
         
-        // Fallback: return matches without population if populate fails
-        logger.info('Falling back to returning matches without population');
-        
-        // Manual population as fallback
-        const teams = await TeamModel.find({
-          _id: { $in: [...new Set([...matches.map(m => m.teamA), ...matches.map(m => m.teamB)])] }
-        }).select('name players');
-        
-        logger.info(`Found ${teams.length} teams for manual population`);
-        
-        // Create a map for quick lookup
-        const teamMap = teams.reduce((map, team) => {
-          map[team._id.toString()] = team;
-          return map;
-        }, {});
-        
-        // Manually populate the matches
-        const manuallyPopulated = matches.map(match => {
-          const result = match.toObject();
-          result.teamA = teamMap[match.teamA.toString()] || { name: 'Unknown Team', _id: match.teamA };
-          result.teamB = teamMap[match.teamB.toString()] || { name: 'Unknown Team', _id: match.teamB };
-          return result;
-        });
-        
-        return manuallyPopulated;
+        return result;
+      });
+      
+      // Log a sample of a populated match
+      if (populatedMatches.length > 0) {
+        const sampleMatch = populatedMatches[0];
+        logger.info(`Sample match after manual population - teamA: ${sampleMatch.teamA?.name}, teamB: ${sampleMatch.teamB?.name}`);
       }
+      
+      return populatedMatches;
     });
     
     logger.info(`Returning ${schedule.length} matches`);
@@ -161,6 +164,29 @@ export async function POST(
       }
       
       logger.info(`League found: ${league.name}, teams: ${league.teams.length}, status: ${league.status}`);
+      
+      // Verify that all team references in the league are valid
+      if (league.teams && league.teams.length > 0) {
+        const teamIds = league.teams.map(team => team.toString());
+        logger.info(`Verifying existence of ${teamIds.length} teams`);
+        
+        const teams = await TeamModel.find({ _id: { $in: teamIds }}).select('_id').lean();
+        
+        if (teams.length !== teamIds.length) {
+          logger.warn(`Only found ${teams.length} teams out of ${teamIds.length} referenced in the league`);
+          
+          // Filter out missing team references
+          const validTeamIds = teams.map(team => team._id.toString());
+          league.teams = league.teams.filter(teamId => 
+            validTeamIds.includes(teamId.toString())
+          );
+          
+          logger.info(`Filtered league.teams to ${league.teams.length} valid teams`);
+          
+          // Save the league with only valid team references
+          await league.save();
+        }
+      }
       
       // Allow league creation if the user is an admin OR the league organizer
       const isAdmin = hasRole(session, ROLES.ADMIN);
