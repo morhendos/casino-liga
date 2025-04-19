@@ -28,6 +28,12 @@ This document summarizes the improvements made to address several concerns ident
 - Improved error handling in the API for unsupported formats
 - Added descriptive error messages when users attempt to use unavailable formats
 
+### 5. Improved UI Visual Components
+- Enhanced Progress component with better color contrast 
+- Added variant support for Progress bars (default, success, info)
+- Fixed visual issue where progress indicators were not distinguishable from backgrounds
+- Applied consistent styling across all analytics pages
+
 ### Additional Components Added
 - `PlayerAnalyticsPanel` - For player selection and display
 - `Alert` component - For consistent error messaging
@@ -40,6 +46,9 @@ This document summarizes the improvements made to address several concerns ident
 5. `src/components/analytics/AdminReportsPanel.tsx`
 6. `src/components/analytics/index.ts`
 7. `src/components/analytics/PlayerAnalyticsPanel.tsx`
+8. `src/components/analytics/LeagueStatsDashboard.tsx`
+9. `src/components/analytics/PlayerPerformanceCard.tsx`
+10. `src/components/ui/progress.tsx`
 
 ### New Files Added
 1. `src/components/ui/alert.tsx`
@@ -56,6 +65,20 @@ To resolve the 401 Unauthorized errors in the player analytics section:
    - Implemented user-friendly error messages
    - Added retry functionality with a button for easy recovery
 
+## Progress Bar Improvements
+
+To fix the issue where progress bars were not visually distinguishable:
+
+1. **Enhanced Progress component**:
+   - Changed background color to have better contrast with the indicator
+   - Added variant support (default, success, info) for different contexts
+   - Used explicit slate colors for better visibility in both light and dark modes
+2. **Applied in components**:
+   - Updated LeagueStatsDashboard with new Progress variants
+   - Improved PlayerPerformanceCard with better contrasting Progress bars
+   - Maintained consistent color scheme across the application
+   - Added conditional styling based on data values (e.g., success variant when above average)
+
 ## Future Improvements
 
 Areas for further enhancement:
@@ -66,3 +89,4 @@ Areas for further enhancement:
 4. Add data visualization charts for league statistics
 5. Implement team comparison feature
 6. Improve authentication flow with better session persistence
+7. Add more visual indicators for important metrics
