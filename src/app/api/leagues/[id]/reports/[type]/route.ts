@@ -78,7 +78,7 @@ async function generateTeamsReport(leagueId, format) {
     }
     
     // For other formats, we'd need to implement conversion
-    throw new Error(`Format '${format}' not implemented yet`);
+    throw new Error(`Format '${format}' is not implemented yet. Currently only CSV format is supported.`);
   });
 }
 
@@ -125,7 +125,7 @@ async function generateScheduleReport(leagueId, format) {
     }
     
     // For other formats, we'd need to implement conversion
-    throw new Error(`Format '${format}' not implemented yet`);
+    throw new Error(`Format '${format}' is not implemented yet. Currently only CSV format is supported.`);
   });
 }
 
@@ -219,7 +219,7 @@ async function generateStandingsReport(leagueId, format) {
     }
     
     // For other formats, we'd need to implement conversion
-    throw new Error(`Format '${format}' not implemented yet`);
+    throw new Error(`Format '${format}' is not implemented yet. Currently only CSV format is supported.`);
   });
 }
 
@@ -241,9 +241,13 @@ export async function GET(
     const url = new URL(request.url);
     const format = url.searchParams.get('format') || 'csv';
     
-    // Validate format
-    if (!['csv', 'xlsx', 'pdf'].includes(format)) {
-      return NextResponse.json({ error: 'Invalid format. Supported formats: csv, xlsx, pdf' }, { status: 400 });
+    // Validate format - only CSV is currently supported
+    if (format !== 'csv') {
+      return NextResponse.json({ 
+        error: 'Unsupported format', 
+        message: `Format '${format}' is not supported yet. Currently only CSV format is available.`,
+        supportedFormats: ['csv'] 
+      }, { status: 400 });
     }
     
     // Generate the appropriate report
@@ -259,7 +263,11 @@ export async function GET(
         report = await generateStandingsReport(leagueId, format);
         break;
       default:
-        return NextResponse.json({ error: 'Invalid report type' }, { status: 400 });
+        return NextResponse.json({ 
+          error: 'Invalid report type',
+          message: `Report type '${reportType}' is not valid. Available types: teams, schedule, standings`,
+          availableTypes: ['teams', 'schedule', 'standings']
+        }, { status: 400 });
     }
     
     // Return the report with appropriate headers
