@@ -76,11 +76,14 @@ function LeagueSchedulePage() {
 
   // Extract the ID from params
   const leagueId = params?.id as string;
+  
+  console.log("LeagueSchedulePage initialized with leagueId:", leagueId);
 
   useEffect(() => {
     if (session) {
       const userIsAdmin = hasRole(session, ROLES.ADMIN);
       setIsAdmin(userIsAdmin);
+      console.log("User is admin:", userIsAdmin);
     }
   }, [session]);
 
@@ -94,6 +97,7 @@ function LeagueSchedulePage() {
       
       try {
         setIsLoadingLeague(true);
+        console.log("Fetching league details for ID:", leagueId);
         const response = await fetch(`/api/leagues/${leagueId}`);
         
         if (!response.ok) {
@@ -101,17 +105,22 @@ function LeagueSchedulePage() {
         }
         
         const leagueData = await response.json();
+        console.log("League data received:", leagueData);
         
         // Ensure ID is available in the expected format
         const processedLeague = {
           ...leagueData,
           id: leagueData._id || leagueData.id,
-          teams: leagueData.teams?.map((team: any) => ({
-            ...team,
-            id: team._id || team.id
-          })) || []
+          teams: leagueData.teams?.map((team: any) => {
+            console.log("Processing team:", team);
+            return {
+              ...team,
+              id: team._id || team.id
+            };
+          }) || []
         };
         
+        console.log("Processed league:", processedLeague);
         setLeague(processedLeague);
       } catch (error) {
         console.error("Error fetching league details:", error);
@@ -134,28 +143,55 @@ function LeagueSchedulePage() {
     
     try {
       setIsLoading(true);
+      console.log("Fetching schedule for league ID:", leagueId);
       const response = await fetch(`/api/leagues/${leagueId}/schedule`);
       
       if (!response.ok) {
+        console.error("API returned error status:", response.status, response.statusText);
+        const errorText = await response.text();
+        console.error("Error response body:", errorText);
         throw new Error(`Error fetching schedule: ${response.statusText}`);
       }
       
       const data = await response.json();
+      console.log("Raw schedule data received:", data);
+      
+      // Validate data before processing
+      if (!Array.isArray(data)) {
+        console.error("Expected array but got:", typeof data, data);
+        throw new Error("Received invalid data format from API");
+      }
       
       // Process matches
-      const processedMatches = data.map((match: any) => ({
-        ...match,
-        id: match._id || match.id,
-        teamA: {
-          ...match.teamA,
-          id: match.teamA._id || match.teamA.id
-        },
-        teamB: {
-          ...match.teamB,
-          id: match.teamB._id || match.teamB.id
+      const processedMatches = data.map((match: any) => {
+        console.log("Processing match:", match);
+        
+        // Validate team data
+        if (!match.teamA || !match.teamB) {
+          console.error("Match is missing team data:", match);
+          throw new Error("Match data is incomplete - missing team information");
         }
-      }));
+        
+        try {
+          return {
+            ...match,
+            id: match._id || match.id,
+            teamA: {
+              ...match.teamA,
+              id: match.teamA._id || match.teamA.id
+            },
+            teamB: {
+              ...match.teamB,
+              id: match.teamB._id || match.teamB.id
+            }
+          };
+        } catch (err) {
+          console.error("Error processing match:", err, match);
+          throw new Error("Error processing match data");
+        }
+      });
       
+      console.log("Processed matches:", processedMatches);
       setMatches(processedMatches);
     } catch (error) {
       console.error("Error fetching schedule:", error);
@@ -171,11 +207,13 @@ function LeagueSchedulePage() {
   }, [leagueId]);
 
   const handleScheduleGenerated = () => {
+    console.log("Schedule generated - refreshing data");
     fetchSchedule();
     
     // Reload league to update scheduleGenerated flag
     async function reloadLeague() {
       try {
+        console.log("Reloading league data after schedule generation");
         const response = await fetch(`/api/leagues/${leagueId}`);
         
         if (!response.ok) {
@@ -183,6 +221,7 @@ function LeagueSchedulePage() {
         }
         
         const leagueData = await response.json();
+        console.log("Updated league data:", leagueData);
         
         // Ensure ID is available in the expected format
         const processedLeague = {
@@ -207,11 +246,13 @@ function LeagueSchedulePage() {
   };
 
   const handleScheduleCleared = () => {
+    console.log("Schedule cleared");
     setMatches([]);
     
     // Reload league to update scheduleGenerated flag
     async function reloadLeague() {
       try {
+        console.log("Reloading league data after schedule cleared");
         const response = await fetch(`/api/leagues/${leagueId}`);
         
         if (!response.ok) {
@@ -219,6 +260,7 @@ function LeagueSchedulePage() {
         }
         
         const leagueData = await response.json();
+        console.log("Updated league data after clearing:", leagueData);
         
         // Ensure ID is available in the expected format
         const processedLeague = {
