@@ -19,7 +19,6 @@ async function calculateLeagueStats(leagueId) {
     console.log('Found league:', league.name);
     
     // Get all matches for the league
-    // Note: In the match schema, it might be using 'league' field, not 'leagueId'
     const matches = await MatchModel.find({ league: leagueId })
       .populate('teamA', 'name players')
       .populate('teamB', 'name players');
@@ -65,33 +64,32 @@ async function calculateLeagueStats(leagueId) {
     console.log(`Found ${completedMatchesData.length} completed matches`);
     
     completedMatchesData.forEach(match => {
-      // In the match schema, teams might be called teamA and teamB, not homeTeam and awayTeam
-      const homeTeam = match.teamA;
-      const awayTeam = match.teamB;
+      const teamA = match.teamA;
+      const teamB = match.teamB;
       
       // Record players who played
-      if (homeTeam && homeTeam.players) {
-        homeTeam.players.forEach(player => {
+      if (teamA && teamA.players) {
+        teamA.players.forEach(player => {
           if (player) playedPlayerIds.add(player.toString());
         });
       }
-      if (awayTeam && awayTeam.players) {
-        awayTeam.players.forEach(player => {
+      if (teamB && teamB.players) {
+        teamB.players.forEach(player => {
           if (player) playedPlayerIds.add(player.toString());
         });
       }
       
       // Record team stats
-      if (homeTeam) {
-        const homeTeamId = homeTeam._id.toString();
-        teamToMatchesMap[homeTeamId] = (teamToMatchesMap[homeTeamId] || 0) + 1;
+      if (teamA) {
+        const teamAId = teamA._id.toString();
+        teamToMatchesMap[teamAId] = (teamToMatchesMap[teamAId] || 0) + 1;
       }
-      if (awayTeam) {
-        const awayTeamId = awayTeam._id.toString();
-        teamToMatchesMap[awayTeamId] = (teamToMatchesMap[awayTeamId] || 0) + 1;
+      if (teamB) {
+        const teamBId = teamB._id.toString();
+        teamToMatchesMap[teamBId] = (teamToMatchesMap[teamBId] || 0) + 1;
       }
       
-      // In match schema, sets might be inside match.result as arrays
+      // Process match results
       if (match.result && match.result.teamAScore && match.result.teamBScore) {
         // Count total sets
         const numSets = match.result.teamAScore.length;
@@ -114,18 +112,18 @@ async function calculateLeagueStats(leagueId) {
         if (match.result.winner) {
           // Record win/loss
           const winnerId = match.result.winner.toString();
-          const loserId = homeTeam && homeTeam._id.toString() === winnerId && awayTeam
-            ? awayTeam._id.toString() 
-            : (homeTeam ? homeTeam._id.toString() : null);
+          const loserId = teamA && teamA._id.toString() === winnerId && teamB
+            ? teamB._id.toString() 
+            : (teamA ? teamA._id.toString() : null);
             
           if (winnerId) teamToWinsMap[winnerId] = (teamToWinsMap[winnerId] || 0) + 1;
           if (loserId) teamToLossesMap[loserId] = (teamToLossesMap[loserId] || 0) + 1;
           
           // Determine match type
           try {
-            const homePoints = match.result.teamAScore.reduce((sum, score) => sum + score, 0);
-            const awayPoints = match.result.teamBScore.reduce((sum, score) => sum + score, 0);
-            const pointDifference = Math.abs(homePoints - awayPoints);
+            const teamAPoints = match.result.teamAScore.reduce((sum, score) => sum + score, 0);
+            const teamBPoints = match.result.teamBScore.reduce((sum, score) => sum + score, 0);
+            const pointDifference = Math.abs(teamAPoints - teamBPoints);
             
             if (numSets === 3) {
               matchTypes.tiebreak++;
