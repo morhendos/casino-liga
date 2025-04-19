@@ -10,6 +10,7 @@ root/
 │   ├── PROGRESS-REPORT.md
 │   ├── ROLE-BASED-ACCESS-PLAN.md
 │   ├── ROLE-USAGE.md
+│   ├── SCHEDULE-MANAGEMENT-FEATURES.md
 │   └── TESTING.md
 ├── next-env.d.ts
 ├── next.config.js
@@ -147,6 +148,9 @@ root/
 │   │   │   ├── PlayerInvitationManagement.tsx
 │   │   │   ├── PlayerManagement.tsx
 │   │   │   ├── RoleManagement.tsx
+│   │   │   ├── ScheduleGenerationForm.tsx
+│   │   │   ├── ScheduleManagementTable.tsx
+│   │   │   ├── ScheduleVisualization.tsx
 │   │   │   ├── TeamCreationForm.tsx
 │   │   │   └── UserManagement.tsx
 │   │   ├── auth
@@ -270,5 +274,4 @@ root/
 │       ├── scheduleGenerator.ts
 │       └── teamNameSuggestions.ts
 ├── tailwind.config.js
-├── tree.txt
 └── tsconfig.json
