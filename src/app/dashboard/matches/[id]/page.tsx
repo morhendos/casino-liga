@@ -5,10 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import withAuth from "@/components/auth/withAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { ArrowLeft, Calendar, Clock, MapPin, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, AlertTriangle, Trophy, Edit, FileText } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { hasRole, ROLES } from "@/lib/auth/role-utils";
+import { useSession } from "next-auth/react";
+import MatchResultForm from "@/components/matches/MatchResultForm";
 
 interface Match {
   id: string;
@@ -31,6 +34,7 @@ interface Match {
   scheduledTime?: string;
   location?: string;
   status: string;
+  matchFormat: 'bestOf3' | 'bestOf5' | 'singleSet';
   result?: {
     teamAScore: number[];
     teamBScore: number[];
@@ -41,63 +45,94 @@ interface Match {
 function MatchDetailsPage() {
   const params = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const [match, setMatch] = useState<Match | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isOrganizer, setIsOrganizer] = useState(false);
+  const [isPlayer, setIsPlayer] = useState(false);
+  const [showResultForm, setShowResultForm] = useState(false);
   
   const matchId = params?.id as string;
   
   useEffect(() => {
-    async function fetchMatchDetails() {
-      if (!matchId) {
-        setError("Invalid match ID");
-        setIsLoading(false);
-        return;
-      }
-      
-      try {
-        setIsLoading(true);
-        const response = await fetch(`/api/matches/${matchId}`);
-        
-        if (!response.ok) {
-          if (response.status === 404) {
-            throw new Error("Match not found");
-          }
-          throw new Error(`Error fetching match details: ${response.statusText}`);
-        }
-        
-        const matchData = await response.json();
-        
-        // Process the match data to ensure IDs are consistent
-        const processedMatch = {
-          ...matchData,
-          id: matchData._id || matchData.id,
-          league: {
-            ...matchData.league,
-            id: matchData.league._id || matchData.league.id
-          },
-          teamA: {
-            ...matchData.teamA,
-            id: matchData.teamA._id || matchData.teamA.id
-          },
-          teamB: {
-            ...matchData.teamB,
-            id: matchData.teamB._id || matchData.teamB.id
-          }
-        };
-        
-        setMatch(processedMatch);
-      } catch (error) {
-        console.error("Error fetching match details:", error);
-        setError(error instanceof Error ? error.message : "Failed to load match details");
-        toast.error("Failed to load match details");
-      } finally {
-        setIsLoading(false);
-      }
+    if (session) {
+      const userIsAdmin = hasRole(session, ROLES.ADMIN);
+      setIsAdmin(userIsAdmin);
+    }
+  }, [session]);
+  
+  const fetchMatchDetails = async () => {
+    if (!matchId) {
+      setError("Invalid match ID");
+      setIsLoading(false);
+      return;
     }
     
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/matches/${matchId}`);
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error("Match not found");
+        }
+        throw new Error(`Error fetching match details: ${response.statusText}`);
+      }
+      
+      const matchData = await response.json();
+      
+      // Process the match data to ensure IDs are consistent
+      const processedMatch = {
+        ...matchData,
+        id: matchData._id || matchData.id,
+        matchFormat: matchData.matchFormat || 'bestOf3', // Default to bestOf3 if not specified
+        league: {
+          ...matchData.league,
+          id: matchData.league._id || matchData.league.id
+        },
+        teamA: {
+          ...matchData.teamA,
+          id: matchData.teamA._id || matchData.teamA.id
+        },
+        teamB: {
+          ...matchData.teamB,
+          id: matchData.teamB._id || matchData.teamB.id
+        }
+      };
+      
+      setMatch(processedMatch);
+      
+      // Check if user is the league organizer
+      if (session && processedMatch.league?.organizerId) {
+        setIsOrganizer(processedMatch.league.organizerId === session.user.id);
+      }
+      
+      // Check if user is a player in one of the teams
+      if (session) {
+        const isTeamAPlayer = processedMatch.teamA?.players?.some(player => 
+          player.user && player.user === session.user.id
+        );
+        
+        const isTeamBPlayer = processedMatch.teamB?.players?.some(player => 
+          player.user && player.user === session.user.id
+        );
+        
+        setIsPlayer(isTeamAPlayer || isTeamBPlayer);
+      }
+    } catch (error) {
+      console.error("Error fetching match details:", error);
+      setError(error instanceof Error ? error.message : "Failed to load match details");
+      toast.error("Failed to load match details");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  useEffect(() => {
     fetchMatchDetails();
-  }, [matchId]);
+  }, [matchId, session]);
   
   // Format status for display
   const getStatusBadge = (status: string) => {
@@ -126,6 +161,37 @@ function MatchDetailsPage() {
       month: 'long', 
       day: 'numeric' 
     });
+  };
+  
+  // Handle recording or editing match result
+  const handleRecordResult = () => {
+    setShowResultForm(true);
+  };
+  
+  // Handle result form cancel
+  const handleResultFormCancel = () => {
+    setShowResultForm(false);
+  };
+  
+  // Handle result saved successfully
+  const handleResultSaved = () => {
+    setShowResultForm(false);
+    toast.success("Match result saved successfully");
+    fetchMatchDetails(); // Reload match details with new result
+  };
+  
+  // Check if user can record result
+  const canRecordResult = () => {
+    // Admin can always record
+    if (isAdmin) return true;
+    
+    // Organizer can record
+    if (isOrganizer) return true;
+    
+    // Players can record if match is not already completed
+    if (isPlayer && match && match.status !== 'completed') return true;
+    
+    return false;
   };
   
   if (isLoading) {
@@ -191,6 +257,35 @@ function MatchDetailsPage() {
     );
   }
   
+  if (showResultForm) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center mb-8">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="mr-4"
+            onClick={() => setShowResultForm(false)}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Match Details
+          </Button>
+          <h1 className="text-2xl font-bold">Record Match Result</h1>
+        </div>
+        
+        <MatchResultForm 
+          matchId={matchId}
+          teamA={match.teamA}
+          teamB={match.teamB}
+          matchFormat={match.matchFormat}
+          existingResult={match.result}
+          onResultSaved={handleResultSaved}
+          onCancel={handleResultFormCancel}
+        />
+      </div>
+    );
+  }
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
@@ -213,6 +308,7 @@ function MatchDetailsPage() {
             asChild
           >
             <Link href={`/dashboard/leagues/${match.league.id}`}>
+              <FileText className="w-4 h-4 mr-2" />
               View League: {match.league.name}
             </Link>
           </Button>
@@ -277,34 +373,79 @@ function MatchDetailsPage() {
           </div>
           
           {/* Results (if completed) */}
-          {match.status === 'completed' && match.result && (
+          {match.status === 'completed' && match.result ? (
             <div className="border-t pt-4">
-              <h3 className="font-medium text-lg mb-2">Match Results</h3>
+              <h3 className="font-medium text-lg mb-4 flex items-center">
+                <Trophy className="h-5 w-5 mr-2 text-yellow-500" />
+                Match Results
+              </h3>
+              
+              <div className="bg-green-50 border border-green-100 rounded-md p-4 mb-4">
+                <div className="text-center mb-2 text-green-800 font-medium">
+                  Winner: {match.result.winner === match.teamA.id ? match.teamA.name : match.teamB.name}
+                </div>
+              </div>
+              
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
                   <h4 className="font-medium">{match.teamA?.name}</h4>
-                  <div className="text-xl font-bold">
-                    {match.result.teamAScore.join(' - ')}
-                  </div>
                 </div>
-                <div className="flex items-center justify-center">
-                  <div className="text-sm text-muted-foreground">Sets</div>
+                <div className="text-sm text-muted-foreground">
+                  Sets
                 </div>
                 <div>
                   <h4 className="font-medium">{match.teamB?.name}</h4>
-                  <div className="text-xl font-bold">
-                    {match.result.teamBScore.join(' - ')}
-                  </div>
                 </div>
+                
+                {match.result.teamAScore.map((score, index) => (
+                  <React.Fragment key={`set-${index}`}>
+                    <div className={`text-xl font-bold ${score > match.result!.teamBScore[index] ? 'text-green-600' : ''}`}>
+                      {score}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Set {index + 1}
+                    </div>
+                    <div className={`text-xl font-bold ${match.result!.teamBScore[index] > score ? 'text-green-600' : ''}`}>
+                      {match.result!.teamBScore[index]}
+                    </div>
+                  </React.Fragment>
+                ))}
               </div>
             </div>
+          ) : (
+            match.status !== 'canceled' && match.status !== 'postponed' && (
+              <div className="border-t pt-4">
+                <div className="bg-blue-50 border border-blue-100 rounded-md p-4">
+                  <h3 className="font-medium text-blue-800 mb-2">No Result Recorded</h3>
+                  <p className="text-blue-700 text-sm">
+                    This match doesn't have a recorded result yet.
+                    {canRecordResult() && " You can record the result using the button below."}
+                  </p>
+                </div>
+              </div>
+            )
           )}
         </CardContent>
         
-        <CardFooter className="bg-muted/30 px-6 py-4 text-center">
-          <div className="w-full text-sm text-muted-foreground">
-            <p>Match recording features will be coming soon in the next update!</p>
-          </div>
+        <CardFooter className="bg-muted/30 px-6 py-4 flex justify-between">
+          {canRecordResult() && (
+            <Button 
+              onClick={handleRecordResult}
+              variant={match.status === 'completed' ? "outline" : "default"}
+              className={match.status === 'completed' ? "" : "bg-green-600 hover:bg-green-700"}
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              {match.status === 'completed' ? 'Edit Result' : 'Record Result'}
+            </Button>
+          )}
+          
+          {!canRecordResult() && (
+            <div className="w-full text-sm text-muted-foreground text-center">
+              {match.status === 'completed' 
+                ? "Results have been recorded for this match."
+                : "Only administrators, league organizers, or participating players can record results."}
+            </div>
+          )}
         </CardFooter>
       </Card>
     </div>
