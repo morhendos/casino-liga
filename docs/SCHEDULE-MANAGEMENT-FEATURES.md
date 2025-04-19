@@ -10,7 +10,8 @@ The schedule management system enables league administrators to:
 2. View and edit match details (times, locations, status)
 3. Visualize the schedule in calendar or list view
 4. Filter schedules by team
-5. Print or export the league schedule
+5. View basic match details
+6. Print or export the league schedule
 
 Players can view the schedule and access match details for their leagues.
 
@@ -50,6 +51,15 @@ The `ScheduleVisualization` component offers:
 - Print/export functionality for physical copies
 - Interactive navigation between months in calendar view
 
+### Match Details
+
+The `MatchDetailsPage` component provides:
+
+- A simple view of individual match information
+- Display of teams, date, time, location and status
+- Visual indicators for match status
+- Navigation back to the league view
+
 ## How to Use
 
 ### For Administrators
@@ -70,6 +80,10 @@ The `ScheduleVisualization` component offers:
    - Use the calendar or list view to visualize the schedule
    - Filter by team to focus on specific teams' matches
    - Use the print button to generate a printable version
+
+4. **Access Match Details:**
+   - Click on any match in the schedule to view detailed information
+   - See teams, date, time, location, and current status
 
 ### For Players
 
@@ -93,6 +107,7 @@ The schedule management system uses:
   - POST `/api/leagues/[id]/schedule` - Generate a schedule
   - DELETE `/api/leagues/[id]/schedule` - Clear a schedule
   - PATCH `/api/matches/[id]` - Update a match
+  - GET `/api/matches/[id]` - Get match details
 
 ## Limitations and Future Enhancements
 
@@ -100,6 +115,7 @@ Current limitations:
 - Only round-robin scheduling is supported (one match between each team pair)
 - No drag-and-drop rescheduling interface
 - Limited export formats (print only)
+- Basic match details view without score recording functionality
 
 Planned enhancements:
 - Double round-robin scheduling (home and away matches)
@@ -107,3 +123,5 @@ Planned enhancements:
 - Export to calendar formats (iCal, Google Calendar)
 - Automatic notifications for schedule changes
 - Time conflict detection for venues
+- Match result recording with score tracking
+- Match statistics and performance metrics
