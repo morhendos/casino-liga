@@ -70,16 +70,14 @@ export default async function LeagueAnalyticsPage({ params }: { params: { id: st
                 This section will be expanded to show all players in the league with search and filtering.
               </p>
               
-              {/* Placeholder for player selection - would be replaced with actual player list */}
-              <div className="text-center py-6">
-                <p className="text-sm text-muted-foreground">
-                  This is a placeholder. The full implementation will fetch and display player cards.
+              {/* Just show a message about future implementation */}
+              <div className="text-center py-8 border rounded-md">
+                <p className="text-muted-foreground">
+                  Player analytics will be available in a future update.
                 </p>
-                
-                {/* Example player card - in the full implementation, this would be dynamic */}
-                <div className="max-w-md mx-auto mt-4">
-                  <PlayerPerformanceCard playerId="placeholder" leagueId={leagueId} />
-                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  This feature will allow you to view detailed statistics for each player in the league.
+                </p>
               </div>
             </CardContent>
           </Card>
