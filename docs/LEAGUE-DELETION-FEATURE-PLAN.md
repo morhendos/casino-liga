@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the plan for implementing a feature that allows administrators to delete leagues they have created in the Casino Liga application. League deletion is a sensitive operation that requires careful implementation to prevent data loss, ensure proper permissions, and maintain application integrity.
+This document outlines the plan for implementing a feature that allows administrators to delete leagues they have created in the Padeliga application. League deletion is a sensitive operation that requires careful implementation to prevent data loss, ensure proper permissions, and maintain application integrity.
 
 ## Feature Requirements
 
@@ -232,4 +232,4 @@ This document outlines the plan for implementing a feature that allows administr
 
 ## Conclusion
 
-The league deletion feature will provide administrators with the necessary control over the lifecycle of leagues while ensuring data integrity and preventing accidental data loss. By implementing a careful balance of security, user experience, and data management, this feature will enhance the administrative capabilities of the Casino Liga application.
+The league deletion feature will provide administrators with the necessary control over the lifecycle of leagues while ensuring data integrity and preventing accidental data loss. By implementing a careful balance of security, user experience, and data management, this feature will enhance the administrative capabilities of the Padeliga application.
