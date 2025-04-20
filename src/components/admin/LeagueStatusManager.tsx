@@ -317,11 +317,11 @@ export default function LeagueStatusManager({
       <CardContent>
         <div className="space-y-4">
           {currentStatus === "draft" && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 text-sm flex">
-              <Info className="h-4 w-4 text-yellow-500 mt-0.5 mr-2" />
+            <div className="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-md p-3 text-sm flex">
+              <Info className="h-4 w-4 text-yellow-500 dark:text-yellow-400 mt-0.5 mr-2" />
               <div>
-                <p className="text-yellow-800 font-medium">League in Draft Mode</p>
-                <p className="text-yellow-700">
+                <p className="text-yellow-800 dark:text-yellow-300 font-medium">League in Draft Mode</p>
+                <p className="text-yellow-700 dark:text-yellow-400">
                   Your league is currently in draft mode. Open registration to allow teams to join.
                 </p>
               </div>
@@ -329,11 +329,11 @@ export default function LeagueStatusManager({
           )}
 
           {currentStatus === "registration" && (
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm flex">
-              <Info className="h-4 w-4 text-blue-500 mt-0.5 mr-2" />
+            <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-md p-3 text-sm flex">
+              <Info className="h-4 w-4 text-blue-500 dark:text-blue-400 mt-0.5 mr-2" />
               <div>
-                <p className="text-blue-800 font-medium">Registration Open</p>
-                <p className="text-blue-700">
+                <p className="text-blue-800 dark:text-blue-300 font-medium">Registration Open</p>
+                <p className="text-blue-700 dark:text-blue-400">
                   {teamsCount < minTeams
                     ? `You need at least ${minTeams} teams to start the league. Currently have ${teamsCount}.`
                     : `You have ${teamsCount} of ${maxTeams} possible teams registered.`}
@@ -343,11 +343,11 @@ export default function LeagueStatusManager({
           )}
 
           {currentStatus === "active" && (
-            <div className="bg-green-50 border border-green-200 rounded-md p-3 text-sm flex">
-              <Info className="h-4 w-4 text-green-500 mt-0.5 mr-2" />
+            <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-md p-3 text-sm flex">
+              <Info className="h-4 w-4 text-green-500 dark:text-green-400 mt-0.5 mr-2" />
               <div>
-                <p className="text-green-800 font-medium">League is Active</p>
-                <p className="text-green-700">
+                <p className="text-green-800 dark:text-green-300 font-medium">League is Active</p>
+                <p className="text-green-700 dark:text-green-400">
                   The league is currently in progress. Match results can be recorded.
                 </p>
               </div>
