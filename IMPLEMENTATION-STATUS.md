@@ -1,88 +1,74 @@
-# Admin Workflow Implementation Status
+# Implementation Status
 
-This document tracks the progress of implementing the role-based access control and admin workflow features in the casino-liga project.
+## Core Features
 
-## 1. Data Model Adjustments
+- ✅ User authentication (login, signup)
+- ✅ User roles & permissions
+- ✅ League creation and configuration
+- ✅ Team management
+- ✅ Player profiles
+- ✅ Explicit game creation
+- ✅ Schedule generation (optional)
+- ✅ Match result recording
+- ✅ Ranking calculation
 
-- [x] **Player model**:
-   - [x] Add `email` field (required for admin-created players)
-   - [x] Add `status` field (e.g., "invited", "active", "pending")
-   - [x] Add `invitationSent` flag
-   - [x] Add invitation tracking (token and expiration date)
+## Admin Flow
 
-- [x] **User model**:
-   - [x] Email as unique identifier
-   - [x] Add `invitedPlayerId` to track invited users who haven't completed setup
+The admin flow for managing a padel league in Casino Liga is as follows:
 
-## 2. Admin League Management Flow
+1. **Create a League**
+   - Set league details (name, description, dates)
+   - Configure settings (max teams, min teams, etc.)
 
-- [x] **Admin creates a league**
-   - [x] Basic admin section structure added
-   - [x] League management UI components created (`components/admin/LeagueManagement.tsx`)
-   - [x] League creation page (`dashboard/leagues/create/page.tsx`)
-   - [ ] Complete integration with invitation system
+2. **Add Players**
+   - Create player profiles
+   - Invite players (optional)
 
-- [x] **Admin adds players to the league**
-   - [x] Admin API endpoints for player management created
-   - [x] Player management component created (`components/admin/PlayerManagement.tsx`)
-   - [x] Player invitation component created (`components/admin/PlayerInvitationManagement.tsx`)
-   - [ ] Complete integration with league management flow
+3. **Create Teams**
+   - Form teams of 2 players each
+   - Set team names
 
-- [x] **Admin creates teams from these players**
-   - [x] Team creation form component created (`components/admin/TeamCreationForm.tsx`)
-   - [ ] Complete integration with league management flow
-   - [ ] Functionality to add teams to leagues
+4. **Create Games**
+   - Manually create individual games
+   - Specify participating teams, dates, and locations
 
-- [x] **System sends invitations**
-   - [x] Email service implementation
-   - [x] Invitation service implementation
-   - [x] Backend support for invitation tokens
-   - [x] API endpoint for inviting players (`api/admin/players/[id]/invite/route.ts`)
-   - [x] Frontend UI for managing invitations
+5. **Generate Schedule (Optional)**
+   - Automatically generate a round-robin schedule
+   - Dates and times are calculated based on league settings
 
-- [x] **Player registration flow**
-   - [x] Modified registration flow for invited players
-   - [x] Model relationships to link User accounts to existing Player profiles
-   - [x] UI to convert "invited" status to "active"
+6. **Activate League**
+   - Change status to "active" once all required setup is complete
+   - Allow players to start recording match results
 
-## 3. Implementation Components
+## Player Flow
 
-- [x] **Admin League Management Pages**:
-   - [x] Basic admin section setup
-   - [x] League creation and management UI components
-   - [x] Player management component
-   - [x] Team formation interface components
+1. **Create/Edit Profile**
+   - Set skill level, preferred position, etc.
 
-- [x] **Player Invitation System**:
-   - [x] Email service (dummy implementation ready for provider integration)
-   - [x] Token generation for one-time links
-   - [x] API endpoint for invitations
-   - [x] Admin UI for sending invitations
-   - [x] Invitation registration page
+2. **Join a Team**
+   - Accept team invites or create a team
 
-- [x] **User Registration Enhancement**:
-   - [x] Backend model support for invited players
-   - [x] Frontend flow for invited players
-   - [x] Logic to link User accounts to existing Player profiles
+3. **View Matches**
+   - See upcoming matches and schedule
 
-- [x] **Database Relationships**:
-   - [x] User → Player (one-to-one)
-   - [x] Player → Teams (many-to-many)
-   - [x] Teams → Leagues (many-to-many)
+4. **Record Results**
+   - Submit match results
+   - Confirm results from other matches
 
-## 4. API Endpoints
+5. **Track Rankings**
+   - View personal and team rankings
+   - See stats and performance
 
-- [x] `/api/admin/players` - Create/manage players without user accounts
-- [x] `/api/admin/players/[id]/invite` - Invite a player
-- [x] `/api/auth/invite` - Process invitation tokens and register users
-- [x] League endpoints exist in standard API (`/api/leagues`)
-- [x] Team endpoints exist in standard API (`/api/teams`)
+## Technical Implementation
 
-## Next Steps and Priorities
+- Next.js 14 with App Router
+- MongoDB for data storage
+- NextAuth.js for authentication
+- Tailwind CSS for styling
 
-1. Add real email provider integration (replace logging with actual emails)
-2. Complete the integration between components (league management, player management, and team creation)
-3. Implement end-to-end testing of the invitation flow
-4. Add error handling and validation improvements
-5. Add resend invitation functionality
-6. Add invitation tracking (status, when sent, etc.)
+## Recent Updates
+
+- Added explicit game creation as a separate step in the league setup flow
+- Made schedule generation optional but still available
+- Enhanced the league management dashboard with games information
+- Updated the setup progress component to include game creation step

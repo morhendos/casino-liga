@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { ArrowLeft, LayoutDashboard, Users, CalendarDays, Settings, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, LayoutDashboard, Users, CalendarDays, Settings, CheckCircle2, PlusCircle, Zap } from "lucide-react";
 import Link from "next/link";
 import LeaguePlayerManager from "@/components/admin/LeaguePlayerManager";
 import LeagueStatusManager from "@/components/admin/LeagueStatusManager";
@@ -45,6 +45,8 @@ function LeagueManagePage() {
   const [league, setLeague] = useState<League | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [gamesCount, setGamesCount] = useState(0);
+  const [isLoadingGames, setIsLoadingGames] = useState(true);
   
   // Default to "overview" or to "teams" if coming from league creation
   const [activeTab, setActiveTab] = useState(fromCreate ? "teams" : "overview");
@@ -55,6 +57,32 @@ function LeagueManagePage() {
   // Fetch league data
   useEffect(() => {
     fetchLeagueDetails();
+  }, [leagueId]);
+
+  // Fetch games count
+  useEffect(() => {
+    const fetchGamesCount = async () => {
+      if (!leagueId) return;
+      
+      try {
+        setIsLoadingGames(true);
+        const response = await fetch(`/api/leagues/${leagueId}/schedule`);
+        
+        if (response.ok) {
+          const games = await response.json();
+          setGamesCount(Array.isArray(games) ? games.length : 0);
+        } else {
+          setGamesCount(0);
+        }
+      } catch (error) {
+        console.error("Error fetching games count:", error);
+        setGamesCount(0);
+      } finally {
+        setIsLoadingGames(false);
+      }
+    };
+    
+    fetchGamesCount();
   }, [leagueId]);
   
   const fetchLeagueDetails = async () => {
@@ -207,7 +235,7 @@ function LeagueManagePage() {
         {/* Main content area */}
         <div className="md:col-span-2">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-4 mb-6">
+            <TabsList className="grid grid-cols-5 mb-6">
               <TabsTrigger value="overview">
                 <LayoutDashboard className="h-4 w-4 mr-2" />
                 Overview
@@ -215,6 +243,10 @@ function LeagueManagePage() {
               <TabsTrigger value="teams">
                 <Users className="h-4 w-4 mr-2" />
                 Teams
+              </TabsTrigger>
+              <TabsTrigger value="games">
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Games
               </TabsTrigger>
               <TabsTrigger value="schedule">
                 <CalendarDays className="h-4 w-4 mr-2" />
@@ -236,7 +268,7 @@ function LeagueManagePage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Card>
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg">Teams</CardTitle>
@@ -263,6 +295,30 @@ function LeagueManagePage() {
                     
                     <Card>
                       <CardHeader className="pb-2">
+                        <CardTitle className="text-lg">Games</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-3xl font-bold">
+                          {isLoadingGames ? "..." : gamesCount}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {gamesCount > 0 
+                            ? "Games created ✓" 
+                            : "No games created yet"}
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="mt-4"
+                          onClick={() => router.push(`/dashboard/leagues/${league.id}/schedule?tab=games`)}
+                        >
+                          Create Games
+                        </Button>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader className="pb-2">
                         <CardTitle className="text-lg">Schedule</CardTitle>
                       </CardHeader>
                       <CardContent>
@@ -272,7 +328,7 @@ function LeagueManagePage() {
                         <div className="text-sm text-muted-foreground">
                           {league.scheduleGenerated 
                             ? "Match schedule is ready" 
-                            : "Schedule needs to be generated"}
+                            : "Schedule is optional"}
                         </div>
                         <Button 
                           variant="outline" 
@@ -280,12 +336,10 @@ function LeagueManagePage() {
                           className="mt-4"
                           onClick={() => setActiveTab("schedule")}
                         >
-                          {league.scheduleGenerated ? "View Schedule" : "Generate Schedule"}
+                          {league.scheduleGenerated ? "View Schedule" : "Schedule Options"}
                         </Button>
                       </CardContent>
                     </Card>
-                    
-                    {/* Additional stats can go here */}
                   </div>
                 </CardContent>
               </Card>
@@ -307,6 +361,62 @@ function LeagueManagePage() {
                 </CardContent>
               </Card>
             </TabsContent>
+
+            {/* Games tab */}
+            <TabsContent value="games">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Game Management</CardTitle>
+                  <CardDescription>
+                    Create and manage games for this league
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  {league.teams.length < 2 ? (
+                    <div className="text-center py-12">
+                      <Users className="h-12 w-12 mx-auto text-muted-foreground opacity-20 mb-4" />
+                      <h3 className="text-lg font-medium mb-2">Not Enough Teams</h3>
+                      <p className="text-muted-foreground mb-6">
+                        You need at least 2 teams to create games.
+                      </p>
+                      <Button onClick={() => setActiveTab("teams")}>
+                        Add Teams First
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="text-center bg-blue-50 border border-blue-100 rounded-md p-6">
+                          <PlusCircle className="h-12 w-12 mx-auto text-blue-500 mb-4" />
+                          <h3 className="text-lg font-medium mb-2 text-blue-700">Create Individual Games</h3>
+                          <p className="text-blue-600 mb-6">
+                            Manually create games one by one with specific dates and times.
+                          </p>
+                          <Button asChild>
+                            <Link href={`/dashboard/leagues/${league.id}/schedule?tab=games`}>
+                              {gamesCount > 0 ? "Manage Games" : "Create Games"}
+                            </Link>
+                          </Button>
+                        </div>
+                        
+                        <div className="text-center bg-purple-50 border border-purple-100 rounded-md p-6">
+                          <Zap className="h-12 w-12 mx-auto text-purple-500 mb-4" />
+                          <h3 className="text-lg font-medium mb-2 text-purple-700">Bulk Generate Games</h3>
+                          <p className="text-purple-600 mb-6">
+                            Automatically generate all possible game matchups at once.
+                          </p>
+                          <Button asChild className="bg-purple-600 hover:bg-purple-700">
+                            <Link href={`/dashboard/leagues/${league.id}/schedule?tab=bulk-games`}>
+                              Generate All Matchups
+                            </Link>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
             
             {/* Schedule tab */}
             <TabsContent value="schedule">
@@ -316,7 +426,7 @@ function LeagueManagePage() {
                   <CardDescription>
                     {league.scheduleGenerated 
                       ? "View and manage your league schedule" 
-                      : "Generate a schedule for this league"}
+                      : "Generate a schedule for this league (optional)"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
@@ -325,10 +435,21 @@ function LeagueManagePage() {
                       <CalendarDays className="h-12 w-12 mx-auto text-muted-foreground opacity-20 mb-4" />
                       <h3 className="text-lg font-medium mb-2">Not Enough Teams</h3>
                       <p className="text-muted-foreground mb-6">
-                        You need at least 2 teams to generate a schedule.
+                        You need at least 2 teams to manage schedule.
                       </p>
                       <Button onClick={() => setActiveTab("teams")}>
                         Add Teams First
+                      </Button>
+                    </div>
+                  ) : gamesCount === 0 ? (
+                    <div className="text-center py-12">
+                      <PlusCircle className="h-12 w-12 mx-auto text-muted-foreground opacity-20 mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No Games Yet</h3>
+                      <p className="text-muted-foreground mb-6">
+                        You need to create games before managing the schedule.
+                      </p>
+                      <Button onClick={() => setActiveTab("games")}>
+                        Create Games First
                       </Button>
                     </div>
                   ) : league.scheduleGenerated ? (
@@ -349,9 +470,9 @@ function LeagueManagePage() {
                   ) : (
                     <div className="text-center py-12">
                       <CalendarDays className="h-12 w-12 mx-auto text-muted-foreground opacity-30 mb-4" />
-                      <h3 className="text-lg font-medium mb-2">Generate Schedule</h3>
+                      <h3 className="text-lg font-medium mb-2">Generate Schedule (Optional)</h3>
                       <p className="text-muted-foreground mb-6">
-                        Create a round-robin schedule for all teams in this league.
+                        You can optionally generate a round-robin schedule for all teams in this league.
                       </p>
                       <Button asChild>
                         <Link href={`/dashboard/leagues/${league.id}/schedule?tab=generate`}>

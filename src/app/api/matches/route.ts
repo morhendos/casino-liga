@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { withConnection } from '@/lib/db';
-import { MatchModel, LeagueModel, TeamModel } from '@/models';
+import { MatchModel, LeagueModel, TeamModel, PlayerModel } from '@/models';
 import { ScheduleMatchRequest } from '@/types';
+import { authOptions } from '@/lib/auth';
+import { hasRole, ROLES } from '@/lib/auth/role-utils';
 
 // GET /api/matches - Get all matches with optional filtering
 export async function GET(request: Request) {
@@ -88,7 +90,8 @@ export async function GET(request: Request) {
 // POST /api/matches - Schedule a new match
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession();
+    // Use authOptions to get the session properly with roles
+    const session = await getServerSession(authOptions);
     
     if (!session?.user) {
       return NextResponse.json(
@@ -100,16 +103,20 @@ export async function POST(request: Request) {
     const data: ScheduleMatchRequest = await request.json();
     
     const newMatch = await withConnection(async () => {
-      // Check if the league exists and user is the organizer
+      // Check if the league exists
       const league = await LeagueModel.findById(data.leagueId);
       
       if (!league) {
         throw new Error('League not found');
       }
       
-      // Only league organizers can schedule matches
-      if (league.organizer.toString() !== session.user.id) {
-        throw new Error('Only league organizers can schedule matches');
+      // Check if the user has permission to create matches
+      const isAdmin = hasRole(session, ROLES.ADMIN);
+      const isOrganizer = league.organizer && league.organizer.toString() === session.user.id;
+      
+      // Allow both admins and league organizers to schedule matches
+      if (!isAdmin && !isOrganizer) {
+        throw new Error('Only league organizers or administrators can schedule matches');
       }
       
       // Check if league status allows scheduling matches
@@ -134,16 +141,25 @@ export async function POST(request: Request) {
         throw new Error('Both teams must be registered for the league');
       }
       
-      // Create the match
-      const match = new MatchModel({
+      // Handle the status and dates appropriately
+      const status = data.status || (data.scheduledDate ? 'scheduled' : 'unscheduled');
+      
+      // Create the match with appropriate status
+      const matchData: any = {
         league: data.leagueId,
         teamA: data.teamAId,
         teamB: data.teamBId,
-        scheduledDate: new Date(data.scheduledDate),
-        scheduledTime: data.scheduledTime,
-        location: data.location,
-        status: 'scheduled'
-      });
+        status: status
+      };
+      
+      // Only add scheduled data if it exists
+      if (data.scheduledDate) {
+        matchData.scheduledDate = new Date(data.scheduledDate);
+        matchData.scheduledTime = data.scheduledTime || '';
+        matchData.location = data.location || '';
+      }
+      
+      const match = new MatchModel(matchData);
       
       return await match.save();
     });
@@ -160,7 +176,7 @@ export async function POST(request: Request) {
         );
       }
       
-      if (error.message === 'Only league organizers can schedule matches') {
+      if (error.message.includes('organizers or administrators')) {
         return NextResponse.json(
           { error: error.message },
           { status: 403 }
