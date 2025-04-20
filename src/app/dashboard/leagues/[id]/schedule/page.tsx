@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import withAuth from "@/components/auth/withAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar, List, Settings } from "lucide-react";
+import { ArrowLeft, Calendar, List, Settings, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { hasRole, ROLES } from "@/lib/auth/role-utils";
@@ -14,6 +14,8 @@ import { useSession } from "next-auth/react";
 import ScheduleGenerationForm from "@/components/admin/ScheduleGenerationForm";
 import ScheduleManagementTable from "@/components/admin/ScheduleManagementTable";
 import ScheduleVisualization from "@/components/admin/ScheduleVisualization";
+import GameCreationForm from "@/components/admin/GameCreationForm";
+import GameManagement from "@/components/admin/GameManagement";
 
 interface Match {
   id: string;
@@ -65,6 +67,7 @@ interface League {
 function LeagueSchedulePage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [matches, setMatches] = useState<Match[]>([]);
   const [league, setLeague] = useState<League | null>(null);
@@ -72,7 +75,12 @@ function LeagueSchedulePage() {
   const [isLoadingLeague, setIsLoadingLeague] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>("view");
+  
+  // Get tab from query params or default to "view" or "games"
+  const tabParam = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState<string>(
+    tabParam || "games"
+  );
 
   // Extract the ID from params
   const leagueId = params?.id as string;
@@ -292,6 +300,12 @@ function LeagueSchedulePage() {
     reloadLeague();
   };
 
+  const handleGameCreated = () => {
+    console.log("Game created - refreshing data");
+    fetchSchedule();
+    toast.success("Game successfully added to the league");
+  };
+
   const handleMatchClick = (matchId: string) => {
     router.push(`/dashboard/matches/${matchId}`);
   };
@@ -332,6 +346,9 @@ function LeagueSchedulePage() {
     );
   }
 
+  // Check if there are enough teams for creating games
+  const hasEnoughTeams = league?.teams && league.teams.length >= 2;
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center mb-8">
@@ -347,87 +364,128 @@ function LeagueSchedulePage() {
           </Link>
         </Button>
         <h1 className="text-3xl font-bold">
-          {league?.name} - Schedule
+          {league?.name} - Games & Schedule
         </h1>
       </div>
       
-      {!league?.scheduleGenerated && !isAdmin ? (
-        <Card className="max-w-3xl mx-auto text-center p-8">
-          <CardHeader>
-            <CardTitle>No Schedule Generated</CardTitle>
-            <CardDescription>
-              This league doesn't have a schedule yet. The league administrator will generate the schedule soon.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      ) : league?.scheduleGenerated && matches.length === 0 ? (
-        <Card className="max-w-3xl mx-auto text-center p-8">
-          <CardHeader>
-            <CardTitle>Loading Schedule</CardTitle>
-            <CardDescription>
-              The schedule is being loaded. If this persists, please refresh the page.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      ) : (
-        <div>
-          {isAdmin ? (
-            <Tabs defaultValue={league?.scheduleGenerated ? "view" : "generate"} value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="mb-6">
-                <TabsTrigger value="view" disabled={!league?.scheduleGenerated}>
-                  <Calendar className="w-4 h-4 mr-2" />
-                  View Schedule
-                </TabsTrigger>
-                <TabsTrigger value="manage" disabled={!league?.scheduleGenerated}>
-                  <List className="w-4 h-4 mr-2" />
-                  Manage Matches
-                </TabsTrigger>
-                <TabsTrigger value="generate">
-                  <Settings className="w-4 h-4 mr-2" />
-                  {league?.scheduleGenerated ? 'Regenerate Schedule' : 'Generate Schedule'}
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="view">
-                <ScheduleVisualization 
-                  matches={matches} 
-                  teams={league?.teams || []} 
-                  onMatchClick={handleMatchClick} 
-                />
-              </TabsContent>
-              
-              <TabsContent value="manage">
-                <ScheduleManagementTable 
-                  matches={matches} 
-                  leagueId={leagueId} 
-                  isAdmin={isAdmin}
-                  onMatchUpdated={fetchSchedule}
-                  onScheduleCleared={handleScheduleCleared}
-                />
-              </TabsContent>
-              
-              <TabsContent value="generate">
-                <ScheduleGenerationForm 
-                  leagueId={leagueId}
-                  teamsCount={league?.teams?.length || 0}
-                  minTeams={league?.minTeams || 2}
-                  startDate={league?.startDate || new Date()}
-                  endDate={league?.endDate || new Date()}
-                  venue={league?.venue}
-                  onScheduleGenerated={handleScheduleGenerated}
-                />
-              </TabsContent>
-            </Tabs>
-          ) : (
-            // Non-admin view
-            <ScheduleVisualization 
-              matches={matches} 
-              teams={league?.teams || []} 
-              onMatchClick={handleMatchClick} 
-            />
-          )}
-        </div>
-      )}
+      <div>
+        {isAdmin ? (
+          <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="mb-6">
+              <TabsTrigger value="games">
+                <PlusCircle className="w-4 h-4 mr-2" />
+                Games
+              </TabsTrigger>
+              <TabsTrigger value="view" disabled={!hasEnoughTeams || matches.length === 0}>
+                <Calendar className="w-4 h-4 mr-2" />
+                Calendar View
+              </TabsTrigger>
+              <TabsTrigger value="manage" disabled={!hasEnoughTeams || matches.length === 0}>
+                <List className="w-4 h-4 mr-2" />
+                Matches List
+              </TabsTrigger>
+              <TabsTrigger value="generate">
+                <Settings className="w-4 h-4 mr-2" />
+                Generate Schedule
+              </TabsTrigger>
+            </TabsList>
+            
+            {/* Games tab - for explicit game creation */}
+            <TabsContent value="games">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  {hasEnoughTeams ? (
+                    <GameCreationForm 
+                      leagueId={leagueId}
+                      teams={league?.teams || []}
+                      onGameCreated={handleGameCreated}
+                    />
+                  ) : (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Create Game</CardTitle>
+                        <CardDescription>
+                          You need at least 2 teams to create games.
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="text-center py-6">
+                        <p className="text-muted-foreground mb-4">Add more teams to the league before creating games</p>
+                        <Button asChild>
+                          <Link href={`/dashboard/leagues/${leagueId}/manage?tab=teams`}>
+                            Add Teams
+                          </Link>
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+                
+                <div>
+                  <GameManagement 
+                    leagueId={leagueId}
+                    matches={matches}
+                    isAdmin={isAdmin}
+                    onMatchUpdated={fetchSchedule}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+            
+            {/* Calendar view tab */}
+            <TabsContent value="view">
+              <ScheduleVisualization 
+                matches={matches} 
+                teams={league?.teams || []} 
+                onMatchClick={handleMatchClick} 
+              />
+            </TabsContent>
+            
+            {/* Manage matches tab */}
+            <TabsContent value="manage">
+              <ScheduleManagementTable 
+                matches={matches} 
+                leagueId={leagueId} 
+                isAdmin={isAdmin}
+                onMatchUpdated={fetchSchedule}
+                onScheduleCleared={handleScheduleCleared}
+              />
+            </TabsContent>
+            
+            {/* Generate schedule tab */}
+            <TabsContent value="generate">
+              <ScheduleGenerationForm 
+                leagueId={leagueId}
+                teamsCount={league?.teams?.length || 0}
+                minTeams={league?.minTeams || 2}
+                startDate={league?.startDate || new Date()}
+                endDate={league?.endDate || new Date()}
+                venue={league?.venue}
+                onScheduleGenerated={handleScheduleGenerated}
+              />
+            </TabsContent>
+          </Tabs>
+        ) : (
+          // Non-admin view
+          <div>
+            {matches.length === 0 ? (
+              <Card className="max-w-3xl mx-auto text-center p-8">
+                <CardHeader>
+                  <CardTitle>No Games Yet</CardTitle>
+                  <CardDescription>
+                    This league doesn't have any games yet. Check back later.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ) : (
+              <ScheduleVisualization 
+                matches={matches} 
+                teams={league?.teams || []} 
+                onMatchClick={handleMatchClick} 
+              />
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
