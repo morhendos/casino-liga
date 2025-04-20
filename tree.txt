@@ -6,6 +6,7 @@ root/
 ├── docs
 │   ├── ADMIN-INVITATION-FLOW.md
 │   ├── ADMIN-WORKFLOW-CHECKLIST.md
+│   ├── GAME-CREATION-FEATURE.md
 │   ├── LEAGUE-ANALYTICS-FEATURES.md
 │   ├── LEAGUE-DELETION-FEATURE-PLAN.md
 │   ├── LEAGUE-MANAGEMENT-IMPLEMENTATION-PLAN.md
@@ -75,7 +76,9 @@ root/
 │   │   │   │   ├── [id]
 │   │   │   │   │   ├── result
 │   │   │   │   │   │   └── route.ts
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── schedule
+│   │   │   │   │       └── route.ts
 │   │   │   │   └── route.ts
 │   │   │   ├── players
 │   │   │   │   ├── [id]
@@ -154,8 +157,12 @@ root/
 │   │   ├── GradientBackground.tsx
 │   │   ├── ThemeToggle.tsx
 │   │   ├── admin
+│   │   │   ├── BulkGameGenerationForm.tsx
 │   │   │   ├── DeleteLeagueButton.tsx
 │   │   │   ├── DeleteTeamButton.tsx
+│   │   │   ├── GameCreationForm.tsx
+│   │   │   ├── GameManagement.tsx
+│   │   │   ├── GameScheduleForm.tsx
 │   │   │   ├── LeagueManagement.tsx
 │   │   │   ├── LeaguePlayerManager
 │   │   │   │   ├── PlayerList.tsx
