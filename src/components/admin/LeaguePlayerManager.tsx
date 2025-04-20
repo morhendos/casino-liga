@@ -32,13 +32,13 @@ export default function LeaguePlayerManager({
   const [selectedPlayers, setSelectedPlayers] = useState<Player[]>([]);
   const [isCreatingTeam, setIsCreatingTeam] = useState(false);
   
-  // Custom hooks
+  // Custom hooks - now passing leagueId to filter players by league
   const { 
     availablePlayers, 
     setAvailablePlayers, 
     isLoading: isLoadingPlayers,
     deletePlayer
-  } = useAvailablePlayers();
+  } = useAvailablePlayers(leagueId);
   
   const { 
     leagueTeams, 
@@ -51,7 +51,7 @@ export default function LeaguePlayerManager({
   const { 
     isCreatingPlayer, 
     createPlayer 
-  } = usePlayerManagement();
+  } = usePlayerManagement(leagueId); // Pass leagueId to player management
   
   const { 
     teamNameMode, 
@@ -136,7 +136,13 @@ export default function LeaguePlayerManager({
   };
 
   const handleCreatePlayer = async (playerData: any) => {
-    const newPlayer = await createPlayer(playerData);
+    // Ensure the league ID is included
+    const playerDataWithLeague = {
+      ...playerData,
+      league: leagueId
+    };
+    
+    const newPlayer = await createPlayer(playerDataWithLeague);
     
     if (newPlayer) {
       // Add the new player to available players
@@ -203,6 +209,7 @@ export default function LeaguePlayerManager({
             onCreatePlayer={handleCreatePlayer}
             onDeletePlayer={handleDeletePlayer}
             isCreatingPlayer={isCreatingPlayer}
+            leagueId={leagueId} // Pass leagueId to PlayerList
           />
 
           {/* Column 2: Create Team */}
@@ -216,6 +223,7 @@ export default function LeaguePlayerManager({
             onGenerateTeamName={handleGenerateTeamName}
             onRemovePlayer={handleRemovePlayer}
             onCreateTeam={handleCreateTeam}
+            leagueId={leagueId} // Pass leagueId to TeamCreationForm
           />
 
           {/* Column 3: Teams in This League */}
@@ -223,6 +231,7 @@ export default function LeaguePlayerManager({
             leagueTeams={leagueTeams}
             isLoading={isLoadingTeams}
             onDeleteTeam={handleDeleteTeam}
+            leagueId={leagueId} // Pass leagueId to TeamList
           />
         </div>
       </div>

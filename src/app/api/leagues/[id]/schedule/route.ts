@@ -154,39 +154,30 @@ export async function POST(
     const leagueId = params.id;
     logger.info(`User ${session.user.id} attempting to generate schedule for league ${leagueId}`);
     
-    const schedule = await withConnection(async () => {
-      // Check if league exists
+    try {
+      // Get request body for additional options
+      let requestBody = {};
+      if (request.headers.get("content-type")?.includes("application/json")) {
+        try {
+          requestBody = await request.json();
+          logger.info(`Request body: ${JSON.stringify(requestBody)}`);
+        } catch (e) {
+          logger.warn("Failed to parse request body:", e);
+        }
+      }
+      
+      // Check if league exists and user has permission
       const league = await LeagueModel.findById(leagueId);
       
       if (!league) {
         logger.error(`League not found: ${leagueId}`);
-        throw new Error('League not found');
+        return NextResponse.json(
+          { error: 'League not found' },
+          { status: 404 }
+        );
       }
       
-      logger.info(`League found: ${league.name}, teams: ${league.teams.length}, status: ${league.status}`);
-      
-      // Verify that all team references in the league are valid
-      if (league.teams && league.teams.length > 0) {
-        const teamIds = league.teams.map(team => team.toString());
-        logger.info(`Verifying existence of ${teamIds.length} teams`);
-        
-        const teams = await TeamModel.find({ _id: { $in: teamIds }}).select('_id').lean();
-        
-        if (teams.length !== teamIds.length) {
-          logger.warn(`Only found ${teams.length} teams out of ${teamIds.length} referenced in the league`);
-          
-          // Filter out missing team references
-          const validTeamIds = teams.map(team => team._id.toString());
-          league.teams = league.teams.filter(teamId => 
-            validTeamIds.includes(teamId.toString())
-          );
-          
-          logger.info(`Filtered league.teams to ${league.teams.length} valid teams`);
-          
-          // Save the league with only valid team references
-          await league.save();
-        }
-      }
+      logger.info(`League found: ${league.name}, teams: ${league.teams?.length || 0}, status: ${league.status}`);
       
       // Allow league creation if the user is an admin OR the league organizer
       const isAdmin = hasRole(session, ROLES.ADMIN);
@@ -196,13 +187,19 @@ export async function POST(
       
       if (!isAdmin && !isOrganizer) {
         logger.error(`User ${session.user.id} not authorized to generate schedule`);
-        throw new Error('Only the league organizer can generate a schedule');
+        return NextResponse.json(
+          { error: 'Only the league organizer can generate a schedule' },
+          { status: 403 }
+        );
       }
       
       // Check if league status allows schedule generation
       if (league.status !== 'draft' && league.status !== 'registration') {
         logger.error(`Invalid league status for schedule generation: ${league.status}`);
-        throw new Error('Schedule can only be generated for leagues in draft or registration status');
+        return NextResponse.json(
+          { error: 'Schedule can only be generated for leagues in draft or registration status' },
+          { status: 400 }
+        );
       }
       
       // Check if schedule already exists
@@ -216,9 +213,12 @@ export async function POST(
       }
       
       // Check if there are enough teams
-      if (league.teams.length < 2) {
-        logger.error(`Not enough teams: ${league.teams.length}`);
-        throw new Error('League must have at least 2 teams to generate a schedule');
+      if (!league.teams || league.teams.length < 2) {
+        logger.error(`Not enough teams: ${league.teams?.length || 0}`);
+        return NextResponse.json(
+          { error: 'League must have at least 2 teams to generate a schedule' },
+          { status: 400 }
+        );
       }
       
       // Generate the schedule
@@ -226,46 +226,51 @@ export async function POST(
       const createdMatches = await createLeagueSchedule(leagueId);
       logger.info(`Successfully created ${createdMatches.length} matches`);
       
-      return {
+      return NextResponse.json({
         message: `Successfully generated ${createdMatches.length} matches`,
         matches: createdMatches
-      };
-    });
-    
-    return NextResponse.json(schedule);
-  } catch (error) {
-    logger.error('Error generating league schedule:', error);
-    
-    if (error instanceof Error) {
-      if (error.message === 'League not found') {
+      });
+    } catch (error) {
+      logger.error('Error generating league schedule:', error);
+      
+      // Handle specific errors with appropriate status codes
+      if (error instanceof Error) {
+        // Map error messages to appropriate status codes
+        if (error.message === 'League not found') {
+          return NextResponse.json({ error: error.message }, { status: 404 });
+        }
+        
+        if (error.message === 'Only the league organizer can generate a schedule') {
+          return NextResponse.json({ error: error.message }, { status: 403 });
+        }
+        
+        // Handle validation errors
+        if (error.message.includes('Schedule can only be generated') ||
+            error.message.includes('League must have at least') ||
+            error.message.includes('Schedule has already been generated') ||
+            error.message.includes('Not enough days') ||
+            error.message.includes('valid teams')) {
+          return NextResponse.json({ error: error.message }, { status: 400 });
+        }
+        
+        // Return the error message for any other errors with a 500 status
         return NextResponse.json(
           { error: error.message },
-          { status: 404 }
+          { status: 500 }
         );
       }
       
-      if (error.message === 'Only the league organizer can generate a schedule') {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 403 }
-        );
-      }
-      
-      // Validation errors
-      if (error.message === 'Schedule can only be generated for leagues in draft or registration status' ||
-          error.message === 'Schedule already exists for this league' ||
-          error.message === 'League must have at least 2 teams to generate a schedule' ||
-          error.message === 'Schedule has already been generated for this league' ||
-          error.message.includes('Not enough days')) {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 400 }
-        );
-      }
+      // For unexpected errors
+      return NextResponse.json(
+        { error: 'Failed to generate league schedule' },
+        { status: 500 }
+      );
     }
-    
+  } catch (outerError) {
+    // Catch and log any unexpected errors in the outer try block
+    logger.error('Unexpected error in schedule API:', outerError);
     return NextResponse.json(
-      { error: 'Failed to generate league schedule' },
+      { error: 'Internal server error in schedule generation' },
       { status: 500 }
     );
   }

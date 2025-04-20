@@ -48,6 +48,7 @@ interface PlayerListProps {
   onCreatePlayer: (playerData: any) => Promise<Player | null>;
   onDeletePlayer?: (playerId: string) => Promise<boolean>;
   isCreatingPlayer: boolean;
+  leagueId: string; // Add leagueId prop
 }
 
 // Search icon component
@@ -120,6 +121,7 @@ export default function PlayerList({
   onCreatePlayer,
   onDeletePlayer,
   isCreatingPlayer,
+  leagueId, // Use the leagueId prop
 }: PlayerListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredPlayers, setFilteredPlayers] = useState<Player[]>([]);
@@ -175,6 +177,7 @@ export default function PlayerList({
       handedness: newPlayerHandedness,
       preferredPosition: newPlayerPosition,
       email: newPlayerEmail.trim() || undefined,
+      league: leagueId, // Add the leagueId to the player data
     };
 
     const newPlayer = await onCreatePlayer(playerData);
@@ -221,7 +224,7 @@ export default function PlayerList({
               <DialogHeader>
                 <DialogTitle>Create New Player</DialogTitle>
                 <DialogDescription>
-                  Add a new player to the system. Players with email
+                  Add a new player to this league. Players with email
                   addresses can be invited later.
                 </DialogDescription>
               </DialogHeader>

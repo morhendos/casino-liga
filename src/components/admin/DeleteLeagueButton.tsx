@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface DeleteLeagueButtonProps {
   leagueId: string;
@@ -26,6 +28,8 @@ interface DeleteLeagueButtonProps {
 export function DeleteLeagueButton({ leagueId, leagueName, onDeleted }: DeleteLeagueButtonProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [open, setOpen] = useState(false);
+  const [deleteTeams, setDeleteTeams] = useState(true);
+  const [deletePlayers, setDeletePlayers] = useState(true);
   const router = useRouter();
 
   const handleDelete = async () => {
@@ -34,6 +38,15 @@ export function DeleteLeagueButton({ leagueId, leagueName, onDeleted }: DeleteLe
       
       const response = await fetch(`/api/leagues/${leagueId}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cascadeOptions: {
+            deleteTeams,
+            deletePlayers
+          }
+        }),
       });
       
       if (!response.ok) {
@@ -41,7 +54,26 @@ export function DeleteLeagueButton({ leagueId, leagueName, onDeleted }: DeleteLe
         throw new Error(error.error || 'Failed to delete league');
       }
       
-      toast.success(`League "${leagueName}" deleted successfully`);
+      const result = await response.json();
+      
+      // Create detailed success message with counts of deleted items
+      const deletedItems = [];
+      if (result.details.teamsDeleted > 0) {
+        deletedItems.push(`${result.details.teamsDeleted} team${result.details.teamsDeleted !== 1 ? 's' : ''}`);
+      }
+      if (result.details.playersDeleted > 0) {
+        deletedItems.push(`${result.details.playersDeleted} player${result.details.playersDeleted !== 1 ? 's' : ''}`);
+      }
+      if (result.details.matchesDeleted > 0) {
+        deletedItems.push(`${result.details.matchesDeleted} match${result.details.matchesDeleted !== 1 ? 'es' : ''}`);
+      }
+      
+      let detailsMessage = '';
+      if (deletedItems.length > 0) {
+        detailsMessage = ` (including ${deletedItems.join(', ')})`;
+      }
+      
+      toast.success(`League "${leagueName}" deleted successfully${detailsMessage}`);
       
       // Close the dialog
       setOpen(false);
@@ -62,6 +94,15 @@ export function DeleteLeagueButton({ leagueId, leagueName, onDeleted }: DeleteLe
     }
   };
 
+  // Ensure that if teams are preserved, players are also preserved
+  const handleTeamsCheckChange = (checked: boolean) => {
+    setDeleteTeams(checked);
+    if (!checked) {
+      // If teams are not deleted, players can't be deleted either
+      setDeletePlayers(false);
+    }
+  };
+
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
@@ -74,10 +115,42 @@ export function DeleteLeagueButton({ leagueId, leagueName, onDeleted }: DeleteLe
         <AlertDialogHeader>
           <AlertDialogTitle>Delete League</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete the league "{leagueName}"? This action cannot be undone and
-            will remove all teams, matches, and rankings associated with this league.
+            Are you sure you want to delete the league "{leagueName}"? This action cannot be undone and 
+            will remove all matches and rankings associated with this league.
           </AlertDialogDescription>
         </AlertDialogHeader>
+        
+        <div className="py-4 space-y-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="deleteTeams" 
+              checked={deleteTeams} 
+              onCheckedChange={handleTeamsCheckChange}
+            />
+            <Label htmlFor="deleteTeams">
+              Delete teams associated with this league
+            </Label>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1 ml-6">
+            If unchecked, teams will remain in the system but will no longer be associated with any league
+          </p>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="deletePlayers" 
+              checked={deletePlayers}
+              disabled={!deleteTeams} 
+              onCheckedChange={(checked) => setDeletePlayers(checked as boolean)}
+            />
+            <Label htmlFor="deletePlayers" className={!deleteTeams ? "text-muted-foreground" : ""}>
+              Delete players from these teams
+            </Label>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1 ml-6">
+            If unchecked, players will remain in the system even when their teams are deleted
+          </p>
+        </div>
+        
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
           <AlertDialogAction

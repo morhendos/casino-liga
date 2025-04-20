@@ -217,6 +217,7 @@ root/
 │   │   │   ├── button.tsx
 │   │   │   ├── calendar.tsx
 │   │   │   ├── card.tsx
+│   │   │   ├── checkbox.tsx
 │   │   │   ├── dialog.tsx
 │   │   │   ├── dropdown-menu.tsx
 │   │   │   ├── input.tsx

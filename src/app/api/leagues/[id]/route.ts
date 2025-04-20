@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withConnection } from '@/lib/db';
-import { LeagueModel, TeamModel, MatchModel, RankingModel } from '@/models';
+import { LeagueModel, TeamModel, MatchModel, RankingModel, PlayerModel } from '@/models';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { hasRole, ROLES } from '@/lib/auth/role-utils';
@@ -261,6 +261,25 @@ export async function DELETE(
       );
     }
     
+    // Get cascade options from the request
+    let cascadeOptions = { 
+      deleteTeams: true,
+      deletePlayers: true 
+    };
+    
+    // If the request has a body, parse it to get cascade options
+    if (request.headers.get('content-type')?.includes('application/json')) {
+      try {
+        const body = await request.json();
+        cascadeOptions = {
+          ...cascadeOptions,
+          ...body.cascadeOptions
+        };
+      } catch (e) {
+        console.warn('Error parsing request body, using default cascade options:', e);
+      }
+    }
+    
     const results = await withConnection(async () => {
       // 1. Find the league
       const league = await LeagueModel.findById(id);
@@ -285,22 +304,57 @@ export async function DELETE(
       // 4. Delete all rankings associated with this league
       const deletedRankings = await RankingModel.deleteMany({ league: id });
       
-      // 5. Update teams to remove league association
+      // 5. Handle teams based on cascade options
+      let teamsDeleted = 0;
+      let teamsUpdated = 0;
+      
+      // 6. Handle players based on cascade options
+      let playersDeleted = 0;
+      let playersIdsToDelete = [];
+      
       if (teams.length > 0) {
-        await TeamModel.updateMany(
-          { _id: { $in: teams } },
-          { $unset: { league: 1 } }
-        );
+        if (cascadeOptions.deletePlayers) {
+          // Collect all player IDs from teams in this league
+          const teamsData = await TeamModel.find({ _id: { $in: teams } });
+          
+          // Get all player IDs from these teams
+          for (const team of teamsData) {
+            playersIdsToDelete = [...playersIdsToDelete, ...team.players];
+          }
+          
+          if (playersIdsToDelete.length > 0) {
+            // Delete players that belong exclusively to these teams
+            const playerResult = await PlayerModel.deleteMany({ 
+              _id: { $in: playersIdsToDelete } 
+            });
+            playersDeleted = playerResult.deletedCount;
+          }
+        }
+        
+        if (cascadeOptions.deleteTeams) {
+          // Delete teams if the option is selected
+          const result = await TeamModel.deleteMany({ _id: { $in: teams } });
+          teamsDeleted = result.deletedCount;
+        } else {
+          // Otherwise just remove the league association
+          await TeamModel.updateMany(
+            { _id: { $in: teams } },
+            { $unset: { league: 1 } }
+          );
+          teamsUpdated = teams.length;
+        }
       }
       
-      // 6. Delete the league itself
+      // 7. Delete the league itself
       const deletedLeague = await LeagueModel.findByIdAndDelete(id);
       
       return {
         league: deletedLeague,
         matches: deletedMatches.deletedCount,
         rankings: deletedRankings.deletedCount,
-        teamsUpdated: teams.length
+        teamsDeleted,
+        teamsUpdated,
+        playersDeleted
       };
     });
     
@@ -311,7 +365,9 @@ export async function DELETE(
         leagueName: results.league.name,
         matchesDeleted: results.matches,
         rankingsDeleted: results.rankings,
-        teamsUpdated: results.teamsUpdated
+        teamsDeleted: results.teamsDeleted,
+        teamsUpdated: results.teamsUpdated,
+        playersDeleted: results.playersDeleted
       }
     });
   } catch (error) {

@@ -13,6 +13,7 @@ import Link from "next/link";
 import LeaguePlayerManager from "@/components/admin/LeaguePlayerManager";
 import LeagueStatusManager from "@/components/admin/LeagueStatusManager";
 import LeagueSetupProgress from "@/components/admin/LeagueSetupProgress";
+import { DeleteLeagueButton } from "@/components/admin/DeleteLeagueButton";
 
 interface League {
   id: string;
@@ -97,6 +98,12 @@ function LeagueManagePage() {
   const handleStatusChange = async (newStatus: string) => {
     // Refresh league data after status change
     fetchLeagueDetails();
+  };
+
+  // Handle league deletion 
+  const handleLeagueDeleted = () => {
+    // Redirect to the leagues list after successful deletion
+    router.push('/dashboard/leagues');
   };
   
   // Loading state
@@ -366,12 +373,29 @@ function LeagueManagePage() {
                     Edit league details and configuration
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <Button variant="outline" asChild>
-                    <Link href={`/dashboard/leagues/${league.id}/edit`}>
-                      Edit League Details
-                    </Link>
-                  </Button>
+                <CardContent className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Edit Settings</h3>
+                    <Button variant="outline" asChild>
+                      <Link href={`/dashboard/leagues/${league.id}/edit`}>
+                        Edit League Details
+                      </Link>
+                    </Button>
+                  </div>
+                  
+                  <div className="border-t pt-6">
+                    <h3 className="text-lg font-medium mb-2 text-destructive">Danger Zone</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      These actions cannot be undone. Please be certain.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <DeleteLeagueButton 
+                        leagueId={league.id} 
+                        leagueName={league.name}
+                        onDeleted={handleLeagueDeleted}
+                      />
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

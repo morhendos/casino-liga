@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // Moved import to the top
 import { 
   Card, 
   CardHeader, 
@@ -14,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarIcon, Info, Check, Loader2 } from "lucide-react";
+import { Calendar as CalendarIcon, Info, Check, Loader2, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
@@ -23,8 +24,8 @@ interface ScheduleGenerationFormProps {
   leagueId: string;
   teamsCount: number;
   minTeams: number;
-  startDate: Date | string;
-  endDate: Date | string;
+  startDate: Date | string | null;
+  endDate: Date | string | null;
   venue?: string;
   onScheduleGenerated: () => void;
 }
@@ -43,29 +44,70 @@ export default function ScheduleGenerationForm({
   venue,
   onScheduleGenerated
 }: ScheduleGenerationFormProps) {
+  const router = useRouter(); // Initialize the router hook
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [algorithm, setAlgorithm] = useState("round-robin");
   const [selectedStartDate, setSelectedStartDate] = useState<Date | undefined>(
-    typeof startDate === 'string' ? new Date(startDate) : startDate
+    startDate && typeof startDate === 'string' ? new Date(startDate) : (startDate as Date || undefined)
   );
   const [selectedEndDate, setSelectedEndDate] = useState<Date | undefined>(
-    typeof endDate === 'string' ? new Date(endDate) : endDate
+    endDate && typeof endDate === 'string' ? new Date(endDate) : (endDate as Date || undefined)
   );
   const [matchesPerDay, setMatchesPerDay] = useState(1);
   const [venueValue, setVenueValue] = useState(venue || "");
+  const [hasValidLeagueDates, setHasValidLeagueDates] = useState(true);
 
-  // Parse the date strings into Date objects
-  const defaultStartDate = typeof startDate === 'string' ? new Date(startDate) : startDate;
-  const defaultEndDate = typeof endDate === 'string' ? new Date(endDate) : endDate;
+  // Parse the date strings into Date objects if possible
+  const defaultStartDate = startDate ? 
+    (typeof startDate === 'string' ? new Date(startDate) : startDate) : 
+    null;
+  const defaultEndDate = endDate ? 
+    (typeof endDate === 'string' ? new Date(endDate) : endDate) : 
+    null;
 
   // Calculate required matches for round-robin
   const requiredMatches = teamsCount > 0 ? (teamsCount * (teamsCount - 1)) / 2 : 0;
+
+  // Check if league has valid dates set in the database
+  useEffect(() => {
+    const checkLeagueDates = async () => {
+      try {
+        const response = await fetch(`/api/leagues/${leagueId}`);
+        if (response.ok) {
+          const league = await response.json();
+          // Check if startDate and endDate are properly set in the league
+          const hasValidDates = league.startDate && league.endDate;
+          setHasValidLeagueDates(hasValidDates);
+          
+          // If league has valid dates but local state doesn't, update local state
+          if (hasValidDates && (!selectedStartDate || !selectedEndDate)) {
+            if (league.startDate && !selectedStartDate) {
+              setSelectedStartDate(new Date(league.startDate));
+            }
+            if (league.endDate && !selectedEndDate) {
+              setSelectedEndDate(new Date(league.endDate));
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error checking league dates:", error);
+      }
+    };
+    
+    checkLeagueDates();
+  }, [leagueId, selectedStartDate, selectedEndDate]);
 
   // Handle form submission
   const onSubmit = async () => {
     try {
       setIsGenerating(true);
+      
+      // Check if league dates are valid before submitting
+      if (!hasValidLeagueDates) {
+        throw new Error("The league doesn't have valid start and end dates set in the database. Please update the league details first.");
+      }
       
       // Using the existing API endpoint for schedule generation
       const response = await fetch(`/api/leagues/${leagueId}/schedule`, {
@@ -84,7 +126,20 @@ export default function ScheduleGenerationForm({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to generate schedule");
+        let errorMessage = errorData.error || "Failed to generate schedule";
+        
+        // Check for specific error cases and make messages more user-friendly
+        if (errorMessage.includes('start and end dates')) {
+          errorMessage = 'League must have start and end dates set in the database. Please update the league details first.';
+        } else if (errorMessage === 'League must have at least 2 valid teams to generate a schedule') {
+          errorMessage = 'Schedule generation failed: Some teams do not belong to this league. Please ensure all teams are properly associated with this league.';
+        } else if (errorMessage.includes('Not enough days')) {
+          errorMessage = `Schedule generation failed: Not enough days available to schedule all matches. Please extend the date range or adjust the number of matches per day.`;
+        } else if (errorMessage === 'Schedule has already been generated for this league') {
+          errorMessage = 'A schedule has already been generated for this league. Please clear the existing schedule first before generating a new one.';
+        }
+        
+        throw new Error(errorMessage);
       }
 
       // Successfully generated schedule
@@ -144,13 +199,40 @@ export default function ScheduleGenerationForm({
               </li>
               <li className="flex items-start">
                 <Check className="h-4 w-4 mr-2 mt-0.5 text-green-500" />
-                <span>League dates: {defaultStartDate?.toLocaleDateString()} to {defaultEndDate?.toLocaleDateString()}</span>
+                <span>League dates: {defaultStartDate?.toLocaleDateString() || "Not set"} to {defaultEndDate?.toLocaleDateString() || "Not set"}</span>
               </li>
               <li className="flex items-start">
                 <Check className="h-4 w-4 mr-2 mt-0.5 text-green-500" />
                 <span>Schedule can be regenerated if no matches have been played</span>
               </li>
+              <li className="flex items-start">
+                <Check className="h-4 w-4 mr-2 mt-0.5 text-green-500" />
+                <span>All teams must be properly associated with this league for scheduling</span>
+              </li>
             </ul>
+          </div>
+        </div>
+      )}
+
+      {!hasValidLeagueDates && (
+        <div className="px-6 pb-4">
+          <div className="bg-red-50 border border-red-200 rounded-md p-3 text-sm text-red-800">
+            <p className="font-medium flex items-center">
+              <AlertCircle className="h-4 w-4 mr-2" />
+              League Dates Not Configured
+            </p>
+            <p className="ml-6 mt-1">
+              This league doesn't have valid start and end dates set in the database. Please update the league details first before generating a schedule.
+            </p>
+            <div className="mt-3 ml-6">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => router.push(`/dashboard/leagues/${leagueId}/edit`)}
+              >
+                Edit League Details
+              </Button>
+            </div>
           </div>
         </div>
       )}
@@ -301,8 +383,8 @@ export default function ScheduleGenerationForm({
         <Button 
           onClick={() => {
             setAlgorithm("round-robin");
-            setSelectedStartDate(typeof startDate === 'string' ? new Date(startDate) : startDate);
-            setSelectedEndDate(typeof endDate === 'string' ? new Date(endDate) : endDate);
+            setSelectedStartDate(defaultStartDate as Date);
+            setSelectedEndDate(defaultEndDate as Date);
             setMatchesPerDay(1);
             setVenueValue(venue || "");
           }}
@@ -313,7 +395,7 @@ export default function ScheduleGenerationForm({
         </Button>
         <Button 
           onClick={onSubmit} 
-          disabled={isGenerating || !hasEnoughTeams || !hasEnoughDays}
+          disabled={isGenerating || !hasEnoughTeams || !hasEnoughDays || !hasValidLeagueDates}
         >
           {isGenerating ? (
             <>

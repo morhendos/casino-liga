@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import withRoleAuth from "@/components/auth/withRoleAuth";
 import { ROLES } from "@/lib/auth/role-utils";
+import { DeleteLeagueButton } from "@/components/admin/DeleteLeagueButton";
 
 function EditLeaguePage() {
   const router = useRouter();
@@ -174,6 +175,12 @@ function EditLeaguePage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+  
+  // Handle league deletion callback
+  const handleLeagueDeleted = () => {
+    // Redirect to the leagues list after successful deletion
+    router.push('/dashboard/leagues');
   };
   
   if (isLoading) {
@@ -517,15 +524,22 @@ function EditLeaguePage() {
               </div>
             </CardContent>
             
-            <CardFooter className="flex justify-between">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => router.push(`/dashboard/leagues/${leagueId}/manage`)}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
+            <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
+              <div className="flex sm:flex-row flex-col gap-2 w-full sm:w-auto">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => router.push(`/dashboard/leagues/${leagueId}/manage`)}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <DeleteLeagueButton 
+                  leagueId={leagueId} 
+                  leagueName={name}
+                  onDeleted={handleLeagueDeleted}
+                />
+              </div>
               <Button 
                 type="submit" 
                 disabled={isSubmitting}
