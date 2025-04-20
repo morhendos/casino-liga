@@ -2,7 +2,7 @@
 
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { InfoIcon, CheckCircle, CircleAlert } from "lucide-react";
+import { Info, CheckCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -64,26 +64,26 @@ export default function LeagueSetupProgress({
       name: "Add Teams",
       isComplete: teamsCount >= minTeams,
       url: `/dashboard/leagues/${leagueId}/manage?tab=teams`,
-      icon: teamsCount >= minTeams ? CheckCircle : CircleAlert
+      icon: teamsCount >= minTeams ? CheckCircle : AlertCircle
     },
     {
       name: "Create Games",
       isComplete: gamesCount > 0,
       url: `/dashboard/leagues/${leagueId}/schedule?tab=games`,
-      icon: gamesCount > 0 ? CheckCircle : CircleAlert
+      icon: gamesCount > 0 ? CheckCircle : AlertCircle
     },
     {
       name: "Generate Schedule",
       isComplete: hasSchedule,
       url: `/dashboard/leagues/${leagueId}/schedule?tab=generate`,
-      icon: hasSchedule ? CheckCircle : CircleAlert,
+      icon: hasSchedule ? CheckCircle : AlertCircle,
       isOptional: true
     },
     {
       name: "Activate League",
       isComplete: currentStatus === "active" || currentStatus === "completed",
       url: `/dashboard/leagues/${leagueId}/manage`,
-      icon: (currentStatus === "active" || currentStatus === "completed") ? CheckCircle : CircleAlert
+      icon: (currentStatus === "active" || currentStatus === "completed") ? CheckCircle : AlertCircle
     }
   ];
   
@@ -153,7 +153,7 @@ export default function LeagueSetupProgress({
         {!isComplete && currentStatus !== "draft" && currentStatus !== "registration" && (
           <div className="mt-4 p-3 bg-amber-50 text-amber-700 rounded border border-amber-100">
             <div className="flex items-center text-sm">
-              <InfoIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+              <Info className="h-4 w-4 mr-2 flex-shrink-0" />
               <span>Complete all required steps to fully set up your league.</span>
             </div>
           </div>
