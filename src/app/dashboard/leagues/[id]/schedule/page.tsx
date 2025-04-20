@@ -263,8 +263,10 @@ function LeagueSchedulePage() {
   };
 
   const handleScheduleCleared = () => {
-    console.log("Schedule cleared");
-    setMatches([]);
+    console.log("Schedule cleared - refreshing data");
+    
+    // Instead of setting matches to empty array, reload the matches from the API
+    fetchSchedule();
     
     // Reload league to update scheduleGenerated flag
     async function reloadLeague() {
