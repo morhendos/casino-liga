@@ -14,10 +14,11 @@ export function PageHeader() {
           </div>
 
           {/* Center - logo and title */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-center">
             <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-              <img src="/logo-placeholder-image.png" alt="Logo" className=" h-10" />
+              <img src="/logo-placeholder-image.png" alt="Logo" className="h-10" />
             </h1>
+            <div className="text-sm text-muted-foreground italic">Tu liga. Tu juego.</div>
           </div>
 
           {/* Right side */}
