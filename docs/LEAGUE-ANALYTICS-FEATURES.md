@@ -1,6 +1,6 @@
 # League Analytics Features
 
-This document outlines the analytics and reporting features implemented in the Casino Liga application to provide insights into league performance, player statistics, and administrative reporting capabilities.
+This document outlines the analytics and reporting features implemented in the Padeliga application to provide insights into league performance, player statistics, and administrative reporting capabilities.
 
 ## 1. League Statistics Dashboard
 
