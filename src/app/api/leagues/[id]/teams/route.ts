@@ -73,10 +73,14 @@ export async function POST(
         throw new Error('League not found');
       }
       
-      // 2. Check if team name is already taken
-      const existingTeam = await TeamModel.findOne({ name: data.name.trim() });
+      // 2. Check if team name is already taken within this league
+      const existingTeam = await TeamModel.findOne({ 
+        name: data.name.trim(),
+        league: leagueId
+      });
+      
       if (existingTeam) {
-        throw new Error('Team with this name already exists');
+        throw new Error('Team with this name already exists in this league');
       }
       
       // 3. Check if players exist and are active
@@ -127,7 +131,7 @@ export async function POST(
     if (error instanceof Error) {
       const errorMap: { [key: string]: number } = {
         'League not found': 404,
-        'Team with this name already exists': 409,
+        'Team with this name already exists in this league': 409,
         'One or more players not found': 400,
         'One or more players are inactive': 400
       };
