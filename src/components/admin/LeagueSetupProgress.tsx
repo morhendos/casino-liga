@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clipboard, CheckCircle2, Circle, Calendar, Users, Trophy, Clock } from "lucide-react";
+import { InfoIcon, CheckCircle, CircleAlert } from "lucide-react";
+import Link from "next/link";
+import { useState, useEffect } from "react";
 
 interface LeagueSetupProgressProps {
   leagueId: string;
@@ -13,179 +13,151 @@ interface LeagueSetupProgressProps {
   teamsCount: number;
   minTeams: number;
   hasSchedule: boolean;
-  isComplete?: boolean;
+  isComplete: boolean;
 }
 
-type SetupStep = {
-  id: string;
-  title: string;
-  description: string;
-  completed: boolean;
-  icon: React.ReactNode;
-  action?: {
-    label: string;
-    href: string;
-  };
-};
-
-export default function LeagueSetupProgress({
+export default function LeagueSetupProgress({ 
   leagueId,
-  leagueName,
-  currentStatus,
-  teamsCount,
+  leagueName, 
+  currentStatus, 
+  teamsCount, 
   minTeams,
   hasSchedule,
-  isComplete = false,
+  isComplete
 }: LeagueSetupProgressProps) {
-  // Determine which steps are completed
-  const leagueCreated = true; // Always true if we're viewing this component
-  const teamsAdded = teamsCount >= minTeams;
-  const scheduleGenerated = hasSchedule;
-  const leagueStarted = currentStatus === "active";
+  const [gamesCount, setGamesCount] = useState(0);
+  const [isLoadingGames, setIsLoadingGames] = useState(true);
   
-  // Define the setup steps
-  const setupSteps: SetupStep[] = [
+  // Fetch games count for the league
+  useEffect(() => {
+    const fetchGamesCount = async () => {
+      try {
+        setIsLoadingGames(true);
+        const response = await fetch(`/api/leagues/${leagueId}/schedule`);
+        
+        if (response.ok) {
+          const games = await response.json();
+          setGamesCount(Array.isArray(games) ? games.length : 0);
+        } else {
+          setGamesCount(0);
+        }
+      } catch (error) {
+        console.error("Error fetching games count:", error);
+        setGamesCount(0);
+      } finally {
+        setIsLoadingGames(false);
+      }
+    };
+    
+    fetchGamesCount();
+  }, [leagueId]);
+  
+  // Calculate setup progress
+  const steps = [
     {
-      id: "create",
-      title: "Create League",
-      description: `League "${leagueName}" has been created`,
-      completed: leagueCreated,
-      icon: <Clipboard className="h-5 w-5" />,
-      action: {
-        label: "Edit League",
-        href: `/dashboard/leagues/${leagueId}/edit`,
-      },
+      name: "Create League",
+      isComplete: true, // Always complete since we're on the league page
+      url: `/dashboard/leagues/${leagueId}/edit`,
+      icon: CheckCircle
     },
     {
-      id: "teams",
-      title: "Add Teams",
-      description: teamsCount > 0 
-        ? `${teamsCount} of ${minTeams} required teams added${teamsAdded ? " ✓" : ""}`
-        : "No teams added yet",
-      completed: teamsAdded,
-      icon: <Users className="h-5 w-5" />,
-      action: {
-        label: teamsCount === 0 ? "Add Teams" : "Manage Teams",
-        href: `/dashboard/leagues/${leagueId}/teams`,
-      },
+      name: "Add Teams",
+      isComplete: teamsCount >= minTeams,
+      url: `/dashboard/leagues/${leagueId}/manage?tab=teams`,
+      icon: teamsCount >= minTeams ? CheckCircle : CircleAlert
     },
     {
-      id: "schedule",
-      title: "Generate Schedule",
-      description: scheduleGenerated
-        ? "Schedule has been generated"
-        : "Schedule needs to be generated",
-      completed: scheduleGenerated,
-      icon: <Calendar className="h-5 w-5" />,
-      action: {
-        label: scheduleGenerated ? "View Schedule" : "Generate Schedule",
-        href: `/dashboard/leagues/${leagueId}/schedule`,
-      },
+      name: "Create Games",
+      isComplete: gamesCount > 0,
+      url: `/dashboard/leagues/${leagueId}/schedule?tab=games`,
+      icon: gamesCount > 0 ? CheckCircle : CircleAlert
     },
     {
-      id: "start",
-      title: "Start League",
-      description: leagueStarted
-        ? "League is active"
-        : "League needs to be activated",
-      completed: leagueStarted,
-      icon: <Trophy className="h-5 w-5" />,
-      // No action for this step - it's handled by the LeagueStatusManager
+      name: "Generate Schedule",
+      isComplete: hasSchedule,
+      url: `/dashboard/leagues/${leagueId}/schedule?tab=generate`,
+      icon: hasSchedule ? CheckCircle : CircleAlert,
+      isOptional: true
     },
+    {
+      name: "Activate League",
+      isComplete: currentStatus === "active" || currentStatus === "completed",
+      url: `/dashboard/leagues/${leagueId}/manage`,
+      icon: (currentStatus === "active" || currentStatus === "completed") ? CheckCircle : CircleAlert
+    }
   ];
-
-  // Calculate completion percentage
-  const completedSteps = setupSteps.filter((step) => step.completed).length;
-  const totalSteps = setupSteps.length;
-  const completionPercentage = Math.round((completedSteps / totalSteps) * 100);
-
+  
+  // Calculate progress percentage
+  const completedSteps = steps.filter(step => step.isComplete).length;
+  const totalRequiredSteps = steps.filter(step => !step.isOptional).length;
+  const progressPercentage = Math.round((completedSteps / totalRequiredSteps) * 100);
+  
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-xl flex items-center justify-between">
-          <span>League Setup Progress</span>
-          <span className="text-lg font-normal">{completionPercentage}% Complete</span>
-        </CardTitle>
+        <CardTitle className="text-lg">League Setup Progress</CardTitle>
         <CardDescription>
-          Follow these steps to complete your league setup
+          Complete these steps to set up {leagueName}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
-          {/* Progress bar - Updated with better contrast */}
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <div
-              className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-in-out"
-              style={{ width: `${completionPercentage}%` }}
-            ></div>
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm font-medium">
+              {isComplete ? "Setup Complete" : `${progressPercentage}% Complete`}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              {completedSteps} of {totalRequiredSteps} steps
+            </span>
           </div>
-
-          {/* Setup steps */}
-          <ol className="relative border-l border-gray-200">
-            {setupSteps.map((step, index) => (
-              <li key={step.id} className="mb-8 ml-6">
-                <span className="absolute flex items-center justify-center w-8 h-8 bg-white rounded-full -left-4 ring-4 ring-white">
-                  {step.completed ? (
-                    <CheckCircle2 className="w-5 h-5 text-green-500" />
-                  ) : (
-                    <Circle className={`w-5 h-5 ${index === completedSteps ? "text-amber-400" : "text-gray-300"}`} />
-                  )}
-                </span>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between">
-                  <div>
-                    <h3 className="font-medium flex items-center">
-                      {step.icon && <span className="mr-2">{step.icon}</span>}
-                      {step.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      {step.description}
-                    </p>
-                  </div>
-                  {step.action && (
-                    <Button
-                      variant={step.completed ? "outline" : "default"}
-                      size="sm"
-                      asChild
-                      className="sm:ml-4 self-start"
-                    >
-                      <Link href={step.action.href}>
-                        {step.action.label}
-                      </Link>
-                    </Button>
-                  )}
-                </div>
-                {!step.completed && index === completedSteps && (
-                  <div className="mt-2 p-2 bg-yellow-50 border border-yellow-100 rounded-md text-sm text-yellow-800 flex items-start">
-                    <Clock className="w-4 h-4 text-yellow-500 mr-2 mt-0.5 flex-shrink-0" />
-                    <span>
-                      {index === 1
-                        ? `Add at least ${minTeams} teams to continue`
-                        : index === 2
-                        ? "Generate a schedule after adding enough teams"
-                        : index === 3
-                        ? "Use the League Status Manager to activate your league"
-                        : "Complete this step to continue"}
-                    </span>
-                  </div>
-                )}
-              </li>
-            ))}
-
-            {isComplete && (
-              <li className="ml-6">
-                <span className="absolute flex items-center justify-center w-8 h-8 bg-green-100 rounded-full -left-4 ring-4 ring-white">
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
-                </span>
-                <div className="p-3 bg-green-50 border border-green-100 rounded-md">
-                  <h3 className="font-medium text-green-800">League Setup Complete!</h3>
-                  <p className="text-sm text-green-700">
-                    Your league is ready. You can now manage matches and track results.
-                  </p>
-                </div>
-              </li>
-            )}
-          </ol>
+          <Progress value={progressPercentage} className="h-2" />
         </div>
+        
+        <div className="space-y-4">
+          {steps.map((step, index) => (
+            <div key={index} className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className={`mr-3 h-6 w-6 rounded-full flex items-center justify-center ${
+                  step.isComplete ? "text-green-500" : "text-amber-500"
+                }`}>
+                  <step.icon className="h-5 w-5" />
+                </div>
+                <span className="font-medium">
+                  {step.name}
+                  {step.isOptional && (
+                    <span className="ml-2 text-xs text-muted-foreground">(Optional)</span>
+                  )}
+                </span>
+              </div>
+              {!step.isComplete && !isComplete && (
+                <Link 
+                  href={step.url}
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  Complete
+                </Link>
+              )}
+            </div>
+          ))}
+        </div>
+        
+        {isComplete && (
+          <div className="mt-4 p-3 bg-green-50 text-green-700 rounded border border-green-100">
+            <div className="flex items-center text-sm font-medium">
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Setup completed successfully!
+            </div>
+          </div>
+        )}
+        
+        {!isComplete && currentStatus !== "draft" && currentStatus !== "registration" && (
+          <div className="mt-4 p-3 bg-amber-50 text-amber-700 rounded border border-amber-100">
+            <div className="flex items-center text-sm">
+              <InfoIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span>Complete all required steps to fully set up your league.</span>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
