@@ -81,14 +81,34 @@ export async function PUT(
         throw new Error('Only administrators or players involved in the match can schedule it');
       }
       
-      // Update the match
-      match.scheduledDate = new Date(scheduledDate);
+      // Properly update the match with the date and time
+      // First convert scheduledDate to a proper Date object
+      const parsedDate = new Date(scheduledDate);
+      
+      // Validate that the date is valid
+      if (isNaN(parsedDate.getTime())) {
+        throw new Error('Invalid date format');
+      }
+      
+      // Update match fields
+      match.scheduledDate = parsedDate;
       match.scheduledTime = scheduledTime || '';
       match.location = location || '';
       match.status = 'scheduled'; // Update status to scheduled
       
       // Save the updated match
-      return await match.save();
+      const savedMatch = await match.save();
+      
+      // Return a clean response that includes only the necessary information
+      return {
+        id: savedMatch._id,
+        teamA: match.teamA,
+        teamB: match.teamB,
+        scheduledDate: savedMatch.scheduledDate,
+        scheduledTime: savedMatch.scheduledTime,
+        location: savedMatch.location,
+        status: savedMatch.status
+      };
     });
     
     return NextResponse.json(updatedMatch);
@@ -103,10 +123,26 @@ export async function PUT(
         );
       }
       
+      if (error.message === 'Invalid date format') {
+        return NextResponse.json(
+          { error: error.message },
+          { status: 400 }
+        );
+      }
+      
       if (error.message.includes('Only administrators or players')) {
         return NextResponse.json(
           { error: error.message },
           { status: 403 }
+        );
+      }
+      
+      // Return validation errors
+      if (error.name === 'ValidationError') {
+        console.error('Validation error details:', error);
+        return NextResponse.json(
+          { error: 'Validation error. Please check the time format (HH:MM).' },
+          { status: 400 }
         );
       }
     }
