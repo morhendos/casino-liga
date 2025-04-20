@@ -10,8 +10,8 @@ import { Toaster } from 'sonner';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Casino Liga - Padel League Management',
-  description: 'Organize, manage, and track your padel leagues with ease',
+  title: 'Padeliga - Padel League Management',
+  description: 'Tu liga. Tu juego. | Organize, manage, and track your padel leagues with ease',
 };
 
 export default async function RootLayout({
