@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { withConnection } from '@/lib/db';
-import { MatchModel, LeagueModel, TeamModel } from '@/models';
+import { MatchModel, LeagueModel, TeamModel, PlayerModel } from '@/models';
 import { ScheduleMatchRequest } from '@/types';
 import { authOptions } from '@/lib/auth';
 import { hasRole, ROLES } from '@/lib/auth/role-utils';
@@ -141,16 +141,25 @@ export async function POST(request: Request) {
         throw new Error('Both teams must be registered for the league');
       }
       
-      // Create the match
-      const match = new MatchModel({
+      // Handle the status and dates appropriately
+      const status = data.status || (data.scheduledDate ? 'scheduled' : 'unscheduled');
+      
+      // Create the match with appropriate status
+      const matchData: any = {
         league: data.leagueId,
         teamA: data.teamAId,
         teamB: data.teamBId,
-        scheduledDate: new Date(data.scheduledDate),
-        scheduledTime: data.scheduledTime,
-        location: data.location,
-        status: 'scheduled'
-      });
+        status: status
+      };
+      
+      // Only add scheduled data if it exists
+      if (data.scheduledDate) {
+        matchData.scheduledDate = new Date(data.scheduledDate);
+        matchData.scheduledTime = data.scheduledTime || '';
+        matchData.location = data.location || '';
+      }
+      
+      const match = new MatchModel(matchData);
       
       return await match.save();
     });
