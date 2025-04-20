@@ -89,11 +89,11 @@ export default function ScheduleVisualization({
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'scheduled':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700">Scheduled</Badge>;
+        return <Badge variant="outline" className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">Scheduled</Badge>;
       case 'in_progress':
-        return <Badge className="bg-amber-100 text-amber-700">In Progress</Badge>;
+        return <Badge className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">In Progress</Badge>;
       case 'completed':
-        return <Badge variant="default" className="bg-green-100 text-green-700">Completed</Badge>;
+        return <Badge variant="default" className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">Completed</Badge>;
       case 'canceled':
         return <Badge variant="destructive">Canceled</Badge>;
       case 'postponed':
@@ -158,7 +158,7 @@ export default function ScheduleVisualization({
           
           {/* Empty cells for days before the start of the month */}
           {Array.from({ length: new Date(monthStart).getDay() }).map((_, i) => (
-            <div key={`empty-${i}`} className="h-28 border rounded-md bg-gray-50"></div>
+            <div key={`empty-${i}`} className="h-28 border rounded-md bg-gray-50 dark:bg-gray-900/30"></div>
           ))}
           
           {/* Days of the month */}
@@ -170,7 +170,7 @@ export default function ScheduleVisualization({
               <div 
                 key={day.toString()} 
                 className={`h-28 border rounded-md p-1 overflow-hidden ${
-                  hasMatches ? 'bg-blue-50 border-blue-200' : ''
+                  hasMatches ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700' : ''
                 }`}
               >
                 <div className="text-xs font-medium p-1">
@@ -181,7 +181,7 @@ export default function ScheduleVisualization({
                   {dayMatches.slice(0, 2).map(match => (
                     <div 
                       key={match.id || match._id} 
-                      className="bg-white p-1 text-xs rounded border cursor-pointer hover:bg-gray-50"
+                      className="bg-white dark:bg-gray-800 p-1 text-xs rounded border cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
                       onClick={() => onMatchClick(match.id || match._id)}
                     >
                       <div className="truncate">{match.teamA.name} vs {match.teamB.name}</div>
@@ -255,7 +255,7 @@ export default function ScheduleVisualization({
               {matchesByDate[date].map(match => (
                 <div 
                   key={match.id || match._id} 
-                  className="p-4 hover:bg-gray-50 cursor-pointer"
+                  className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
                   onClick={() => onMatchClick(match.id || match._id)}
                 >
                   <div className="flex items-center justify-between">
