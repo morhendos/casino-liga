@@ -317,14 +317,15 @@ export async function DELETE(
         throw new Error('Schedule can only be cleared for leagues in draft or registration status');
       }
       
-      // Instead of deleting matches, update them to clear schedule information
+      // Update matches to clear schedule information and update status for matches that were scheduled
       const result = await MatchModel.updateMany(
-        { league: leagueId }, 
+        { league: leagueId, status: 'scheduled' }, 
         { 
           $set: { 
             scheduledDate: null, 
             scheduledTime: null, 
-            location: null 
+            location: null,
+            status: 'pending'  // Change status from scheduled to pending 
           } 
         }
       );
