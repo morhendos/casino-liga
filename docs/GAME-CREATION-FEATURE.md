@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the changes made to separate game creation from schedule generation in the Casino Liga platform. The goal is to improve flexibility by allowing admins to create individual games manually, with schedule generation being an optional feature.
+This document describes the changes made to separate game creation from schedule generation in the Padeliga platform. The goal is to improve flexibility by allowing admins to create individual games manually, with schedule generation being an optional feature.
 
 ## Motivation
 
