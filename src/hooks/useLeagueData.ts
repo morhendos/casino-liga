@@ -238,7 +238,7 @@ export const useLeagueTeams = (leagueId: string) => {
         body: JSON.stringify({
           name,
           players: playerIds,
-          league: leagueId // Include league ID in the request
+          league: leagueId // Include league ID in the request body
         }),
       });
 
@@ -266,12 +266,14 @@ export const useLeagueTeams = (leagueId: string) => {
             ? {
                 ...team,
                 id: serverTeam._id || serverTeam.id,
-                _id: serverTeam._id || serverTeam.id
+                _id: serverTeam._id || serverTeam.id,
+                league: leagueId // Ensure league ID is set in the updated team
               } 
             : team
         )
       );
 
+      toast.success("Team created successfully");
       return true;
     } catch (error) {
       console.error("Error creating team:", error);
@@ -336,6 +338,7 @@ export const usePlayerManagement = (leagueId?: string) => {
       const playerWithId = {
         ...newPlayer,
         id: newPlayer._id || newPlayer.id,
+        league: finalLeagueId // Ensure league ID is included in the returned player
       };
 
       setIsCreatingPlayer(false);
