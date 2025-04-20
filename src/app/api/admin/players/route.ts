@@ -31,6 +31,7 @@ export async function GET(request: Request) {
     const nickname = searchParams.get('nickname');
     const email = searchParams.get('email');
     const status = searchParams.get('status');
+    const leagueId = searchParams.get('leagueId'); // Add league filter option
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     
@@ -48,6 +49,11 @@ export async function GET(request: Request) {
     
     if (status && status !== 'all') {
       query.status = status;
+    }
+    
+    // Filter by league if leagueId is provided
+    if (leagueId) {
+      query.league = new mongoose.Types.ObjectId(leagueId);
     }
     
     const players = await withConnection(async () => {
@@ -118,19 +124,41 @@ export async function POST(request: Request) {
       );
     }
     
+    // Validate league ID (required)
+    if (!data.league) {
+      return NextResponse.json(
+        { error: 'League ID is required' },
+        { status: 400 }
+      );
+    }
+    
     // Create player
     const newPlayer = await withConnection(async () => {
-      // Check if player with same nickname or email already exists
-      if (data.email) {
-        const existingPlayerByEmail = await PlayerModel.findOne({ email: data.email });
-        if (existingPlayerByEmail) {
-          throw new Error('A player with this email already exists');
-        }
-      }
+      // Check if player with same nickname or email already exists in the same league
+      const existingQuery: any = { 
+        league: new mongoose.Types.ObjectId(data.league) 
+      };
       
-      const existingPlayerByNickname = await PlayerModel.findOne({ nickname: data.nickname });
-      if (existingPlayerByNickname) {
-        throw new Error('A player with this nickname already exists');
+      if (data.email) {
+        existingQuery.$or = [
+          { nickname: data.nickname },
+          { email: data.email }
+        ];
+        
+        const existingPlayer = await PlayerModel.findOne(existingQuery);
+        if (existingPlayer) {
+          if (existingPlayer.email === data.email) {
+            throw new Error('A player with this email already exists in this league');
+          } else {
+            throw new Error('A player with this nickname already exists in this league');
+          }
+        }
+      } else {
+        existingQuery.nickname = data.nickname;
+        const existingPlayerByNickname = await PlayerModel.findOne(existingQuery);
+        if (existingPlayerByNickname) {
+          throw new Error('A player with this nickname already exists in this league');
+        }
       }
       
       // Create player data object
@@ -143,7 +171,8 @@ export async function POST(request: Request) {
         bio: data.bio,
         isActive: true,
         status: 'active',
-        createdBy: new mongoose.Types.ObjectId(session.user.id)
+        createdBy: new mongoose.Types.ObjectId(session.user.id),
+        league: new mongoose.Types.ObjectId(data.league)
       };
       
       // Add email if provided
@@ -180,8 +209,7 @@ export async function POST(request: Request) {
     console.error('Error creating player:', error);
     
     if (error instanceof Error) {
-      if (error.message === 'A player with this email already exists' ||
-          error.message === 'A player with this nickname already exists') {
+      if (error.message.includes('already exists in this league')) {
         return NextResponse.json(
           { error: error.message },
           { status: 409 }
