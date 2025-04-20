@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongoose';
 import { MatchModel, LeagueModel, TeamModel } from '@/models';
 import { createLogger } from '@/lib/logger';
+import mongoose from 'mongoose';
 
 // Initialize logger
 const logger = createLogger('ScheduleGenerator');
@@ -121,85 +122,114 @@ export async function generateRoundRobinSchedule(
  * @returns Promise with the created matches
  */
 export async function createLeagueSchedule(leagueId: string | ObjectId): Promise<any[]> {
-  logger.info(`Creating league schedule for league ${leagueId}`);
-  
-  // Get the league
-  const league = await LeagueModel.findById(leagueId);
-  
-  if (!league) {
-    logger.error(`League not found: ${leagueId}`);
-    throw new Error('League not found');
-  }
-  
-  logger.info(`Found league: ${league.name}, teams: ${league.teams.length}, scheduleGenerated: ${league.scheduleGenerated}`);
-  
-  // Verify all teams belong to this league
-  const teamIds = league.teams.map(team => team.toString());
-  logger.info(`Team IDs from league: ${JSON.stringify(teamIds)}`);
-  
-  // Fetch the actual teams to verify they exist and have the correct league ID
-  const teams = await TeamModel.find({ 
-    _id: { $in: teamIds }
-  }).lean();
-  
-  logger.info(`Found ${teams.length} out of ${teamIds.length} referenced teams`);
-  
-  // Filter out teams that don't have the correct league ID
-  const validTeams = teams.filter(team => {
-    if (!team.league) {
-      logger.warn(`Team ${team._id} missing league reference`);
-      return false;
-    }
-    
-    const teamLeagueId = team.league.toString();
-    const isValid = teamLeagueId === leagueId.toString();
-    
-    if (!isValid) {
-      logger.warn(`Team ${team._id} has incorrect league: ${teamLeagueId} != ${leagueId}`);
-    }
-    
-    return isValid;
-  });
-  
-  logger.info(`Valid teams for this league: ${validTeams.length}`);
-  
-  // Get valid team IDs
-  const validTeamIds = validTeams.map(team => team._id);
-  
-  if (validTeamIds.length < 2) {
-    logger.error(`Not enough valid teams: ${validTeamIds.length}`);
-    throw new Error('League must have at least 2 valid teams to generate a schedule');
-  }
-  
-  if (league.scheduleGenerated) {
-    logger.error('Schedule already generated for this league');
-    throw new Error('Schedule has already been generated for this league');
-  }
-  
-  // Generate the schedule with valid teams only
-  logger.info('Generating match data with valid teams');
-  const matchData = await generateRoundRobinSchedule(
-    leagueId,
-    validTeamIds,
-    league.startDate,
-    league.endDate,
-    league.venue
-  );
-  
-  // Create the matches in the database
-  logger.info(`Inserting ${matchData.length} matches into database`);
   try {
-    const createdMatches = await MatchModel.insertMany(matchData);
-    logger.info(`Successfully created ${createdMatches.length} matches`);
+    logger.info(`Creating league schedule for league ${leagueId}`);
     
-    // Update the league to mark schedule as generated
-    league.scheduleGenerated = true;
-    await league.save();
-    logger.info(`Updated league ${leagueId} scheduleGenerated flag to true`);
+    // Ensure we have a valid ObjectId for leagueId
+    const leagueObjectId = typeof leagueId === 'string' ? 
+      new mongoose.Types.ObjectId(leagueId) : leagueId;
     
-    return createdMatches;
+    // Get the league
+    const league = await LeagueModel.findById(leagueObjectId);
+    
+    if (!league) {
+      logger.error(`League not found: ${leagueId}`);
+      throw new Error('League not found');
+    }
+    
+    logger.info(`Found league: ${league.name}, teams: ${league.teams?.length || 0}, scheduleGenerated: ${league.scheduleGenerated}`);
+    
+    // Check if teams array exists and has items
+    if (!league.teams || !Array.isArray(league.teams) || league.teams.length < 2) {
+      logger.error(`Not enough teams in league: ${league.teams?.length || 0}`);
+      throw new Error('League must have at least 2 teams to generate a schedule');
+    }
+    
+    // Verify the league has startDate and endDate
+    if (!league.startDate || !league.endDate) {
+      logger.error('League missing start or end date');
+      throw new Error('League must have start and end dates to generate a schedule');
+    }
+    
+    if (league.scheduleGenerated) {
+      logger.error('Schedule already generated for this league');
+      throw new Error('Schedule has already been generated for this league');
+    }
+    
+    // Log team IDs for debugging
+    const teamIds = league.teams.map(team => team.toString());
+    logger.info(`Team IDs from league: ${JSON.stringify(teamIds)}`);
+    
+    try {
+      // Fetch the actual teams to verify they exist and have the correct league ID
+      const teams = await TeamModel.find({ 
+        _id: { $in: teamIds }
+      }).lean();
+      
+      logger.info(`Found ${teams.length} out of ${teamIds.length} referenced teams`);
+      
+      // Filter out teams that don't have the correct league ID
+      const validTeams = teams.filter(team => {
+        // Check if team has league property
+        if (!team.league) {
+          logger.warn(`Team ${team._id} missing league reference`);
+          return false;
+        }
+        
+        // Convert both IDs to string for comparison
+        const teamLeagueId = team.league.toString();
+        const currentLeagueId = leagueObjectId.toString();
+        const isValid = teamLeagueId === currentLeagueId;
+        
+        if (!isValid) {
+          logger.warn(`Team ${team._id} has incorrect league: ${teamLeagueId} != ${currentLeagueId}`);
+        }
+        
+        return isValid;
+      });
+      
+      logger.info(`Valid teams for this league: ${validTeams.length}`);
+      
+      if (validTeams.length < 2) {
+        logger.error(`Not enough valid teams: ${validTeams.length}`);
+        throw new Error('League must have at least 2 valid teams to generate a schedule');
+      }
+      
+      // Get valid team IDs as ObjectIds
+      const validTeamIds = validTeams.map(team => team._id);
+      
+      // Generate the schedule with valid teams only
+      logger.info('Generating match data with valid teams');
+      const matchData = await generateRoundRobinSchedule(
+        leagueObjectId,
+        validTeamIds,
+        league.startDate,
+        league.endDate,
+        league.venue
+      );
+      
+      // Create the matches in the database
+      logger.info(`Inserting ${matchData.length} matches into database`);
+      const createdMatches = await MatchModel.insertMany(matchData);
+      logger.info(`Successfully created ${createdMatches.length} matches`);
+      
+      // Update the league to mark schedule as generated
+      league.scheduleGenerated = true;
+      await league.save();
+      logger.info(`Updated league ${leagueId} scheduleGenerated flag to true`);
+      
+      return createdMatches;
+    } catch (error) {
+      logger.error('Error in team validation or match creation:', error);
+      throw new Error(`Error in schedule generation: ${error.message}`);
+    }
   } catch (error) {
-    logger.error('Error creating matches:', error);
-    throw error;
+    logger.error('Error in createLeagueSchedule:', error);
+    // Re-throw with more specific information for debugging
+    if (error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error(`Unknown error in schedule generation: ${error}`);
+    }
   }
 }
