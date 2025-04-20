@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withConnection } from '@/lib/db';
-import { LeagueModel, TeamModel, MatchModel, RankingModel } from '@/models';
+import { LeagueModel, TeamModel, MatchModel, RankingModel, PlayerModel } from '@/models';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { hasRole, ROLES } from '@/lib/auth/role-utils';
@@ -262,7 +262,10 @@ export async function DELETE(
     }
     
     // Get cascade options from the request
-    let cascadeOptions = { deleteTeams: true };
+    let cascadeOptions = { 
+      deleteTeams: true,
+      deletePlayers: true 
+    };
     
     // If the request has a body, parse it to get cascade options
     if (request.headers.get('content-type')?.includes('application/json')) {
@@ -305,7 +308,29 @@ export async function DELETE(
       let teamsDeleted = 0;
       let teamsUpdated = 0;
       
+      // 6. Handle players based on cascade options
+      let playersDeleted = 0;
+      let playersIdsToDelete = [];
+      
       if (teams.length > 0) {
+        if (cascadeOptions.deletePlayers) {
+          // Collect all player IDs from teams in this league
+          const teamsData = await TeamModel.find({ _id: { $in: teams } });
+          
+          // Get all player IDs from these teams
+          for (const team of teamsData) {
+            playersIdsToDelete = [...playersIdsToDelete, ...team.players];
+          }
+          
+          if (playersIdsToDelete.length > 0) {
+            // Delete players that belong exclusively to these teams
+            const playerResult = await PlayerModel.deleteMany({ 
+              _id: { $in: playersIdsToDelete } 
+            });
+            playersDeleted = playerResult.deletedCount;
+          }
+        }
+        
         if (cascadeOptions.deleteTeams) {
           // Delete teams if the option is selected
           const result = await TeamModel.deleteMany({ _id: { $in: teams } });
@@ -320,7 +345,7 @@ export async function DELETE(
         }
       }
       
-      // 6. Delete the league itself
+      // 7. Delete the league itself
       const deletedLeague = await LeagueModel.findByIdAndDelete(id);
       
       return {
@@ -328,7 +353,8 @@ export async function DELETE(
         matches: deletedMatches.deletedCount,
         rankings: deletedRankings.deletedCount,
         teamsDeleted,
-        teamsUpdated
+        teamsUpdated,
+        playersDeleted
       };
     });
     
@@ -340,7 +366,8 @@ export async function DELETE(
         matchesDeleted: results.matches,
         rankingsDeleted: results.rankings,
         teamsDeleted: results.teamsDeleted,
-        teamsUpdated: results.teamsUpdated
+        teamsUpdated: results.teamsUpdated,
+        playersDeleted: results.playersDeleted
       }
     });
   } catch (error) {
