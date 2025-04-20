@@ -101,6 +101,11 @@ export default function ScheduleManagementTable({
   const [isClearing, setIsClearing] = useState(false);
   const [showClearDialog, setShowClearDialog] = useState(false);
 
+  // Check if there are any scheduled matches
+  const hasScheduledMatches = matches.some(match => 
+    match.status === 'scheduled' && match.scheduledDate
+  );
+
   // Starting to edit a match
   const handleEditMatch = (match: Match) => {
     setEditingMatch(match.id || match._id);
@@ -181,22 +186,29 @@ export default function ScheduleManagementTable({
   
   // Sort matches by date
   const sortedMatches = [...matches].sort((a, b) => {
+    if (!a.scheduledDate) return 1;  // Items without date go to the end
+    if (!b.scheduledDate) return -1; // Items without date go to the end
     return new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime();
   });
   
-  // Group into matchesByDate
+  // Group into matchesByDate - only include matches with scheduledDate
   sortedMatches.forEach(match => {
-    const date = new Date(match.scheduledDate).toLocaleDateString();
-    if (!matchesByDate[date]) {
-      matchesByDate[date] = [];
+    if (match.scheduledDate) {
+      const date = new Date(match.scheduledDate).toLocaleDateString();
+      if (!matchesByDate[date]) {
+        matchesByDate[date] = [];
+      }
+      matchesByDate[date].push(match);
     }
-    matchesByDate[date].push(match);
   });
   
   // Get dates in order
   const sortedDates = Object.keys(matchesByDate).sort((a, b) => {
     return new Date(a).getTime() - new Date(b).getTime();
   });
+
+  // Get unscheduled matches (matches without a scheduled date)
+  const unscheduledMatches = matches.filter(match => !match.scheduledDate);
 
   // Format status for display
   const getStatusBadge = (status: string) => {
@@ -211,6 +223,8 @@ export default function ScheduleManagementTable({
         return <Badge variant="destructive">Canceled</Badge>;
       case 'postponed':
         return <Badge variant="secondary">Postponed</Badge>;
+      case 'pending':
+        return <Badge variant="outline" className="bg-gray-100 text-gray-700">Pending</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -231,7 +245,7 @@ export default function ScheduleManagementTable({
 
   return (
     <div className="space-y-4">
-      {isAdmin && (
+      {isAdmin && hasScheduledMatches && (
         <div className="flex justify-end mb-4">
           <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
             <AlertDialogTrigger asChild>
@@ -262,148 +276,245 @@ export default function ScheduleManagementTable({
         </div>
       )}
 
-      {sortedDates.map(date => (
-        <div key={date} className="border rounded-md overflow-hidden mb-6">
-          <div className="bg-muted px-4 py-3 font-medium">
-            <div className="flex items-center">
-              <CalendarIcon className="h-4 w-4 mr-2 text-muted-foreground" />
-              {new Date(date).toLocaleDateString(undefined, { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
+      {sortedDates.length > 0 ? (
+        sortedDates.map(date => (
+          <div key={date} className="border rounded-md overflow-hidden mb-6">
+            <div className="bg-muted px-4 py-3 font-medium">
+              <div className="flex items-center">
+                <CalendarIcon className="h-4 w-4 mr-2 text-muted-foreground" />
+                {new Date(date).toLocaleDateString(undefined, { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </div>
             </div>
-          </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Time</TableHead>
-                <TableHead>Team A</TableHead>
-                <TableHead>Team B</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Status</TableHead>
-                {isAdmin && <TableHead className="text-right">Actions</TableHead>}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {matchesByDate[date].map(match => (
-                <TableRow key={match.id || match._id} className={cn(
-                  match.status === 'canceled' && "bg-muted/50 text-muted-foreground",
-                  editingMatch === (match.id || match._id) && "bg-blue-50"
-                )}>
-                  <TableCell>
-                    {editingMatch === (match.id || match._id) ? (
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <Input
-                          type="time"
-                          value={editData.scheduledTime}
-                          onChange={(e) => setEditData({ ...editData, scheduledTime: e.target.value })}
-                          className="max-w-[120px]"
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                        {match.scheduledTime || 'TBD'}
-                      </div>
-                    )}
-                  </TableCell>
-
-                  <TableCell>{match.teamA.name}</TableCell>
-                  
-                  <TableCell>{match.teamB.name}</TableCell>
-                  
-                  <TableCell>
-                    {editingMatch === (match.id || match._id) ? (
-                      <div className="flex items-center">
-                        <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <Input
-                          type="text"
-                          value={editData.location}
-                          onChange={(e) => setEditData({ ...editData, location: e.target.value })}
-                          placeholder="Location"
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex items-center">
-                        <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                        {match.location || 'TBD'}
-                      </div>
-                    )}
-                  </TableCell>
-
-                  <TableCell>
-                    {editingMatch === (match.id || match._id) ? (
-                      <Select
-                        value={editData.status}
-                        onValueChange={(value) => setEditData({ ...editData, status: value })}
-                      >
-                        <SelectTrigger className="w-[140px]">
-                          <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="scheduled">Scheduled</SelectItem>
-                          <SelectItem value="in_progress">In Progress</SelectItem>
-                          <SelectItem value="completed">Completed</SelectItem>
-                          <SelectItem value="postponed">Postponed</SelectItem>
-                          <SelectItem value="canceled">Canceled</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      getStatusBadge(match.status)
-                    )}
-                  </TableCell>
-
-                  {isAdmin && (
-                    <TableCell className="text-right">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Time</TableHead>
+                  <TableHead>Team A</TableHead>
+                  <TableHead>Team B</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Status</TableHead>
+                  {isAdmin && <TableHead className="text-right">Actions</TableHead>}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {matchesByDate[date].map(match => (
+                  <TableRow key={match.id || match._id} className={cn(
+                    match.status === 'canceled' && "bg-muted/50 text-muted-foreground",
+                    editingMatch === (match.id || match._id) && "bg-blue-50"
+                  )}>
+                    <TableCell>
                       {editingMatch === (match.id || match._id) ? (
-                        <div className="flex justify-end space-x-2">
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            onClick={handleCancelEdit}
-                            disabled={isSaving}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            onClick={() => handleSaveMatch(match.id || match._id)}
-                            disabled={isSaving}
-                          >
-                            {isSaving ? (
-                              <>Saving...</>
-                            ) : (
-                              <>
-                                <Save className="h-4 w-4 mr-1" />
-                                Save
-                              </>
-                            )}
-                          </Button>
+                        <div className="flex items-center">
+                          <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <Input
+                            type="time"
+                            value={editData.scheduledTime}
+                            onChange={(e) => setEditData({ ...editData, scheduledTime: e.target.value })}
+                            className="max-w-[120px]"
+                          />
                         </div>
                       ) : (
-                        <div className="flex justify-end space-x-2">
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            onClick={() => handleEditMatch(match)}
-                          >
-                            <Pencil className="h-4 w-4 mr-1" />
-                            Edit
-                          </Button>
+                        <div className="flex items-center">
+                          <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                          {match.scheduledTime || 'TBD'}
                         </div>
                       )}
                     </TableCell>
-                  )}
+
+                    <TableCell>{match.teamA.name}</TableCell>
+                    
+                    <TableCell>{match.teamB.name}</TableCell>
+                    
+                    <TableCell>
+                      {editingMatch === (match.id || match._id) ? (
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <Input
+                            type="text"
+                            value={editData.location}
+                            onChange={(e) => setEditData({ ...editData, location: e.target.value })}
+                            placeholder="Location"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                          {match.location || 'TBD'}
+                        </div>
+                      )}
+                    </TableCell>
+
+                    <TableCell>
+                      {editingMatch === (match.id || match._id) ? (
+                        <Select
+                          value={editData.status}
+                          onValueChange={(value) => setEditData({ ...editData, status: value })}
+                        >
+                          <SelectTrigger className="w-[140px]">
+                            <SelectValue placeholder="Status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="scheduled">Scheduled</SelectItem>
+                            <SelectItem value="in_progress">In Progress</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="postponed">Postponed</SelectItem>
+                            <SelectItem value="canceled">Canceled</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        getStatusBadge(match.status)
+                      )}
+                    </TableCell>
+
+                    {isAdmin && (
+                      <TableCell className="text-right">
+                        {editingMatch === (match.id || match._id) ? (
+                          <div className="flex justify-end space-x-2">
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              onClick={handleCancelEdit}
+                              disabled={isSaving}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              onClick={() => handleSaveMatch(match.id || match._id)}
+                              disabled={isSaving}
+                            >
+                              {isSaving ? (
+                                <>Saving...</>
+                              ) : (
+                                <>
+                                  <Save className="h-4 w-4 mr-1" />
+                                  Save
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex justify-end space-x-2">
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => handleEditMatch(match)}
+                            >
+                              <Pencil className="h-4 w-4 mr-1" />
+                              Edit
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ))
+      ) : (
+        unscheduledMatches.length > 0 && (
+          <div className="border rounded-md overflow-hidden mb-6">
+            <div className="bg-muted px-4 py-3 font-medium">
+              <div className="flex items-center">
+                <AlertCircle className="h-4 w-4 mr-2 text-muted-foreground" />
+                Unscheduled Matches
+              </div>
+            </div>
+            
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Team A</TableHead>
+                  <TableHead>Team B</TableHead>
+                  <TableHead>Status</TableHead>
+                  {isAdmin && <TableHead className="text-right">Actions</TableHead>}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      ))}
+              </TableHeader>
+              <TableBody>
+                {unscheduledMatches.map(match => (
+                  <TableRow key={match.id || match._id} className={cn(
+                    match.status === 'canceled' && "bg-muted/50 text-muted-foreground",
+                    editingMatch === (match.id || match._id) && "bg-blue-50"
+                  )}>
+                    <TableCell>{match.teamA.name}</TableCell>
+                    <TableCell>{match.teamB.name}</TableCell>
+                    <TableCell>
+                      {editingMatch === (match.id || match._id) ? (
+                        <Select
+                          value={editData.status}
+                          onValueChange={(value) => setEditData({ ...editData, status: value })}
+                        >
+                          <SelectTrigger className="w-[140px]">
+                            <SelectValue placeholder="Status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="scheduled">Scheduled</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="canceled">Canceled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        getStatusBadge(match.status)
+                      )}
+                    </TableCell>
+                    
+                    {isAdmin && (
+                      <TableCell className="text-right">
+                        {editingMatch === (match.id || match._id) ? (
+                          <div className="flex justify-end space-x-2">
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              onClick={handleCancelEdit}
+                              disabled={isSaving}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              onClick={() => handleSaveMatch(match.id || match._id)}
+                              disabled={isSaving}
+                            >
+                              {isSaving ? (
+                                <>Saving...</>
+                              ) : (
+                                <>
+                                  <Save className="h-4 w-4 mr-1" />
+                                  Save
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex justify-end space-x-2">
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => handleEditMatch(match)}
+                            >
+                              <Pencil className="h-4 w-4 mr-1" />
+                              Edit
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )
+      )}
     </div>
   );
 }
