@@ -56,9 +56,8 @@ export default function BulkGameGenerationForm({
       setIsGenerating(true);
       
       const teamPairs = generateRoundRobinPairs(teams);
-      const today = new Date();
       
-      // Create all game pairs but don't assign dates yet
+      // Create all game pairs with unscheduled status
       const gamePromises = teamPairs.map(([teamA, teamB]) => {
         return fetch(`/api/matches`, {
           method: "POST",
@@ -69,7 +68,8 @@ export default function BulkGameGenerationForm({
             leagueId,
             teamAId: teamA.id || teamA._id,
             teamBId: teamB.id || teamB._id,
-            scheduledDate: today, // Using today as default date
+            status: "unscheduled",  // Mark games as unscheduled
+            scheduledDate: null, 
             scheduledTime: "", 
             location: ""
           }),
@@ -128,7 +128,7 @@ export default function BulkGameGenerationForm({
               <div>
                 <h4 className="font-medium text-amber-800">Important Note</h4>
                 <p className="text-sm text-amber-700">
-                  Games will be created with today's date by default. You'll need to edit each game manually to set the actual date and time.
+                  Games will be created without a scheduled date or time. You'll need to schedule each game manually later.
                 </p>
               </div>
             </div>
