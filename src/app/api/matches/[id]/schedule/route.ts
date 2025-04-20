@@ -30,6 +30,7 @@ export async function PUT(
     }
     
     const data = await request.json();
+    console.log('Received scheduling data:', data);
     const { scheduledDate, scheduledTime, location } = data;
     
     if (!scheduledDate) {
@@ -40,20 +41,15 @@ export async function PUT(
     }
     
     const updatedMatch = await withConnection(async () => {
-      // Get the match
-      const match = await MatchModel.findById(matchId)
-        .populate({
-          path: 'teamA',
-          select: 'players'
-        })
-        .populate({
-          path: 'teamB',
-          select: 'players'
-        });
+      // Find match without populating relations first
+      console.log('Finding match with ID:', matchId);
+      const match = await MatchModel.findById(matchId);
       
       if (!match) {
         throw new Error('Match not found');
       }
+      
+      console.log('Original match data:', match);
       
       // Check user permissions
       const isAdmin = hasRole(session, ROLES.ADMIN);
@@ -62,9 +58,13 @@ export async function PUT(
       let isPlayerInvolved = false;
       
       if (!isAdmin) {
+        // Load team data
+        const teamA = await TeamModel.findById(match.teamA);
+        const teamB = await TeamModel.findById(match.teamB);
+        
         // Get all players in both teams
-        const teamAPlayers = match.teamA.players || [];
-        const teamBPlayers = match.teamB.players || [];
+        const teamAPlayers = teamA?.players || [];
+        const teamBPlayers = teamB?.players || [];
         const allPlayerIds = [...teamAPlayers, ...teamBPlayers];
         
         // Find if current user has a player profile that's part of the teams
@@ -82,33 +82,62 @@ export async function PUT(
       }
       
       // Properly update the match with the date and time
-      // First convert scheduledDate to a proper Date object
-      const parsedDate = new Date(scheduledDate);
-      
-      // Validate that the date is valid
-      if (isNaN(parsedDate.getTime())) {
-        throw new Error('Invalid date format');
+      try {
+        // First convert scheduledDate to a proper Date object
+        let parsedDate: Date;
+        
+        if (typeof scheduledDate === 'string') {
+          parsedDate = new Date(scheduledDate);
+        } else if (scheduledDate instanceof Date) {
+          parsedDate = scheduledDate;
+        } else {
+          throw new Error('Invalid date format');
+        }
+        
+        // Validate that the date is valid
+        if (isNaN(parsedDate.getTime())) {
+          throw new Error('Invalid date format');
+        }
+        
+        console.log('Parsed date for updating:', parsedDate);
+        
+        // Directly update with updateOne to avoid validation issues
+        const updateResult = await MatchModel.updateOne(
+          { _id: matchId },
+          { 
+            $set: {
+              scheduledDate: parsedDate,
+              scheduledTime: scheduledTime || '',
+              location: location || '',
+              status: 'scheduled'
+            }
+          }
+        );
+        
+        console.log('Update result:', updateResult);
+        
+        // Get the updated match
+        const updatedMatch = await MatchModel.findById(matchId);
+        console.log('Updated match:', updatedMatch);
+        
+        if (!updatedMatch) {
+          throw new Error('Failed to retrieve updated match');
+        }
+        
+        // Return clean response
+        return {
+          id: updatedMatch._id,
+          teamA: { id: updatedMatch.teamA, name: 'Team A' },
+          teamB: { id: updatedMatch.teamB, name: 'Team B' },
+          scheduledDate: updatedMatch.scheduledDate,
+          scheduledTime: updatedMatch.scheduledTime,
+          location: updatedMatch.location,
+          status: updatedMatch.status
+        };
+      } catch (err) {
+        console.error('Error updating match:', err);
+        throw err;
       }
-      
-      // Update match fields
-      match.scheduledDate = parsedDate;
-      match.scheduledTime = scheduledTime || '';
-      match.location = location || '';
-      match.status = 'scheduled'; // Update status to scheduled
-      
-      // Save the updated match
-      const savedMatch = await match.save();
-      
-      // Return a clean response that includes only the necessary information
-      return {
-        id: savedMatch._id,
-        teamA: match.teamA,
-        teamB: match.teamB,
-        scheduledDate: savedMatch.scheduledDate,
-        scheduledTime: savedMatch.scheduledTime,
-        location: savedMatch.location,
-        status: savedMatch.status
-      };
     });
     
     return NextResponse.json(updatedMatch);
