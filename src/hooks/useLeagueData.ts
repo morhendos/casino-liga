@@ -252,8 +252,15 @@ export const useLeagueTeams = (leagueId: string) => {
         });
         setPlayersInTeams(updatedPlayersInTeams);
         
-        const error = await response.json();
-        throw new Error(error.error || "Failed to create team");
+        const errorData = await response.json();
+        let errorMessage = errorData.error || "Failed to create team";
+        
+        // Make error message more user-friendly
+        if (errorMessage === 'Team with this name already exists in this league') {
+          errorMessage = `The team name "${name}" is already taken in this league. Please choose a different name.`;
+        }
+        
+        throw new Error(errorMessage);
       }
       
       // Get the real team data from response
@@ -273,7 +280,7 @@ export const useLeagueTeams = (leagueId: string) => {
         )
       );
 
-      toast.success("Team created successfully");
+      toast.success(`Team "${name}" created successfully`);
       return true;
     } catch (error) {
       console.error("Error creating team:", error);
@@ -327,12 +334,23 @@ export const usePlayerManagement = (leagueId?: string) => {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to create player");
+        const errorData = await response.json();
+        let errorMessage = errorData.error || "Failed to create player";
+        
+        // Make error message more user-friendly
+        if (errorMessage.includes('already exists in this league')) {
+          if (errorMessage.includes('email')) {
+            errorMessage = `A player with email "${playerData.email}" already exists in this league.`;
+          } else {
+            errorMessage = `A player with nickname "${playerData.nickname}" already exists in this league.`;
+          }
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const newPlayer = await response.json();
-      toast.success("Player created successfully");
+      toast.success(`Player "${playerData.nickname}" created successfully`);
 
       // Format player data to include id
       const playerWithId = {
