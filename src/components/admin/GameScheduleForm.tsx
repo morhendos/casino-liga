@@ -3,9 +3,6 @@
 import { useState, useEffect } from "react";
 import { 
   Card, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription, 
   CardContent, 
   CardFooter 
 } from "@/components/ui/card";
@@ -48,29 +45,33 @@ export default function GameScheduleForm({
 }: GameScheduleFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Use current date as fallback only for unscheduled games
-  const defaultDate = match.scheduledDate ? 
-    new Date(match.scheduledDate) : 
-    (match.status === 'unscheduled' ? new Date() : undefined);
+  // Parse existing date or default to today
+  const dateFromMatch = match.scheduledDate ? new Date(match.scheduledDate) : null;
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(
+    dateFromMatch || new Date()
+  );
   
-  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(defaultDate);
+  // Store the original date for debugging
+  const [originalDate, setOriginalDate] = useState<string | undefined>(match.scheduledDate);
+  
   const [scheduledTime, setScheduledTime] = useState<string>(match.scheduledTime || "");
   const [location, setLocation] = useState<string>(match.location || "");
 
-  // Update local state if match prop changes (useful for rescheduling)
+  // For debugging in dev console
   useEffect(() => {
-    if (match.scheduledDate) {
-      setScheduledDate(new Date(match.scheduledDate));
-    }
-    setScheduledTime(match.scheduledTime || "");
-    setLocation(match.location || "");
-  }, [match]);
+    console.log("Match in GameScheduleForm:", match);
+    console.log("Original date from match:", originalDate);
+    console.log("Parsed date from match:", dateFromMatch);
+    console.log("Initial scheduledDate state:", scheduledDate);
+  }, []);
 
   const handleSubmit = async () => {
     if (!scheduledDate) {
       toast.error("Please select a date");
       return;
     }
+    
+    console.log("Submitting with date:", scheduledDate);
 
     try {
       setIsSubmitting(true);
@@ -82,7 +83,7 @@ export default function GameScheduleForm({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          scheduledDate,
+          scheduledDate: scheduledDate.toISOString(),
           scheduledTime,
           location
         }),
@@ -104,7 +105,7 @@ export default function GameScheduleForm({
   };
 
   return (
-    <Card>
+    <>
       <CardContent className="pt-6">
         <div className="space-y-4">
           <div className="space-y-2">
@@ -185,6 +186,6 @@ export default function GameScheduleForm({
           )}
         </Button>
       </CardFooter>
-    </Card>
+    </>
   );
 }
