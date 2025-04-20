@@ -23,7 +23,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Info, Check, AlertTriangle, Calendar, Flag, Users } from "lucide-react";
+import { Info, Check, AlertTriangle, Calendar, Flag, Users, RotateCcw } from "lucide-react";
 
 // League status types
 type LeagueStatus = 'draft' | 'registration' | 'active' | 'completed' | 'canceled';
@@ -126,8 +126,8 @@ export default function LeagueStatusManager({
         // No transitions from completed
         return [];
       case "canceled":
-        // No transitions from canceled
-        return [];
+        // Added transition from canceled back to draft
+        return ["draft"];
       default:
         return [];
     }
@@ -155,8 +155,8 @@ export default function LeagueStatusManager({
         // Can cancel from draft, registration, or active
         return ["draft", "registration", "active"].includes(currentStatus);
       case "draft":
-        // Can go back to draft only from registration
-        return currentStatus === "registration";
+        // Can go back to draft from registration or from canceled
+        return currentStatus === "registration" || currentStatus === "canceled";
       default:
         return false;
     }
@@ -202,7 +202,7 @@ export default function LeagueStatusManager({
         case "canceled":
           return "Cancel League";
         case "draft":
-          return "Move Back to Draft";
+          return currentStatus === "canceled" ? "Restore to Draft" : "Move Back to Draft";
         default:
           return `Move to ${formatStatus(status)}`;
       }
@@ -217,6 +217,8 @@ export default function LeagueStatusManager({
           return "outline";
         case "canceled":
           return "destructive";
+        case "draft":
+          return currentStatus === "canceled" ? "default" : "outline";
         default:
           return "outline";
       }
@@ -234,7 +236,7 @@ export default function LeagueStatusManager({
         case "canceled":
           return <AlertTriangle className="h-4 w-4 mr-2" />;
         case "draft":
-          return <Calendar className="h-4 w-4 mr-2" />;
+          return currentStatus === "canceled" ? <RotateCcw className="h-4 w-4 mr-2" /> : <Calendar className="h-4 w-4 mr-2" />;
         default:
           return null;
       }
@@ -257,16 +259,22 @@ export default function LeagueStatusManager({
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>
-                {`Update league to ${formatStatus(status)}?`}
+                {status === "draft" && currentStatus === "canceled" 
+                  ? "Restore league to Draft mode?" 
+                  : `Update league to ${formatStatus(status)}?`}
               </AlertDialogTitle>
               <AlertDialogDescription>
                 {status === "canceled" ? (
                   <span className="text-destructive">
-                    Warning: Canceling a league cannot be undone.
+                    This will cancel all future matches. You can restore the league to draft mode later if needed.
                   </span>
                 ) : status === "completed" ? (
                   <span>
                     Completing a league will mark it as finished and finalize all rankings.
+                  </span>
+                ) : status === "draft" && currentStatus === "canceled" ? (
+                  <span>
+                    This will restore the league to draft mode, allowing you to modify it and reopen registration later.
                   </span>
                 ) : (
                   <span>
@@ -349,6 +357,18 @@ export default function LeagueStatusManager({
                 <p className="text-green-800 dark:text-green-300 font-medium">League is Active</p>
                 <p className="text-green-700 dark:text-green-400">
                   The league is currently in progress. Match results can be recorded.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {currentStatus === "canceled" && (
+            <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-md p-3 text-sm flex">
+              <AlertTriangle className="h-4 w-4 text-red-500 dark:text-red-400 mt-0.5 mr-2" />
+              <div>
+                <p className="text-red-800 dark:text-red-300 font-medium">League is Canceled</p>
+                <p className="text-red-700 dark:text-red-400">
+                  This league has been canceled. You can restore it to draft mode if you want to reactivate it.
                 </p>
               </div>
             </div>
