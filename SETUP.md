@@ -1,6 +1,8 @@
-# Padel League Setup Guide
+# Padeliga Setup Guide
 
-This guide will help you set up the Padel League application on your local development environment.
+*Tu liga. Tu juego.*
+
+This guide will help you set up the Padeliga application on your local development environment.
 
 ## Prerequisites
 
@@ -14,8 +16,8 @@ This guide will help you set up the Padel League application on your local devel
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/morhendos/padel-league.git
-cd padel-league
+git clone https://github.com/morhendos/padeliga.git
+cd padeliga
 ```
 
 ### 2. Install Dependencies
@@ -56,8 +58,8 @@ The application is built using Next.js and follows a clean architecture:
 
 - **Models**: MongoDB schemas for all data entities (players, teams, leagues, matches, rankings)
 - **API Routes**: RESTful endpoints for data operations
-- **Components**: UI components for the frontend (to be implemented)
-- **Pages**: Next.js pages for the frontend (to be implemented)
+- **Components**: UI components for the frontend
+- **Pages**: Next.js pages for the frontend
 
 ## API Routes
 
