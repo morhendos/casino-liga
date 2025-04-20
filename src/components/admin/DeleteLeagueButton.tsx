@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface DeleteLeagueButtonProps {
   leagueId: string;
@@ -26,6 +28,7 @@ interface DeleteLeagueButtonProps {
 export function DeleteLeagueButton({ leagueId, leagueName, onDeleted }: DeleteLeagueButtonProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [open, setOpen] = useState(false);
+  const [deleteTeams, setDeleteTeams] = useState(true);
   const router = useRouter();
 
   const handleDelete = async () => {
@@ -34,12 +37,22 @@ export function DeleteLeagueButton({ leagueId, leagueName, onDeleted }: DeleteLe
       
       const response = await fetch(`/api/leagues/${leagueId}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cascadeOptions: {
+            deleteTeams,
+          }
+        }),
       });
       
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to delete league');
       }
+      
+      const result = await response.json();
       
       toast.success(`League "${leagueName}" deleted successfully`);
       
@@ -74,10 +87,27 @@ export function DeleteLeagueButton({ leagueId, leagueName, onDeleted }: DeleteLe
         <AlertDialogHeader>
           <AlertDialogTitle>Delete League</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete the league "{leagueName}"? This action cannot be undone and
-            will remove all teams, matches, and rankings associated with this league.
+            Are you sure you want to delete the league "{leagueName}"? This action cannot be undone and 
+            will remove all matches and rankings associated with this league.
           </AlertDialogDescription>
         </AlertDialogHeader>
+        
+        <div className="py-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="deleteTeams" 
+              checked={deleteTeams} 
+              onCheckedChange={(checked) => setDeleteTeams(checked as boolean)}
+            />
+            <Label htmlFor="deleteTeams">
+              Also delete teams associated with this league
+            </Label>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1 ml-6">
+            If unchecked, teams will remain in the system but will no longer be associated with any league
+          </p>
+        </div>
+        
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
           <AlertDialogAction
