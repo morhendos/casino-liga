@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { type ObjectId } from 'mongoose';
 
-type MatchStatus = 'scheduled' | 'in_progress' | 'completed' | 'canceled' | 'postponed';
+type MatchStatus = 'unscheduled' | 'scheduled' | 'in_progress' | 'completed' | 'canceled' | 'postponed';
 
 // Define interface for mongoose validator props
 interface ValidatorProps {
@@ -13,7 +13,7 @@ export interface MatchDocument extends mongoose.Document {
   league: ObjectId;
   teamA: ObjectId;
   teamB: ObjectId;
-  scheduledDate: Date;
+  scheduledDate?: Date;  // Made optional to support unscheduled games
   scheduledTime?: string;
   location?: string;
   status: MatchStatus;
@@ -49,13 +49,13 @@ const matchSchema = new mongoose.Schema({
   },
   scheduledDate: {
     type: Date,
-    required: [true, 'Scheduled date is required']
+    required: false  // Changed to false to support unscheduled games
   },
   scheduledTime: {
     type: String,
     validate: {
       validator: function(v: string) {
-        return !v || /^([01]\d|2[0-3]):([0-5]\d)$/.test(v);
+        return !v || /^([01]\\d|2[0-3]):([0-5]\\d)$/.test(v);
       },
       message: (props: ValidatorProps) => `${props.value} is not a valid time format (HH:MM)`
     }
@@ -67,10 +67,10 @@ const matchSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: {
-      values: ['scheduled', 'in_progress', 'completed', 'canceled', 'postponed'],
+      values: ['unscheduled', 'scheduled', 'in_progress', 'completed', 'canceled', 'postponed'],
       message: '{VALUE} is not a valid match status'
     },
-    default: 'scheduled'
+    default: 'unscheduled'  // Changed default to unscheduled
   },
   actualStartTime: {
     type: Date
