@@ -317,9 +317,19 @@ export async function DELETE(
         throw new Error('Schedule can only be cleared for leagues in draft or registration status');
       }
       
-      // Delete all matches for this league
-      const result = await MatchModel.deleteMany({ league: leagueId });
-      logger.info(`Deleted ${result.deletedCount} matches for league ${leagueId}`);
+      // Instead of deleting matches, update them to clear schedule information
+      const result = await MatchModel.updateMany(
+        { league: leagueId }, 
+        { 
+          $set: { 
+            scheduledDate: null, 
+            scheduledTime: null, 
+            location: null 
+          } 
+        }
+      );
+      
+      logger.info(`Updated ${result.modifiedCount} matches for league ${leagueId} to clear schedule information`);
       
       // Update the league to mark schedule as not generated
       league.scheduleGenerated = false;
