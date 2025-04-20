@@ -1,6 +1,6 @@
 # Admin Invitation Flow: Testing Guide
 
-This document provides a step-by-step guide for testing the new player invitation system in the Casino Liga application.
+This document provides a step-by-step guide for testing the new player invitation system in the Padeliga application.
 
 ## Prerequisites
 
