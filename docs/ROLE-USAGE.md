@@ -1,6 +1,6 @@
 # Role-Based Access Control Usage
 
-This document explains how to use the role-based access control system in the Casino Liga application.
+This document explains how to use the role-based access control system in the Padeliga application.
 
 ## User Roles
 
