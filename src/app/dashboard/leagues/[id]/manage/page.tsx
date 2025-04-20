@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { ArrowLeft, LayoutDashboard, Users, CalendarDays, Settings, CheckCircle2, PlusCircle } from "lucide-react";
+import { ArrowLeft, LayoutDashboard, Users, CalendarDays, Settings, CheckCircle2, PlusCircle, Zap } from "lucide-react";
 import Link from "next/link";
 import LeaguePlayerManager from "@/components/admin/LeaguePlayerManager";
 import LeagueStatusManager from "@/components/admin/LeagueStatusManager";
@@ -385,19 +385,32 @@ function LeagueManagePage() {
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      <div className="text-center bg-blue-50 border border-blue-100 rounded-md p-6">
-                        <PlusCircle className="h-12 w-12 mx-auto text-blue-500 mb-4" />
-                        <h3 className="text-lg font-medium mb-2 text-blue-700">Create Games</h3>
-                        <p className="text-blue-600 mb-6">
-                          {gamesCount > 0 
-                            ? `You've created ${gamesCount} game(s) so far. You can continue adding more games.` 
-                            : "Start creating games for the teams in your league."}
-                        </p>
-                        <Button asChild>
-                          <Link href={`/dashboard/leagues/${league.id}/schedule?tab=games`}>
-                            {gamesCount > 0 ? "Manage Games" : "Create First Game"}
-                          </Link>
-                        </Button>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="text-center bg-blue-50 border border-blue-100 rounded-md p-6">
+                          <PlusCircle className="h-12 w-12 mx-auto text-blue-500 mb-4" />
+                          <h3 className="text-lg font-medium mb-2 text-blue-700">Create Individual Games</h3>
+                          <p className="text-blue-600 mb-6">
+                            Manually create games one by one with specific dates and times.
+                          </p>
+                          <Button asChild>
+                            <Link href={`/dashboard/leagues/${league.id}/schedule?tab=games`}>
+                              {gamesCount > 0 ? "Manage Games" : "Create Games"}
+                            </Link>
+                          </Button>
+                        </div>
+                        
+                        <div className="text-center bg-purple-50 border border-purple-100 rounded-md p-6">
+                          <Zap className="h-12 w-12 mx-auto text-purple-500 mb-4" />
+                          <h3 className="text-lg font-medium mb-2 text-purple-700">Bulk Generate Games</h3>
+                          <p className="text-purple-600 mb-6">
+                            Automatically generate all possible game matchups at once.
+                          </p>
+                          <Button asChild className="bg-purple-600 hover:bg-purple-700">
+                            <Link href={`/dashboard/leagues/${league.id}/schedule?tab=bulk-games`}>
+                              Generate All Matchups
+                            </Link>
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   )}
