@@ -29,6 +29,7 @@ export function DeleteLeagueButton({ leagueId, leagueName, onDeleted }: DeleteLe
   const [isDeleting, setIsDeleting] = useState(false);
   const [open, setOpen] = useState(false);
   const [deleteTeams, setDeleteTeams] = useState(true);
+  const [deletePlayers, setDeletePlayers] = useState(true);
   const router = useRouter();
 
   const handleDelete = async () => {
@@ -43,6 +44,7 @@ export function DeleteLeagueButton({ leagueId, leagueName, onDeleted }: DeleteLe
         body: JSON.stringify({
           cascadeOptions: {
             deleteTeams,
+            deletePlayers
           }
         }),
       });
@@ -75,6 +77,15 @@ export function DeleteLeagueButton({ leagueId, leagueName, onDeleted }: DeleteLe
     }
   };
 
+  // Ensure that if teams are preserved, players are also preserved
+  const handleTeamsCheckChange = (checked: boolean) => {
+    setDeleteTeams(checked);
+    if (!checked) {
+      // If teams are not deleted, players can't be deleted either
+      setDeletePlayers(false);
+    }
+  };
+
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
@@ -92,19 +103,34 @@ export function DeleteLeagueButton({ leagueId, leagueName, onDeleted }: DeleteLe
           </AlertDialogDescription>
         </AlertDialogHeader>
         
-        <div className="py-4">
+        <div className="py-4 space-y-4">
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="deleteTeams" 
               checked={deleteTeams} 
-              onCheckedChange={(checked) => setDeleteTeams(checked as boolean)}
+              onCheckedChange={handleTeamsCheckChange}
             />
             <Label htmlFor="deleteTeams">
-              Also delete teams associated with this league
+              Delete teams associated with this league
             </Label>
           </div>
           <p className="text-xs text-muted-foreground mt-1 ml-6">
             If unchecked, teams will remain in the system but will no longer be associated with any league
+          </p>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="deletePlayers" 
+              checked={deletePlayers}
+              disabled={!deleteTeams} 
+              onCheckedChange={(checked) => setDeletePlayers(checked as boolean)}
+            />
+            <Label htmlFor="deletePlayers" className={!deleteTeams ? "text-muted-foreground" : ""}>
+              Delete players from these teams
+            </Label>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1 ml-6">
+            If unchecked, players will remain in the system even when their teams are deleted
           </p>
         </div>
         
