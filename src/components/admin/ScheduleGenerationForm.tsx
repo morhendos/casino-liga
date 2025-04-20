@@ -216,7 +216,7 @@ export default function ScheduleGenerationForm({
 
       {!hasValidLeagueDates && (
         <div className="px-6 pb-4">
-          <div className="bg-red-50 border border-red-200 rounded-md p-3 text-sm text-red-800">
+          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-md p-3 text-sm text-red-800 dark:text-red-300">
             <p className="font-medium flex items-center">
               <AlertCircle className="h-4 w-4 mr-2" />
               League Dates Not Configured
@@ -361,14 +361,14 @@ export default function ScheduleGenerationForm({
           </div>
 
           {!hasEnoughTeams && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 text-sm text-yellow-800">
+            <div className="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-md p-3 text-sm text-yellow-800 dark:text-yellow-300">
               <p className="font-medium">Not Enough Teams</p>
               <p>You need at least {minTeams} teams to generate a schedule. Currently have {teamsCount}.</p>
             </div>
           )}
 
           {hasEnoughTeams && availableDays > 0 && !hasEnoughDays && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 text-sm text-yellow-800">
+            <div className="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-md p-3 text-sm text-yellow-800 dark:text-yellow-300">
               <p className="font-medium">Not Enough Days</p>
               <p>
                 You need at least {daysNeeded} days for {requiredMatches} matches at {matchesPerDay} matches per day. 
