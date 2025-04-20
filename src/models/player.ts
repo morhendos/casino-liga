@@ -19,6 +19,7 @@ export interface PlayerDocument extends mongoose.Document {
   profileImage?: string;
   isActive: boolean;
   createdBy?: ObjectId;     // Reference to admin user who created this player
+  league: ObjectId;         // Reference to the league this player belongs to
   // Invitation fields
   status: 'invited' | 'active' | 'inactive';
   invitationSent: boolean;
@@ -100,6 +101,12 @@ const playerSchema = new mongoose.Schema({
     required: false, // Optional field to track who created the player
     index: true
   },
+  league: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'League',
+    required: true, // Players must belong to a league
+    index: true
+  },
   // Invitation fields
   status: {
     type: String,
@@ -122,5 +129,6 @@ const playerSchema = new mongoose.Schema({
 // Add indexes for performance
 playerSchema.index({ nickname: 'text' });
 playerSchema.index({ invitationToken: 1 }, { sparse: true }); // For invitation tokens
+playerSchema.index({ league: 1 }); // Index for league lookups
 
 export const PlayerModel = mongoose.models.Player || mongoose.model<PlayerDocument>('Player', playerSchema);
