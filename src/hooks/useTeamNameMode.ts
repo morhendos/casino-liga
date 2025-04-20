@@ -5,7 +5,7 @@ import { getRandomTeamName } from '@/utils/teamNameSuggestions';
 export type TeamNameMode = 'manual' | 'sequential' | 'funny';
 
 // LocalStorage key
-const TEAM_NAME_MODE_KEY = 'casino-liga-team-name-mode';
+const TEAM_NAME_MODE_KEY = 'padeliga-team-name-mode';
 
 export const useTeamNameMode = () => {
   const [teamNameMode, setTeamNameMode] = useLocalStorage<TeamNameMode>(
@@ -21,9 +21,9 @@ export const useTeamNameMode = () => {
 
 export const useTeamName = (teamsCount: number = 0) => {
   const { teamNameMode } = useTeamNameMode();
-  const [teamName, setTeamName] = useLocalStorage<string>('casino-liga-team-name', '');
+  const [teamName, setTeamName] = useLocalStorage<string>('padeliga-team-name', '');
   const [nextSequentialLetter, setNextSequentialLetter] = useLocalStorage<string>(
-    'casino-liga-next-letter',
+    'padeliga-next-letter',
     'A'
   );
 

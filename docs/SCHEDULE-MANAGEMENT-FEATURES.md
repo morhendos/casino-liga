@@ -1,6 +1,6 @@
 # Schedule Management Features
 
-This document outlines the schedule generation and management functionality implemented in Casino Liga.
+This document outlines the schedule generation and management functionality implemented in Padeliga.
 
 ## Overview
 

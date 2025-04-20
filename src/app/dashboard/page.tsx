@@ -16,7 +16,7 @@ function DashboardPage() {
         
         <div className="mt-8">
           <Card className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Welcome to Casino Liga!</h1>
+            <h1 className="text-2xl font-bold mb-4">Welcome to Padeliga!</h1>
             
             <div className="space-y-4">
               <p className="text-lg">
@@ -24,7 +24,7 @@ function DashboardPage() {
               </p>
               
               <p>
-                Welcome to the Casino Padel League! This is your dashboard where you can 
+                Welcome to Padeliga! This is your dashboard where you can 
                 create your player profile, join or create teams, participate in leagues,
                 and track your match results and rankings.
               </p>

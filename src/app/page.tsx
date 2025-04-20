@@ -18,7 +18,7 @@ export default function Home() {
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center">
             <Link href="/" className="text-xl font-bold">
-              Casino Liga
+              Padeliga
             </Link>
           </div>
           
@@ -276,7 +276,7 @@ export default function Home() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Organize Your Padel League?</h2>
           <p className="text-xl max-w-2xl mx-auto mb-8 text-muted-foreground">
-            Join thousands of padel players and organizers who trust Casino Liga to run their competitions.
+            Join thousands of padel players and organizers who trust Padeliga to run their competitions.
           </p>
           <Button size="lg" asChild>
             <Link href={session ? "/dashboard" : "/signup"}>
@@ -292,7 +292,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
               <p className="text-sm text-muted-foreground">
-                &copy; {new Date().getFullYear()} Casino Liga. All rights reserved.
+                &copy; {new Date().getFullYear()} Padeliga. All rights reserved.
               </p>
             </div>
             <div className="flex space-x-4">

@@ -1,6 +1,6 @@
 # Testing Guide for Role-Based Access Control
 
-This document provides guidelines for testing the role-based access control system in the Casino Liga application.
+This document provides guidelines for testing the role-based access control system in the Padeliga application.
 
 ## Prerequisites
 

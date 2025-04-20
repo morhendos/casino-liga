@@ -1,6 +1,6 @@
 # Match Result Recording Features
 
-This document outlines the match result recording functionality implemented in Casino Liga.
+This document outlines the match result recording functionality implemented in Padeliga.
 
 ## Overview
 

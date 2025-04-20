@@ -1,6 +1,6 @@
 # Admin Workflow Implementation Progress
 
-This document tracks the implementation status of the role-based access control and admin workflow features in the Casino Liga application.
+This document tracks the implementation status of the role-based access control and admin workflow features in the Padeliga application.
 
 ## 1. Data Model Adjustments
 

@@ -1,6 +1,6 @@
 # League Management Implementation Plan
 
-This document outlines the plan for completing the League creation and management functionality for admin users in Casino Liga, with checkboxes to track progress.
+This document outlines the plan for completing the League creation and management functionality for admin users in Padeliga, with checkboxes to track progress.
 
 ## Current State
 

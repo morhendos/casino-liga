@@ -4,7 +4,7 @@ This document explains how to use the admin functionality to create and manage p
 
 ## Overview
 
-The Casino Liga system allows administrators to:
+The Padeliga system allows administrators to:
 
 1. Create players directly within league management
 2. Create leagues with detailed settings

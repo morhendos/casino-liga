@@ -1,6 +1,6 @@
-# Implementation Plan: Role-Based Access Control for Casino Liga
+# Implementation Plan: Role-Based Access Control for Padeliga
 
-This document outlines the comprehensive plan to implement role-based access control in the Casino Liga application, with two main roles:
+This document outlines the comprehensive plan to implement role-based access control in the Padeliga application, with two main roles:
 - **Admin users**: Can create and manage leagues, and have full access to all features
 - **Player users**: Can only see and interact with leagues they're part of
 

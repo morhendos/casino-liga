@@ -24,11 +24,11 @@ export class EmailService {
       // In a real implementation, this would use an email service like SendGrid, AWS SES, etc.
       // For now, we'll just log the email that would be sent
       logger.info(`SENDING INVITATION EMAIL to ${player.email}:
-        Subject: You've been invited to join Casino Liga
+        Subject: You've been invited to join Padeliga
         Body: 
         Hello ${player.nickname},
         
-        You've been invited to join Casino Liga! Click the link below to create your account:
+        You've been invited to join Padeliga! Click the link below to create your account:
         ${invitationLink}
         
         This invitation will expire in 7 days.
