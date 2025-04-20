@@ -147,9 +147,14 @@ async function validateStatusTransition(league: any, currentStatus: string, newS
     }
   }
   
-  // Completed and canceled states are terminal
-  else if (currentStatus === 'completed' || currentStatus === 'canceled') {
+  // Completed state is terminal, but canceled can go back to draft
+  else if (currentStatus === 'completed') {
     throw new Error(`Invalid status transition: Cannot change status from ${currentStatus}`);
+  }
+  else if (currentStatus === 'canceled') {
+    if (newStatus !== 'draft') {
+      throw new Error('Invalid status transition: Canceled league can only be restored to Draft status');
+    }
   }
 }
 
@@ -187,6 +192,14 @@ async function handleStatusSpecificOperations(league: any, currentStatus: string
     await cancelScheduledMatches(league._id);
     
     // Any other cancellation tasks
+  }
+  
+  // When restoring a canceled league to draft
+  else if (newStatus === 'draft' && currentStatus === 'canceled') {
+    // Clear the cancellation date
+    league.canceledAt = null;
+    
+    // Any other restoration tasks
   }
 }
 
