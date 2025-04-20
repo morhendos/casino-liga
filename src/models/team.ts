@@ -8,6 +8,7 @@ export interface TeamDocument extends mongoose.Document {
   description?: string;
   isActive: boolean;
   createdBy: ObjectId;  // Reference to the User who created this team
+  league: ObjectId;     // Reference to the league this team belongs to
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,6 +51,12 @@ const teamSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
+  },
+  league: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'League',
+    required: true, // Teams must belong to a league
+    index: true
   }
 }, {
   timestamps: true
@@ -58,6 +65,7 @@ const teamSchema = new mongoose.Schema({
 // Add indexes for performance
 teamSchema.index({ name: 'text' });
 teamSchema.index({ players: 1 });
+teamSchema.index({ league: 1 }); // Index for league lookups
 
 // Method to check if a player is part of this team
 teamSchema.methods.hasPlayer = function(playerId: string | ObjectId): boolean {
