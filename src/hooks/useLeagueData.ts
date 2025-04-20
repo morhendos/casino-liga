@@ -10,6 +10,7 @@ export interface Player {
   status?: string;
   handedness?: string;
   preferredPosition?: string;
+  league?: string; // League this player belongs to
 }
 
 export interface Team {
@@ -17,6 +18,7 @@ export interface Team {
   _id: string;
   name: string;
   players: Player[];
+  league?: string; // League this team belongs to
 }
 
 export interface League {
@@ -26,14 +28,20 @@ export interface League {
   teams: Team[];
 }
 
-export const useAvailablePlayers = () => {
+export const useAvailablePlayers = (leagueId?: string) => {
   const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchAvailablePlayers = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/admin/players");
+      // Add league filter if leagueId is provided
+      let url = "/api/admin/players";
+      if (leagueId) {
+        url += `?leagueId=${leagueId}`;
+      }
+      
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Failed to fetch players");
       }
@@ -52,7 +60,7 @@ export const useAvailablePlayers = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [leagueId]);
 
   const deletePlayer = async (playerId: string) => {
     try {
@@ -125,6 +133,7 @@ export const useLeagueTeams = (leagueId: string) => {
               ...player,
               id: player._id || player.id,
             })) || [],
+          league: leagueId // Ensure the league property is set
         })) || [];
 
       setLeagueTeams(processedTeams);
@@ -206,7 +215,8 @@ export const useLeagueTeams = (leagueId: string) => {
         id: tempId,
         _id: tempId,
         name,
-        players: playerDetails
+        players: playerDetails,
+        league: leagueId // Set the league property
       };
       
       // Optimistically update UI immediately
@@ -228,6 +238,7 @@ export const useLeagueTeams = (leagueId: string) => {
         body: JSON.stringify({
           name,
           players: playerIds,
+          league: leagueId // Include league ID in the request
         }),
       });
 
@@ -281,7 +292,7 @@ export const useLeagueTeams = (leagueId: string) => {
   };
 };
 
-export const usePlayerManagement = () => {
+export const usePlayerManagement = (leagueId?: string) => {
   const [isCreatingPlayer, setIsCreatingPlayer] = useState(false);
 
   const createPlayer = async (playerData: {
@@ -290,16 +301,27 @@ export const usePlayerManagement = () => {
     handedness?: string;
     preferredPosition?: string;
     email?: string;
+    league?: string;
   }) => {
     try {
       setIsCreatingPlayer(true);
+
+      // Make sure we have a league ID, either from params or from the hook
+      const finalLeagueId = playerData.league || leagueId;
+      
+      if (!finalLeagueId) {
+        throw new Error("League ID is required to create a player");
+      }
 
       const response = await fetch("/api/admin/players", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(playerData),
+        body: JSON.stringify({
+          ...playerData,
+          league: finalLeagueId // Always include league ID
+        }),
       });
 
       if (!response.ok) {
