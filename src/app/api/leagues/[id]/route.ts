@@ -261,6 +261,22 @@ export async function DELETE(
       );
     }
     
+    // Get cascade options from the request
+    let cascadeOptions = { deleteTeams: true };
+    
+    // If the request has a body, parse it to get cascade options
+    if (request.headers.get('content-type')?.includes('application/json')) {
+      try {
+        const body = await request.json();
+        cascadeOptions = {
+          ...cascadeOptions,
+          ...body.cascadeOptions
+        };
+      } catch (e) {
+        console.warn('Error parsing request body, using default cascade options:', e);
+      }
+    }
+    
     const results = await withConnection(async () => {
       // 1. Find the league
       const league = await LeagueModel.findById(id);
@@ -285,12 +301,23 @@ export async function DELETE(
       // 4. Delete all rankings associated with this league
       const deletedRankings = await RankingModel.deleteMany({ league: id });
       
-      // 5. Update teams to remove league association
+      // 5. Handle teams based on cascade options
+      let teamsDeleted = 0;
+      let teamsUpdated = 0;
+      
       if (teams.length > 0) {
-        await TeamModel.updateMany(
-          { _id: { $in: teams } },
-          { $unset: { league: 1 } }
-        );
+        if (cascadeOptions.deleteTeams) {
+          // Delete teams if the option is selected
+          const result = await TeamModel.deleteMany({ _id: { $in: teams } });
+          teamsDeleted = result.deletedCount;
+        } else {
+          // Otherwise just remove the league association
+          await TeamModel.updateMany(
+            { _id: { $in: teams } },
+            { $unset: { league: 1 } }
+          );
+          teamsUpdated = teams.length;
+        }
       }
       
       // 6. Delete the league itself
@@ -300,7 +327,8 @@ export async function DELETE(
         league: deletedLeague,
         matches: deletedMatches.deletedCount,
         rankings: deletedRankings.deletedCount,
-        teamsUpdated: teams.length
+        teamsDeleted,
+        teamsUpdated
       };
     });
     
@@ -311,6 +339,7 @@ export async function DELETE(
         leagueName: results.league.name,
         matchesDeleted: results.matches,
         rankingsDeleted: results.rankings,
+        teamsDeleted: results.teamsDeleted,
         teamsUpdated: results.teamsUpdated
       }
     });
