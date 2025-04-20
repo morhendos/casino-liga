@@ -122,12 +122,12 @@ export default function BulkGameGenerationForm({
             This will create {teams.length >= 2 ? (teams.length * (teams.length - 1)) / 2 : 0} games in total, one for each possible team matchup.
           </p>
           
-          <div className="bg-amber-50 border border-amber-200 p-4 rounded-md">
+          <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-4 rounded-md">
             <div className="flex">
               <AlertCircle className="h-5 w-5 text-amber-500 mr-2 flex-shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-medium text-amber-800">Important Note</h4>
-                <p className="text-sm text-amber-700">
+                <h4 className="font-medium text-amber-800 dark:text-amber-400">Important Note</h4>
+                <p className="text-sm text-amber-700 dark:text-amber-300">
                   Games will be created without a scheduled date or time. You'll need to schedule each game manually later.
                 </p>
               </div>
@@ -135,12 +135,12 @@ export default function BulkGameGenerationForm({
           </div>
           
           {teams.length < 2 && (
-            <div className="bg-red-50 border border-red-200 p-4 rounded-md">
+            <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 p-4 rounded-md">
               <div className="flex">
                 <AlertCircle className="h-5 w-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-red-800">Not Enough Teams</h4>
-                  <p className="text-sm text-red-700">
+                  <h4 className="font-medium text-red-800 dark:text-red-400">Not Enough Teams</h4>
+                  <p className="text-sm text-red-700 dark:text-red-300">
                     You need at least 2 teams to generate games.
                   </p>
                 </div>
