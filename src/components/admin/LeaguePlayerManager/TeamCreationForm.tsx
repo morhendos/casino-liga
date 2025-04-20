@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Player } from "@/hooks/useLeagueData";
 import { RefreshCcw, X } from "lucide-react";
+import { useEffect } from "react";
 
 interface TeamCreationFormProps {
   selectedPlayers: Player[];
@@ -40,6 +41,16 @@ export default function TeamCreationForm({
   onRemovePlayer,
   onCreateTeam,
 }: TeamCreationFormProps) {
+  // Ensure all selected players have the league ID set
+  useEffect(() => {
+    // Set league property for all selected players if missing
+    selectedPlayers.forEach(player => {
+      if (!player.league) {
+        player.league = leagueId;
+      }
+    });
+  }, [selectedPlayers, leagueId]);
+
   return (
     <Card>
       <CardHeader>
@@ -118,6 +129,9 @@ export default function TeamCreationForm({
               </ul>
             )}
           </div>
+          
+          {/* Hidden info about league ID */}
+          <input type="hidden" name="leagueId" value={leagueId} />
         </div>
 
         <Button
