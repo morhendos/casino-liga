@@ -99,12 +99,13 @@ export async function POST(
         throw new Error('One or more players are inactive');
       }
       
-      // 4. Create the team
+      // 4. Create the team with league ID
       const team = new TeamModel({
         name: data.name.trim(),
         players: playerIds,
         isActive: true,
-        createdBy: session.user.id
+        createdBy: session.user.id,
+        league: new mongoose.Types.ObjectId(leagueId) // Properly set the league ID
       });
       
       const savedTeam = await team.save();
