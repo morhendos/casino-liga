@@ -145,7 +145,7 @@ export default function InvitePage() {
             </h1>
             {playerInfo && (
               <p className="mt-2 text-gray-600 dark:text-gray-300">
-                You've been invited to join Casino Liga!
+                You've been invited to join Padeliga!
               </p>
             )}
           </div>
