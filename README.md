@@ -1,4 +1,6 @@
-# Casino Liga
+# Padeliga
+
+*Tu liga. Tu juego.*
 
 A management system for padel leagues and tournaments.
 
@@ -31,7 +33,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 This application requires MongoDB. By default, it connects to a local MongoDB instance at:
 
 ```
-mongodb://localhost:27017/casino_liga
+mongodb://localhost:27017/padeliga
 ```
 
 To use a different MongoDB instance, set the `MONGODB_URI` environment variable in your `.env.local` file.
