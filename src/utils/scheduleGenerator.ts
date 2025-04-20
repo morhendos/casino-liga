@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongoose';
-import { MatchModel, LeagueModel } from '@/models';
+import { MatchModel, LeagueModel, TeamModel } from '@/models';
 import { createLogger } from '@/lib/logger';
 
 // Initialize logger
@@ -133,9 +133,42 @@ export async function createLeagueSchedule(leagueId: string | ObjectId): Promise
   
   logger.info(`Found league: ${league.name}, teams: ${league.teams.length}, scheduleGenerated: ${league.scheduleGenerated}`);
   
-  if (league.teams.length < 2) {
-    logger.error(`Not enough teams: ${league.teams.length}`);
-    throw new Error('League must have at least 2 teams to generate a schedule');
+  // Verify all teams belong to this league
+  const teamIds = league.teams.map(team => team.toString());
+  logger.info(`Team IDs from league: ${JSON.stringify(teamIds)}`);
+  
+  // Fetch the actual teams to verify they exist and have the correct league ID
+  const teams = await TeamModel.find({ 
+    _id: { $in: teamIds }
+  }).lean();
+  
+  logger.info(`Found ${teams.length} out of ${teamIds.length} referenced teams`);
+  
+  // Filter out teams that don't have the correct league ID
+  const validTeams = teams.filter(team => {
+    if (!team.league) {
+      logger.warn(`Team ${team._id} missing league reference`);
+      return false;
+    }
+    
+    const teamLeagueId = team.league.toString();
+    const isValid = teamLeagueId === leagueId.toString();
+    
+    if (!isValid) {
+      logger.warn(`Team ${team._id} has incorrect league: ${teamLeagueId} != ${leagueId}`);
+    }
+    
+    return isValid;
+  });
+  
+  logger.info(`Valid teams for this league: ${validTeams.length}`);
+  
+  // Get valid team IDs
+  const validTeamIds = validTeams.map(team => team._id);
+  
+  if (validTeamIds.length < 2) {
+    logger.error(`Not enough valid teams: ${validTeamIds.length}`);
+    throw new Error('League must have at least 2 valid teams to generate a schedule');
   }
   
   if (league.scheduleGenerated) {
@@ -143,15 +176,11 @@ export async function createLeagueSchedule(leagueId: string | ObjectId): Promise
     throw new Error('Schedule has already been generated for this league');
   }
   
-  // Log team IDs for debugging
-  const teamIds = league.teams.map(team => team.toString());
-  logger.info(`Team IDs: ${JSON.stringify(teamIds)}`);
-  
-  // Generate the schedule
-  logger.info('Generating match data');
+  // Generate the schedule with valid teams only
+  logger.info('Generating match data with valid teams');
   const matchData = await generateRoundRobinSchedule(
     leagueId,
-    league.teams,
+    validTeamIds,
     league.startDate,
     league.endDate,
     league.venue
