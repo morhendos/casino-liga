@@ -84,7 +84,18 @@ export default function ScheduleGenerationForm({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to generate schedule");
+        let errorMessage = errorData.error || "Failed to generate schedule";
+        
+        // Check for specific error cases and make messages more user-friendly
+        if (errorMessage === 'League must have at least 2 valid teams to generate a schedule') {
+          errorMessage = 'Schedule generation failed: Some teams do not belong to this league. Please ensure all teams are properly associated with this league.';
+        } else if (errorMessage.includes('Not enough days')) {
+          errorMessage = `Schedule generation failed: Not enough days available to schedule all matches. Please extend the date range or adjust the number of matches per day.`;
+        } else if (errorMessage === 'Schedule has already been generated for this league') {
+          errorMessage = 'A schedule has already been generated for this league. Please clear the existing schedule first before generating a new one.';
+        }
+        
+        throw new Error(errorMessage);
       }
 
       // Successfully generated schedule
@@ -149,6 +160,10 @@ export default function ScheduleGenerationForm({
               <li className="flex items-start">
                 <Check className="h-4 w-4 mr-2 mt-0.5 text-green-500" />
                 <span>Schedule can be regenerated if no matches have been played</span>
+              </li>
+              <li className="flex items-start">
+                <Check className="h-4 w-4 mr-2 mt-0.5 text-green-500" />
+                <span>All teams must be properly associated with this league for scheduling</span>
               </li>
             </ul>
           </div>
