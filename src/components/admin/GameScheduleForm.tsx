@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Card, 
   CardHeader, 
@@ -47,11 +47,24 @@ export default function GameScheduleForm({
   onCancel
 }: GameScheduleFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(
-    match.scheduledDate ? new Date(match.scheduledDate) : new Date()
-  );
+  
+  // Use current date as fallback only for unscheduled games
+  const defaultDate = match.scheduledDate ? 
+    new Date(match.scheduledDate) : 
+    (match.status === 'unscheduled' ? new Date() : undefined);
+  
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(defaultDate);
   const [scheduledTime, setScheduledTime] = useState<string>(match.scheduledTime || "");
   const [location, setLocation] = useState<string>(match.location || "");
+
+  // Update local state if match prop changes (useful for rescheduling)
+  useEffect(() => {
+    if (match.scheduledDate) {
+      setScheduledDate(new Date(match.scheduledDate));
+    }
+    setScheduledTime(match.scheduledTime || "");
+    setLocation(match.location || "");
+  }, [match]);
 
   const handleSubmit = async () => {
     if (!scheduledDate) {
@@ -92,13 +105,7 @@ export default function GameScheduleForm({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Schedule Game</CardTitle>
-        <CardDescription>
-          {match.teamA.name} vs {match.teamB.name}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="date">Game Date</Label>
