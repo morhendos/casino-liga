@@ -244,7 +244,7 @@ export default function ScheduleManagementTable({
               <AlertDialogHeader>
                 <AlertDialogTitle>Clear Schedule</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will delete all scheduled matches for this league. This action cannot be undone.
+                  This will remove all schedule information (dates, times and locations) from matches in this league, but will keep the matches themselves. The games will remain available for scheduling. This action cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
