@@ -14,7 +14,7 @@
 
 ## Admin Flow
 
-The admin flow for managing a padel league in Casino Liga is as follows:
+The admin flow for managing a padel league in Padeliga is as follows:
 
 1. **Create a League**
    - Set league details (name, description, dates)
