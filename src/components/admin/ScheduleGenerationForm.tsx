@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // Moved import to the top
 import { 
   Card, 
   CardHeader, 
@@ -43,6 +44,8 @@ export default function ScheduleGenerationForm({
   venue,
   onScheduleGenerated
 }: ScheduleGenerationFormProps) {
+  const router = useRouter(); // Initialize the router hook
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [algorithm, setAlgorithm] = useState("round-robin");
@@ -407,6 +410,3 @@ export default function ScheduleGenerationForm({
     </Card>
   );
 }
-
-// Import router for navigation to edit page
-import { useRouter } from "next/navigation";
