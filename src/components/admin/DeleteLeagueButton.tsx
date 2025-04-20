@@ -56,7 +56,24 @@ export function DeleteLeagueButton({ leagueId, leagueName, onDeleted }: DeleteLe
       
       const result = await response.json();
       
-      toast.success(`League "${leagueName}" deleted successfully`);
+      // Create detailed success message with counts of deleted items
+      const deletedItems = [];
+      if (result.details.teamsDeleted > 0) {
+        deletedItems.push(`${result.details.teamsDeleted} team${result.details.teamsDeleted !== 1 ? 's' : ''}`);
+      }
+      if (result.details.playersDeleted > 0) {
+        deletedItems.push(`${result.details.playersDeleted} player${result.details.playersDeleted !== 1 ? 's' : ''}`);
+      }
+      if (result.details.matchesDeleted > 0) {
+        deletedItems.push(`${result.details.matchesDeleted} match${result.details.matchesDeleted !== 1 ? 'es' : ''}`);
+      }
+      
+      let detailsMessage = '';
+      if (deletedItems.length > 0) {
+        detailsMessage = ` (including ${deletedItems.join(', ')})`;
+      }
+      
+      toast.success(`League "${leagueName}" deleted successfully${detailsMessage}`);
       
       // Close the dialog
       setOpen(false);
