@@ -6,7 +6,7 @@ import withAuth from "@/components/auth/withAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calendar, List, Settings, PlusCircle } from "lucide-react";
+import { ArrowLeft, Calendar, List, Settings, PlusCircle, Zap } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { hasRole, ROLES } from "@/lib/auth/role-utils";
@@ -16,6 +16,7 @@ import ScheduleManagementTable from "@/components/admin/ScheduleManagementTable"
 import ScheduleVisualization from "@/components/admin/ScheduleVisualization";
 import GameCreationForm from "@/components/admin/GameCreationForm";
 import GameManagement from "@/components/admin/GameManagement";
+import BulkGameGenerationForm from "@/components/admin/BulkGameGenerationForm";
 
 interface Match {
   id: string;
@@ -376,6 +377,10 @@ function LeagueSchedulePage() {
                 <PlusCircle className="w-4 h-4 mr-2" />
                 Games
               </TabsTrigger>
+              <TabsTrigger value="bulk-games">
+                <Zap className="w-4 h-4 mr-2" />
+                Bulk Generate
+              </TabsTrigger>
               <TabsTrigger value="view" disabled={!hasEnoughTeams || matches.length === 0}>
                 <Calendar className="w-4 h-4 mr-2" />
                 Calendar View
@@ -418,6 +423,28 @@ function LeagueSchedulePage() {
                       </CardContent>
                     </Card>
                   )}
+                </div>
+                
+                <div>
+                  <GameManagement 
+                    leagueId={leagueId}
+                    matches={matches}
+                    isAdmin={isAdmin}
+                    onMatchUpdated={fetchSchedule}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Bulk Game Generation tab */}
+            <TabsContent value="bulk-games">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <BulkGameGenerationForm
+                    leagueId={leagueId}
+                    teams={league?.teams || []} 
+                    onGamesGenerated={fetchSchedule}
+                  />
                 </div>
                 
                 <div>
