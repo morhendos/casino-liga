@@ -8,19 +8,22 @@ import { useEffect, useState } from "react";
 
 interface TeamCardProps {
   team: Team;
+  leagueId?: string; // Add leagueId prop
   showActions?: boolean;
-  onDelete?: (team: Team) => void;
+  onDeleteTeam?: (teamId: string, teamName: string) => Promise<boolean>;
   variant?: 'compact' | 'detailed';
 }
 
-export default function TeamCard({ 
+export function TeamCard({ 
   team, 
+  leagueId, // Use leagueId prop
   showActions = true, 
-  onDelete,
+  onDeleteTeam,
   variant = 'compact'
 }: TeamCardProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Format player names as a comma-separated string
   const playerNames = team.players.map(player => player.nickname).join(' & ');
@@ -34,17 +37,23 @@ export default function TeamCard({
     return () => clearTimeout(timer);
   }, []);
   
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!onDelete) return;
+    if (!onDeleteTeam) return;
     
-    // Animate removal before actually calling onDelete
-    setIsRemoving(true);
-    
-    // Wait for animation to complete before calling delete
-    setTimeout(() => {
-      onDelete(team);
-    }, 300);
+    try {
+      setIsDeleting(true);
+      
+      // Call delete function
+      const success = await onDeleteTeam(team.id, team.name);
+      
+      if (success) {
+        // Animate removal after successful deletion
+        setIsRemoving(true);
+      }
+    } finally {
+      setIsDeleting(false);
+    }
   };
   
   return (
@@ -69,6 +78,13 @@ export default function TeamCard({
               ))}
             </div>
           )}
+          
+          {/* Show league ID in detailed view if available */}
+          {variant === 'detailed' && (leagueId || team.league) && (
+            <div className="text-xs text-muted-foreground mt-1">
+              League: {leagueId || team.league}
+            </div>
+          )}
         </div>
         
         <div className="flex items-center gap-2">
@@ -76,12 +92,13 @@ export default function TeamCard({
             View
           </Button>
           
-          {showActions && onDelete && (
+          {showActions && onDeleteTeam && (
             <Button
               variant="ghost"
               size="sm"
               className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
               onClick={handleDelete}
+              disabled={isDeleting}
             >
               <Trash className="h-4 w-4" />
               <span className="sr-only">Delete team</span>
