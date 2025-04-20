@@ -55,7 +55,8 @@ const matchSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator: function(v: string) {
-        return !v || /^([01]\\d|2[0-3]):([0-5]\\d)$/.test(v);
+        // Fixed regex pattern - removed extra backslashes
+        return !v || /^([01]\d|2[0-3]):([0-5]\d)$/.test(v);
       },
       message: (props: ValidatorProps) => `${props.value} is not a valid time format (HH:MM)`
     }
@@ -136,6 +137,24 @@ const matchSchema = new mongoose.Schema({
 matchSchema.index({ league: 1, scheduledDate: 1 });
 matchSchema.index({ teamA: 1, teamB: 1 });
 matchSchema.index({ status: 1 });
+
+// Fix for duplicate index warning
+// Remove the duplicate league index
+const indexes = matchSchema.indexes();
+const leagueIndexes = indexes.filter(indexDef => {
+  const keys = Object.keys(indexDef[0]);
+  return keys.length === 1 && keys[0] === 'league';
+});
+
+// If there's more than one league index, keep only the first one
+if (leagueIndexes.length > 1) {
+  for (let i = 1; i < leagueIndexes.length; i++) {
+    const indexName = leagueIndexes[i][0].league;
+    if (indexName) {
+      matchSchema.index({ league: indexName }, { background: false });
+    }
+  }
+}
 
 // Method to check if a match has a valid result
 matchSchema.methods.hasValidResult = function(): boolean {
