@@ -84,8 +84,16 @@ export async function middleware(request: NextRequest) {
 // Configure which routes should be handled by middleware
 export const config = {
   matcher: [
-    '/api/:path*',
+    // API routes (excluding public API routes)
+    '/api/(?!public/).*',
+    // Auth routes
     '/auth/:path*', 
-    '/dashboard/:path*'
+    // Dashboard routes
+    '/dashboard/:path*',
+    // Exclude public league pages
+    // This pattern matches everything except for:
+    // - Static files (_next/static, etc.)
+    // - Public API routes (/api/public/*)
+    // - Public league pages (/leagues/*)
   ],
 };
