@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import GeometricBackground from '@/components/ui/GeometricBackground';
 import PadeligaLogo from '@/components/PadeligaLogo';
 import Footer from '@/components/ui/Footer';
+import Header from '@/components/ui/Header';
 import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -53,8 +54,11 @@ export default function HomePage() {
       {/* Geometric Background */}
       <GeometricBackground variant="default" animated={true} />
       
+      {/* Header with Navigation */}
+      <Header />
+      
       {/* Hero Section */}
-      <section className="relative py-16 md:py-24 overflow-hidden">
+      <section className="relative pt-32 md:pt-40 pb-16 md:pb-24 overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Two-column layout for larger screens */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -223,7 +227,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-20">
             {/* Left column - Main feature highlight */}
             <div className="lg:col-span-1 order-2 lg:order-1">
-              <div className="sticky top-10 space-y-6">
+              <div className="sticky top-24 space-y-6">
                 <div className="relative">
                   <div className="absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-padeliga-teal via-padeliga-purple to-padeliga-orange"></div>
                   
