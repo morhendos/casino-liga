@@ -1,89 +1,86 @@
-# Design Update Documentation
+# UI Design Enhancements
 
-## Overview
+This document outlines the design principles and specific changes implemented to enhance the Padeliga platform's visual identity and user experience.
 
-This document outlines the design updates made to align the UI with the Padeliga logo's aesthetic. The changes focus on maintaining visual consistency with the logo's design language.
+## Design Principles
 
-## Logo Integration
+The UI redesign is centered around the following core principles:
 
-- The Padeliga logo has been properly integrated throughout the application
-- Logo sizing has been adjusted to fit different contexts
-- Removed redundant "TU LIGA. TU JUEGO." text since it's already in the logo
+1. **Brand Consistency**: All UI elements are aligned with the Padeliga logo's aesthetic.
+2. **Solid Colors**: Replaced gradients with solid colors from the logo palette.
+3. **Angular Geometry**: Removed rounded corners in favor of straight edges that match the logo's style.
+4. **Enhanced Geometric Elements**: Background shapes echo the logo's angular style.
+5. **Improved Visual Hierarchy**: Better organization of content with clearer emphasis on key elements.
 
 ## Color System
 
-We've adopted the color palette directly from the logo:
+The color system has been updated to use solid colors directly from the logo palette:
 
-- **Teal** (`hsl(210, 79%, 46%)`) - Primary color for buttons and highlights
-- **Orange** (`hsl(37, 91%, 55%)`) - Used for CTAs and accent elements
-- **Purple** (`hsl(278, 65%, 56%)`) - For secondary elements and status indicators
-- **Green** (`hsl(84, 67%, 58%)`) - For success states and specific UI elements
-- **Red** (`hsl(350, 73%, 65%)`) - For warnings, errors, and special highlights
-
-## Design Principles Aligned with Logo
-
-### Solid Colors vs. Gradients
-
-- Removed all gradient elements
-- Replaced with solid colors that match the logo's palette
-- Maintained color opacity/transparency for visual depth
-
-### Geometric Shapes
-
-- Added geometric background elements that echo the logo's style
-- Used overlapping shapes with appropriate opacity
-- Maintained angular design elements consistent with the logo
-
-### Straight Edges
-
-- Removed rounded corners throughout the design
-- Set `--radius: 0` in the theme to keep elements square/rectangular
-- Maintained crisp edges similar to the logo design
+- **Teal** (`hsl(210, 79%, 46%)`): Primary color, used for main UI elements and branding.
+- **Orange** (`hsl(37, 91%, 55%)`): Used for CTAs, highlights, and accent elements.
+- **Purple** (`hsl(278, 65%, 56%)`): Used for secondary elements and visual variety.
+- **Green** (`hsl(84, 67%, 58%)`): Used for success states and positive indicators.
+- **Red** (`hsl(350, 73%, 65%)`): Used for warnings, errors, and attention-grabbing elements.
 
 ## Component Updates
 
 ### Buttons
 
-- Updated button variants to use solid colors from the logo
-- Removed rounded corners
-- Added a special "cta" variant for primary call-to-action buttons
+- Added a special "cta" button variant for primary calls-to-action
+- Implemented solid colors instead of gradients
+- Removed rounded corners to match the logo's angular aesthetic
+- Enhanced hover states with subtle transitions
 
 ### Cards
 
-- Removed gradient borders
-- Added solid color highlight options
-- Removed rounded corners
-- Maintained hover effects for interactivity
+- Updated card styling to use solid colors instead of gradients
+- Added color-coded border accents for different card types
+- Created a "highlight" card variant for featured content
+- Implemented consistent hover effects
 
 ### Badges
 
-- Updated to use solid colors that match the logo
-- Removed rounded corners
-- Kept subtle variants with transparent backgrounds
+- Updated badge styling to use solid colors from the logo palette
+- Removed rounded corners for a more angular look
+- Improved contrast for better readability
 
-## Page Updates
+### Background Elements
+
+- Enhanced geometric background with more varied shapes
+- Aligned shapes with the logo's angular aesthetic
+- Improved animation timings for a more subtle, professional feel
+- Added additional background shapes for more visual interest
+
+## Page-Specific Improvements
 
 ### Landing Page
 
-- Updated hero section with properly sized logo
-- Replaced gradient CTA button with solid orange
-- Changed the "¿Listo para comenzar?" section to use solid orange background
-- Enhanced geometric background elements
+- Redesigned hero section with improved visual hierarchy
+- Enhanced feature cards with icons and color-coded borders
+- Added testimonial section to build trust
+- Improved CTA section with geometric background elements
+- Enhanced footer with better organization and visual structure
+- Added newsletter subscription section
+- Improved spacing and alignment throughout
 
-### Public League Pages
+### Authentication
 
-- Updated header and card components to use solid colors
-- Adjusted badges to use colors from the logo
-- Maintained visual consistency with straight edges
+- Fixed authentication flow to properly redirect users after login
+- Updated Home page to detect logged-in users and redirect to dashboard
+- Improved login page styling to match the new design system
 
-## Implementation Notes
+## Implementation Details
 
-1. **CSS Variables**: Added logo colors as CSS variables for consistent usage
-2. **Border Radius**: Set to 0 to match the logo's straight edges
-3. **Color Consistency**: Ensured all color usage comes from the logo palette
+- Set `--radius: 0` in the theme to remove rounded corners
+- Updated color variables in CSS to use the logo palette
+- Enhanced geometric background components with additional shapes
+- Added new animations in Tailwind config
+- Integrated Lucide icons throughout the interface for visual consistency
+- Improved responsive behavior across all device sizes
 
-## Future Considerations
+## Future Improvements
 
-- Further refinement of geometric shapes to more closely match logo styling
-- Potential development of custom icon set that follows the same design language
-- Animation enhancements that maintain the geometric visual language
+- Consider adding subtle animations to interactive elements
+- Explore microinteractions to enhance user experience
+- Develop component guidelines to ensure consistency as the application grows
+- Create a design system documentation for future development
