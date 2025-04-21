@@ -161,7 +161,7 @@ export default function Header() {
             </button>
             
             {status === 'authenticated' ? (
-              {/* Dashboard button with logo-inspired hover effect */}
+              // Dashboard button with logo-inspired hover effect
               <div className="relative overflow-hidden group">
                 <Button 
                   variant="default"
