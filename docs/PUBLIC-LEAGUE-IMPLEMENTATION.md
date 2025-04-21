@@ -583,7 +583,7 @@ This document outlines the implementation plan for adding public-facing league p
   }
   ```
 
-- [ ] Add button to league dashboard
+- [x] Add button to league dashboard
   ```tsx
   // Add this to your league dashboard header
   <div className="flex items-center space-x-2">
