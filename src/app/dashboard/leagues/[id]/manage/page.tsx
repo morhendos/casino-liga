@@ -14,6 +14,7 @@ import LeaguePlayerManager from "@/components/admin/LeaguePlayerManager";
 import LeagueStatusManager from "@/components/admin/LeagueStatusManager";
 import LeagueSetupProgress from "@/components/admin/LeagueSetupProgress";
 import { DeleteLeagueButton } from "@/components/admin/DeleteLeagueButton";
+import ShareLeagueButton from "@/components/leagues/ShareLeagueButton";
 
 interface League {
   id: string;
@@ -27,6 +28,7 @@ interface League {
   minTeams: number;
   teams: Team[];
   scheduleGenerated: boolean;
+  isPublic: boolean;
 }
 
 interface Team {
@@ -109,7 +111,8 @@ function LeagueManagePage() {
         teams: data.teams?.map((team: any) => ({
           ...team,
           id: team._id || team.id,
-        })) || []
+        })) || [],
+        isPublic: data.isPublic !== false // Default to true if not specified
       };
       
       setLeague(processedLeague);
@@ -190,10 +193,11 @@ function LeagueManagePage() {
           </Button>
         </div>
         
-        <div>
+        <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold">
             Managing: {league.name}
           </h1>
+          <ShareLeagueButton leagueId={league.id} isPublic={league.isPublic} />
         </div>
       </div>
       
@@ -498,7 +502,7 @@ function LeagueManagePage() {
                   <div>
                     <h3 className="text-lg font-medium mb-4">Edit Settings</h3>
                     <Button variant="outline" asChild>
-                      <Link href={`/dashboard/leagues/${league.id}/edit`}>
+                      <Link href={`/dashboard/leagues/${leagueId}/edit`}>
                         Edit League Details
                       </Link>
                     </Button>
