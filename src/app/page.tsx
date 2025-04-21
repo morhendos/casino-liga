@@ -1,11 +1,48 @@
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import GeometricBackground from '@/components/ui/GeometricBackground';
 import PadeligaLogo from '@/components/PadeligaLogo';
+import { useSession } from 'next-auth/react';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 
 export default function HomePage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/dashboard');
+    }
+  }, [status, router]);
+  
+  // Show loading state while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <span className="ml-2 text-xl">Loading...</span>
+      </div>
+    );
+  }
+  
+  // If authenticated and not yet redirected, show loading
+  if (status === 'authenticated') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <span className="ml-2 text-xl">Redirecting to dashboard...</span>
+      </div>
+    );
+  }
+  
+  // For non-authenticated users, show the landing page
   return (
     <div className="relative min-h-screen">
       {/* Geometric Background */}
