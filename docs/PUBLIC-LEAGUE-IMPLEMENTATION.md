@@ -594,22 +594,22 @@ This document outlines the implementation plan for adding public-facing league p
 
 ### 10. Testing
 
-- [ ] Test each API endpoint
-  - [ ] Public league details
-  - [ ] Public rankings
-  - [ ] Public matches
+- [x] Test each API endpoint
+  - [x] Public league details
+  - [x] Public rankings
+  - [x] Public matches
 
-- [ ] Test public league page rendering
-  - [ ] League with matches and rankings
-  - [ ] League with no matches
-  - [ ] League with no rankings
-  - [ ] Non-existent league (should 404)
+- [x] Test public league page rendering
+  - [x] League with matches and rankings
+  - [x] League with no matches
+  - [x] League with no rankings
+  - [x] Non-existent league (should 404)
 
-- [ ] Test middleware bypass
-  - [ ] Public league should be accessible without login
-  - [ ] Public leagues directory should be accessible without login
-  - [ ] Dashboard routes should still require login
+- [x] Test middleware bypass
+  - [x] Public league should be accessible without login
+  - [x] Public leagues directory should be accessible without login
+  - [x] Dashboard routes should still require login
 
-- [ ] Test sharing functionality
-  - [ ] Copy to clipboard works
-  - [ ] Shared link resolves to correct league
+- [x] Test sharing functionality
+  - [x] Copy to clipboard works
+  - [x] Shared link resolves to correct league
