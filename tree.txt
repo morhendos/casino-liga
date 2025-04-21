@@ -2,6 +2,7 @@ root/
 ├── ANALYTICS-IMPROVEMENTS.md
 ├── IMPLEMENTATION-STATUS.md
 ├── README.md
+├── REBRANDING.md
 ├── SETUP.md
 ├── docs
 │   ├── ADMIN-INVITATION-FLOW.md
@@ -13,6 +14,8 @@ root/
 │   ├── MATCH-RESULT-RECORDING-FEATURES.md
 │   ├── PLAYER-TEAM-LEAGUE-FLOW.md
 │   ├── PROGRESS-REPORT.md
+│   ├── PUBLIC-LEAGUE-FEATURE.md
+│   ├── PUBLIC-LEAGUE-IMPLEMENTATION.md
 │   ├── ROLE-BASED-ACCESS-PLAN.md
 │   ├── ROLE-USAGE.md
 │   ├── SCHEDULE-MANAGEMENT-FEATURES.md
@@ -29,6 +32,12 @@ root/
 │   └── tree.js
 ├── src
 │   ├── app
+│   │   ├── (public)
+│   │   │   ├── layout.tsx
+│   │   │   └── leagues
+│   │   │       ├── [id]
+│   │   │       │   └── page.tsx
+│   │   │       └── page.tsx
 │   │   ├── actions.ts
 │   │   ├── api
 │   │   │   ├── admin
@@ -88,6 +97,15 @@ root/
 │   │   │   │   ├── leagues
 │   │   │   │   │   └── route.ts
 │   │   │   │   └── route.ts
+│   │   │   ├── public
+│   │   │   │   └── leagues
+│   │   │   │       ├── [id]
+│   │   │   │       │   ├── matches
+│   │   │   │       │   │   └── route.ts
+│   │   │   │       │   ├── rankings
+│   │   │   │       │   │   └── route.ts
+│   │   │   │       │   └── route.ts
+│   │   │   │       └── route.ts
 │   │   │   └── teams
 │   │   │       ├── [id]
 │   │   │       │   └── route.ts
@@ -207,10 +225,19 @@ root/
 │   │   │   └── ThemeToggle.tsx
 │   │   ├── league
 │   │   │   └── LeagueRankingsTable.tsx
+│   │   ├── leagues
+│   │   │   ├── ShareLeagueButton.tsx
+│   │   │   └── index.ts
 │   │   ├── loading.tsx
 │   │   ├── matches
 │   │   │   ├── MatchHistoryList.tsx
 │   │   │   └── MatchResultForm.tsx
+│   │   ├── public
+│   │   │   ├── LeagueHeader.tsx
+│   │   │   ├── MatchResults.tsx
+│   │   │   ├── RankingsTable.tsx
+│   │   │   ├── UpcomingMatches.tsx
+│   │   │   └── index.ts
 │   │   ├── settings
 │   │   │   └── HeaderControls.tsx
 │   │   ├── teams
@@ -273,8 +300,11 @@ root/
 │   │   │   ├── config.ts
 │   │   │   ├── error-handler.ts
 │   │   │   ├── index.ts
+│   │   │   ├── leagues.ts
+│   │   │   ├── matches.ts
 │   │   │   ├── mock-connection.ts
 │   │   │   ├── mongodb.ts
+│   │   │   ├── rankings.ts
 │   │   │   ├── simplified-connection.ts
 │   │   │   ├── test-connection.ts
 │   │   │   ├── unified-error-handler.ts
@@ -312,6 +342,7 @@ root/
 │   │   ├── padel.ts
 │   │   └── user.ts
 │   └── utils
+│       ├── date.ts
 │       ├── format.ts
 │       ├── mongodb-utils.ts
 │       ├── scheduleGenerator.ts

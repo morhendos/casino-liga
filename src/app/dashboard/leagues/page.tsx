@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { formatDistance } from "date-fns";
 import withAuth from "@/components/auth/withAuth";
 import { isAdmin as isAdminHelper } from "@/lib/auth/role-utils";
+import { ShareLeagueButton } from "@/components/leagues"; // Add this import
 
 interface League {
   id: string;
@@ -32,6 +33,7 @@ interface League {
   pointsPerWin: number;
   pointsPerLoss: number;
   organizer: any;
+  isPublic?: boolean; // Add this field
 }
 
 interface Team {
@@ -243,7 +245,7 @@ function LeaguesPage() {
   function LeagueCard({ league }: { league: League }) {
     const isRegistrationOpen = 
       league.status === 'registration' && 
-      new Date(league.registrationDeadline) > new Date();
+      league.registrationDeadline && new Date(league.registrationDeadline) > new Date();
     
     const isUserOrganizer = league.organizer && league.organizer.id === session?.user?.id;
     
@@ -263,6 +265,20 @@ function LeaguesPage() {
     // Ensure the league ID is available
     const leagueId = league.id || league._id;
     
+    // Format registration deadline safely with proper error handling
+    const formattedDeadline = (() => {
+      try {
+        if (!league.registrationDeadline) return "Not set";
+        const deadline = new Date(league.registrationDeadline);
+        // Check if date is valid
+        if (isNaN(deadline.getTime())) return "Invalid date";
+        return formatDistance(deadline, new Date(), { addSuffix: true });
+      } catch (error) {
+        console.error("Error formatting deadline:", error);
+        return "Invalid date";
+      }
+    })();
+    
     return (
       <Card>
         <CardHeader>
@@ -277,6 +293,9 @@ function LeaguesPage() {
             {league.status === 'completed' && 
               <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Completed</span>
             }
+            {league.isPublic !== false && (
+              <span className="bg-purple-500 text-white text-xs px-2 py-1 rounded-full">Public</span>
+            )}
           </CardTitle>
           <CardDescription>
             {league.description || "No description provided"}
@@ -296,11 +315,11 @@ function LeaguesPage() {
               <span className="text-muted-foreground">Dates:</span>
               <span>{new Date(league.startDate).toLocaleDateString()} - {new Date(league.endDate).toLocaleDateString()}</span>
             </div>
-            {league.status === 'registration' && (
+            {league.status === 'registration' && league.registrationDeadline && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Registration Deadline:</span>
                 <span className="font-medium">
-                  {formatDistance(new Date(league.registrationDeadline), new Date(), { addSuffix: true })}
+                  {formattedDeadline}
                 </span>
               </div>
             )}
@@ -354,15 +373,23 @@ function LeaguesPage() {
           )}
           
           {isUserOrganizer && (
-            <Button 
-              size="sm"
-              variant="outline"
-              asChild
-            >
-              <Link href={`/dashboard/leagues/${leagueId}/manage`}>
-                Manage
-              </Link>
-            </Button>
+            <>
+              <Button 
+                size="sm"
+                variant="outline"
+                asChild
+              >
+                <Link href={`/dashboard/leagues/${leagueId}/manage`}>
+                  Manage
+                </Link>
+              </Button>
+              
+              {/* Add Share League Button */}
+              <ShareLeagueButton 
+                leagueId={leagueId.toString()} 
+                isPublic={league.isPublic !== false}
+              />
+            </>
           )}
         </CardFooter>
       </Card>

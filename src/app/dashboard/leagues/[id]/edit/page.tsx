@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar as CalendarIcon, ArrowLeft } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -41,6 +42,7 @@ function EditLeaguePage() {
   const [pointsPerWin, setPointsPerWin] = useState(3);
   const [pointsPerLoss, setPointsPerLoss] = useState(0);
   const [status, setStatus] = useState("draft");
+  const [isPublic, setIsPublic] = useState(true);
   
   // Date selection
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -75,6 +77,7 @@ function EditLeaguePage() {
         setPointsPerWin(league.pointsPerWin || 3);
         setPointsPerLoss(league.pointsPerLoss || 0);
         setStatus(league.status || "draft");
+        setIsPublic(league.isPublic !== false); // Default to true if not specified
         
         // Set dates if available
         if (league.startDate) {
@@ -138,7 +141,8 @@ function EditLeaguePage() {
         venue: venue.trim(),
         status,
         pointsPerWin,
-        pointsPerLoss
+        pointsPerLoss,
+        isPublic
       };
       
       // Only add date fields if they are valid dates
@@ -521,6 +525,24 @@ function EditLeaguePage() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="isPublic"
+                    checked={isPublic}
+                    onCheckedChange={(checked) => setIsPublic(checked as boolean)}
+                    disabled={isSubmitting}
+                  />
+                  <Label htmlFor="isPublic" className="font-medium text-sm">
+                    Make this league publicly viewable
+                  </Label>
+                </div>
+                <p className="text-muted-foreground text-xs ml-6">
+                  When enabled, anyone can view this league without logging in.
+                  League details, rankings, and match results will be publicly accessible.
+                </p>
               </div>
             </CardContent>
             

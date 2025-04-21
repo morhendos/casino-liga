@@ -84,8 +84,19 @@ export async function middleware(request: NextRequest) {
 // Configure which routes should be handled by middleware
 export const config = {
   matcher: [
-    '/api/:path*',
+    // Protected API routes (explicitly listed)
+    '/api/leagues/:path*',
+    '/api/matches/:path*',
+    '/api/players/:path*',
+    '/api/teams/:path*',
+    '/api/users/:path*',
+    '/api/auth/:path*',
+    '/api/rankings/:path*',
+    
+    // Auth routes
     '/auth/:path*', 
-    '/dashboard/:path*'
+    
+    // Dashboard routes
+    '/dashboard/:path*',
   ],
 };

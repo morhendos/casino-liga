@@ -23,6 +23,7 @@ export interface LeagueDocument extends mongoose.Document {
   pointsPerWin: number;
   pointsPerLoss: number;
   organizer: ObjectId;
+  isPublic: boolean; // New field for public visibility
   createdAt: Date;
   updatedAt: Date;
   // Methods
@@ -159,6 +160,11 @@ const leagueSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: [true, 'League organizer is required']
+  },
+  isPublic: {
+    type: Boolean,
+    default: true,
+    description: "Controls whether the league is visible to non-authenticated users"
   }
 }, {
   timestamps: true
@@ -169,6 +175,7 @@ leagueSchema.index({ name: 'text' });
 leagueSchema.index({ status: 1 });
 leagueSchema.index({ startDate: 1 });
 leagueSchema.index({ organizer: 1 });
+leagueSchema.index({ isPublic: 1 }); // Add index for isPublic field for efficient querying
 
 // Instance methods
 leagueSchema.methods.isRegistrationOpen = function(): boolean {
