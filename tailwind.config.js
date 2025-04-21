@@ -26,6 +26,8 @@ module.exports = {
         'float-delay-1': 'float 7s ease-in-out 1s infinite',
         'float-delay-2': 'float 8s ease-in-out 2s infinite',
         'float-delay-3': 'float 9s ease-in-out 3s infinite',
+        'float-delay-4': 'float 10s ease-in-out 4s infinite',
+        'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       keyframes: {
         slideIn: {
@@ -36,6 +38,10 @@ module.exports = {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-10px)' },
         },
+        pulse: {
+          '0%, 100%': { opacity: 1 },
+          '50%': { opacity: 0.7 },
+        },
       },
       boxShadow: {
         'colored': '0 4px 14px 0 rgba(var(--accent-rgb), 0.15)',
@@ -43,7 +49,14 @@ module.exports = {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'padeliga-gradient': 'linear-gradient(45deg, hsl(var(--orange)), hsl(var(--teal)), hsl(var(--purple)), hsl(var(--green)), hsl(var(--red)))',
+      },
+      rotate: {
+        '15': '15deg',
+        '30': '30deg',
+      },
+      transitionDuration: {
+        '2000': '2000ms',
+        '3000': '3000ms',
       },
     },
   },
