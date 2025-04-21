@@ -187,11 +187,11 @@ export default function Header() {
                   <span className="absolute top-0 right-0 w-0 h-0.5 bg-padeliga-teal group-hover:w-full transition-all duration-300"></span>
                 </div>
                 
-                {/* Signup button with matching angular design and effects */}
+                {/* Signup button now with PURPLE/VIOLET color */}
                 <div className="relative inline-block group">
                   <Button 
                     variant="default"
-                    className="bg-padeliga-orange border border-padeliga-orange text-white transition-all duration-300 px-6 py-2 flex items-center"
+                    className="bg-padeliga-purple border border-padeliga-purple text-white transition-all duration-300 px-6 py-2 flex items-center"
                     asChild
                   >
                     <Link href="/signup">
@@ -269,10 +269,11 @@ export default function Header() {
               </div>
             ) : (
               <div className="px-4 py-3 space-y-3">
+                {/* Mobile signup button now with PURPLE/VIOLET color */}
                 <div className="relative group w-full">
                   <Button 
                     variant="default"
-                    className="w-full bg-padeliga-orange border border-padeliga-orange text-white px-6 py-2 flex items-center justify-center"
+                    className="w-full bg-padeliga-purple border border-padeliga-purple text-white px-6 py-2 flex items-center justify-center"
                     asChild
                   >
                     <Link href="/signup">
