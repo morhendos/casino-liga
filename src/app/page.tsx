@@ -53,7 +53,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center text-center">
             <div className="mb-8">
-              <PadeligaLogo size="xl" showTagline={true} />
+              <PadeligaLogo size="xl" />
             </div>
             
             <h1 className="heading-accent text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
@@ -65,7 +65,7 @@ export default function HomePage() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="gradient" size="xl" asChild>
+              <Button variant="cta" size="xl" asChild>
                 <Link href="/signup">Comenzar Ahora</Link>
               </Button>
               
@@ -86,7 +86,7 @@ export default function HomePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <Card variant="gradient" hover="raise" className="overflow-hidden">
+            <Card variant="highlight" hover="raise" className="overflow-hidden">
               <div className="p-1">
                 <CardContent className="bg-card p-6">
                   <div className="mb-4 inline-block">
@@ -101,7 +101,7 @@ export default function HomePage() {
             </Card>
             
             {/* Feature 2 */}
-            <Card variant="gradient" hover="raise" className="overflow-hidden">
+            <Card variant="highlight" hover="raise" className="overflow-hidden">
               <div className="p-1">
                 <CardContent className="bg-card p-6">
                   <div className="mb-4 inline-block">
@@ -116,7 +116,7 @@ export default function HomePage() {
             </Card>
             
             {/* Feature 3 */}
-            <Card variant="gradient" hover="raise" className="overflow-hidden">
+            <Card variant="highlight" hover="raise" className="overflow-hidden">
               <div className="p-1">
                 <CardContent className="bg-card p-6">
                   <div className="mb-4 inline-block">
@@ -131,7 +131,7 @@ export default function HomePage() {
             </Card>
             
             {/* Feature 4 */}
-            <Card variant="gradient" hover="raise" className="overflow-hidden">
+            <Card variant="highlight" hover="raise" className="overflow-hidden">
               <div className="p-1">
                 <CardContent className="bg-card p-6">
                   <div className="mb-4 inline-block">
@@ -146,7 +146,7 @@ export default function HomePage() {
             </Card>
             
             {/* Feature 5 */}
-            <Card variant="gradient" hover="raise" className="overflow-hidden">
+            <Card variant="highlight" hover="raise" className="overflow-hidden">
               <div className="p-1">
                 <CardContent className="bg-card p-6">
                   <div className="mb-4 inline-block">
@@ -161,7 +161,7 @@ export default function HomePage() {
             </Card>
             
             {/* Feature 6 */}
-            <Card variant="gradient" hover="raise" className="overflow-hidden">
+            <Card variant="highlight" hover="raise" className="overflow-hidden">
               <div className="p-1">
                 <CardContent className="bg-card p-6">
                   <div className="mb-4 inline-block">
@@ -181,7 +181,7 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-16 relative">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <Card className="bg-padeliga-gradient text-white p-8 text-center">
+          <Card className="bg-padeliga-orange text-white p-8 text-center">
             <h2 className="text-3xl font-bold mb-4">¿Listo para comenzar?</h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto">
               Únete a la comunidad de Padeliga y lleva tus ligas de padel al siguiente nivel.
