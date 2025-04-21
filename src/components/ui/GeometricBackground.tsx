@@ -51,7 +51,7 @@ export function GeometricBackground({
         )}
       />
       
-      {/* Teal Square */}
+      {/* Teal Rectangle */}
       <div
         className={cn(
           'absolute top-1/4 right-10 w-40 h-40 bg-padeliga-teal transform -rotate-12',
@@ -60,7 +60,7 @@ export function GeometricBackground({
         )}
       />
       
-      {/* Purple Rectangle */}
+      {/* Purple Parallelogram */}
       <div
         className={cn(
           'absolute bottom-20 left-1/4 w-60 h-40 bg-padeliga-purple transform rotate-45',
@@ -69,7 +69,7 @@ export function GeometricBackground({
         )}
       />
       
-      {/* Green Parallelogram */}
+      {/* Green Shape */}
       <div
         className={cn(
           'absolute top-1/3 left-1/3 w-72 h-56 bg-padeliga-green transform skew-x-12 rotate-12',
@@ -78,7 +78,7 @@ export function GeometricBackground({
         )}
       />
       
-      {/* Red Triangle */}
+      {/* Red Shape */}
       <div
         className={cn(
           'absolute -bottom-10 -right-10 w-40 h-40 bg-padeliga-red transform -rotate-15',
