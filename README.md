@@ -4,6 +4,15 @@
 
 A management system for padel leagues and tournaments.
 
+## Features
+
+- **League Management**: Create and manage padel leagues with customizable settings
+- **Team Registration**: Form teams of two players and join leagues
+- **Match Scheduling**: Schedule matches between teams, either manually or automatically
+- **Result Tracking**: Record match results and view league standings
+- **Public Leagues**: Make leagues publicly accessible for non-authenticated users
+- **User Authentication**: Secure login and role-based permissions
+
 ## Installation
 
 ```bash
@@ -54,11 +63,16 @@ See `.env.local.template` for a complete list of available environment variables
 ## Project Structure
 
 - `/src/app` - NextJS App Router
+  - `/src/app/(public)` - Public-facing pages (no login required)
+  - `/src/app/api` - API routes including public endpoints
+  - `/src/app/dashboard` - Admin and user dashboard pages (login required)
 - `/src/components` - React components
+  - `/src/components/public` - Components for public pages
 - `/src/lib` - Core functionality
-    - `/src/lib/db` - Database connection and models
-    - `/src/lib/auth` - Authentication mechanisms
+  - `/src/lib/db` - Database connection and models
+  - `/src/lib/auth` - Authentication mechanisms
 - `/src/utils` - Utility functions
+- `/docs` - Documentation files
 
 ## Database Models
 
@@ -67,6 +81,14 @@ See `.env.local.template` for a complete list of available environment variables
 - `League` - League settings and metadata
 - `Match` - Match information and results
 - `Ranking` - Team standings in leagues
+
+## Documentation
+
+For more detailed information about specific features, check the documentation files in the `/docs` directory:
+
+- [Public League Feature](/docs/PUBLIC-LEAGUE-FEATURE.md) - Details about the public league implementation
+- [Implementation Status](/IMPLEMENTATION-STATUS.md) - Current status of feature implementations
+- [Setup Guide](/SETUP.md) - Detailed setup instructions
 
 ## License
 
