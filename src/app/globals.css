@@ -13,16 +13,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
  
-    --primary: 43 74% 49%;
+    --primary: 210 79% 46%; /* Updated to teal color from logo */
     --primary-foreground: 0 0% 100%;
  
-    --secondary: 222.2 84% 4.9%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 278 65% 56%; /* Updated to purple color from logo */
+    --secondary-foreground: 0 0% 100%;
  
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
  
-    --accent: 43 84% 85%;
+    --accent: 37 91% 55%; /* Updated to orange color from logo */
     --accent-foreground: 222.2 47.4% 11.2%;
  
     --destructive: 0 84.2% 60.2%;
@@ -30,10 +30,17 @@
 
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
+    
+    /* Logo-inspired colors */
+    --orange: 37 91% 55%;
+    --teal: 210 79% 46%;
+    --purple: 278 65% 56%;
+    --green: 84 67% 58%;
+    --red: 350 73% 65%;
  
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 43 74% 49%;
+    --ring: 210 79% 46%; /* Updated to match primary */
  
     --radius: 0.5rem;
   }
@@ -48,16 +55,16 @@
     --popover: 240 23% 9%;
     --popover-foreground: 0 0% 98%;
  
-    --primary: 43 74% 49%;
+    --primary: 210 79% 46%; /* Updated to teal color from logo */
     --primary-foreground: 0 0% 100%;
  
-    --secondary: 240 21% 12%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 278 65% 56%; /* Updated to purple color from logo */
+    --secondary-foreground: 0 0% 100%;
  
     --muted: 240 21% 12%;
     --muted-foreground: 210 40% 80%;
  
-    --accent: 43 74% 49%;
+    --accent: 37 91% 55%; /* Updated to orange color from logo */
     --accent-foreground: 0 0% 100%;
  
     --destructive: 0 62.8% 30.6%;
@@ -65,10 +72,17 @@
 
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
+    
+    /* Logo-inspired colors */
+    --orange: 37 91% 55%;
+    --teal: 210 79% 46%;
+    --purple: 278 65% 56%;
+    --green: 84 67% 58%;
+    --red: 350 73% 65%;
  
     --border: 240 21% 15%;
     --input: 240 21% 15%;
-    --ring: 43 74% 49%;
+    --ring: 210 79% 46%; /* Updated to match primary */
   }
 }
  
@@ -109,6 +123,64 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Geometric decorative elements */
+.geometric-shape {
+  position: absolute;
+  z-index: -1;
+  opacity: 0.1;
+  transition: transform 0.3s ease;
+}
+
+.geometric-shape-1 {
+  background-color: hsl(var(--orange));
+  width: 150px;
+  height: 150px;
+  transform: rotate(15deg);
+}
+
+.geometric-shape-2 {
+  background-color: hsl(var(--teal));
+  width: 120px;
+  height: 120px;
+  transform: rotate(45deg);
+}
+
+.geometric-shape-3 {
+  background-color: hsl(var(--purple));
+  width: 100px;
+  height: 100px;
+  transform: rotate(-15deg);
+}
+
+.geometric-shape-4 {
+  background-color: hsl(var(--green));
+  width: 80px;
+  height: 80px;
+  transform: rotate(30deg);
+}
+
+/* Card style enhancements */
+.card-gradient-border {
+  position: relative;
+  border-radius: var(--radius);
+  padding: 1px;
+  background: linear-gradient(
+    45deg, 
+    hsl(var(--orange)), 
+    hsl(var(--teal)), 
+    hsl(var(--purple)), 
+    hsl(var(--green)), 
+    hsl(var(--red))
+  );
+  overflow: hidden;
+}
+
+.card-gradient-border > div {
+  border-radius: calc(var(--radius) - 1px);
+  background: hsl(var(--card));
+  height: 100%;
+}
+
 /* Input styles */
 input,
 select,
@@ -139,6 +211,27 @@ textarea:focus {
   border-color: hsl(var(--ring)) !important;
   outline: none;
   box-shadow: 0 0 0 1px hsl(var(--ring));
+}
+
+/* Heading accents */
+.heading-accent {
+  position: relative;
+  display: inline-block;
+}
+
+.heading-accent::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  height: 3px;
+  width: 40%;
+  background: linear-gradient(
+    90deg, 
+    hsl(var(--orange)), 
+    hsl(var(--teal))
+  );
+  border-radius: 2px;
 }
 
 /* Fix for popover components */
