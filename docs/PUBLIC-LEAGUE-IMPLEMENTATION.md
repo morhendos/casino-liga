@@ -6,7 +6,7 @@ This document outlines the implementation plan for adding public-facing league p
 ## Implementation Checklist
 
 ### 1. Create Public API Routes
-- [ ] Create `/src/app/api/public/leagues/[id]/route.ts`
+- [x] Create `/src/app/api/public/leagues/[id]/route.ts`
   ```typescript
   // Get league details (name, description, dates, etc.)
   export async function GET(
@@ -35,7 +35,7 @@ This document outlines the implementation plan for adding public-facing league p
   }
   ```
 
-- [ ] Create `/src/app/api/public/leagues/[id]/rankings/route.ts`
+- [x] Create `/src/app/api/public/leagues/[id]/rankings/route.ts`
   ```typescript
   // Get league rankings
   export async function GET(
@@ -61,7 +61,7 @@ This document outlines the implementation plan for adding public-facing league p
   }
   ```
 
-- [ ] Create `/src/app/api/public/leagues/[id]/matches/route.ts`
+- [x] Create `/src/app/api/public/leagues/[id]/matches/route.ts`
   ```typescript
   // Get league matches
   export async function GET(
@@ -89,7 +89,7 @@ This document outlines the implementation plan for adding public-facing league p
 
 ### 2. Create Data Fetching Library Functions
 
-- [ ] Create/update `/src/lib/db/leagues.ts` with public fetching function
+- [x] Create/update `/src/lib/db/leagues.ts` with public fetching function
   ```typescript
   export async function getLeagueById(id: string) {
     await connectToDatabase();
@@ -102,7 +102,7 @@ This document outlines the implementation plan for adding public-facing league p
   }
   ```
 
-- [ ] Create/update `/src/lib/db/rankings.ts` with public fetching function
+- [x] Create/update `/src/lib/db/rankings.ts` with public fetching function
   ```typescript
   export async function getLeagueRankings(leagueId: string) {
     await connectToDatabase();
@@ -116,7 +116,7 @@ This document outlines the implementation plan for adding public-facing league p
   }
   ```
 
-- [ ] Create/update `/src/lib/db/matches.ts` with public fetching function
+- [x] Create/update `/src/lib/db/matches.ts` with public fetching function
   ```typescript
   export async function getLeagueMatches(leagueId: string) {
     await connectToDatabase();
@@ -132,7 +132,7 @@ This document outlines the implementation plan for adding public-facing league p
 
 ### 3. Create Public UI Components
 
-- [ ] Create `/src/components/public/LeagueHeader.tsx`
+- [x] Create `/src/components/public/LeagueHeader.tsx`
   ```tsx
   import { formatDate } from '@/utils/date';
   
@@ -178,7 +178,7 @@ This document outlines the implementation plan for adding public-facing league p
   }
   ```
 
-- [ ] Create `/src/components/public/RankingsTable.tsx`
+- [x] Create `/src/components/public/RankingsTable.tsx`
   ```tsx
   export default function RankingsTable({ rankings }) {
     if (!rankings || rankings.length === 0) {
@@ -222,7 +222,7 @@ This document outlines the implementation plan for adding public-facing league p
   }
   ```
 
-- [ ] Create `/src/components/public/MatchResults.tsx`
+- [x] Create `/src/components/public/MatchResults.tsx`
   ```tsx
   import { formatDate } from '@/utils/date';
   
@@ -274,7 +274,7 @@ This document outlines the implementation plan for adding public-facing league p
   }
   ```
 
-- [ ] Create `/src/components/public/UpcomingMatches.tsx`
+- [x] Create `/src/components/public/UpcomingMatches.tsx`
   ```tsx
   import { formatDate } from '@/utils/date';
   
@@ -329,7 +329,7 @@ This document outlines the implementation plan for adding public-facing league p
 
 ### 4. Create Public League Page
 
-- [ ] Create `/src/app/(public)/leagues/[id]/page.tsx`
+- [x] Create `/src/app/(public)/leagues/[id]/page.tsx`
   ```tsx
   import { Metadata } from 'next';
   import { notFound } from 'next/navigation';
@@ -398,7 +398,7 @@ This document outlines the implementation plan for adding public-facing league p
 
 ### 5. Create Public Layout (Optional)
 
-- [ ] Create `/src/app/(public)/layout.tsx` for public pages layout
+- [x] Create `/src/app/(public)/layout.tsx` for public pages layout
   ```tsx
   import Link from 'next/link';
   import { Toaster } from '@/components/ui/toaster';
@@ -447,7 +447,7 @@ This document outlines the implementation plan for adding public-facing league p
 
 ### 6. Create Public Leagues Directory (Optional)
 
-- [ ] Create `/src/app/(public)/leagues/page.tsx` for listing public leagues
+- [x] Create `/src/app/(public)/leagues/page.tsx` for listing public leagues
   ```tsx
   import Link from 'next/link';
   import { getPublicLeagues } from '@/lib/db/leagues';
@@ -514,7 +514,7 @@ This document outlines the implementation plan for adding public-facing league p
 
 ### 7. Update Middleware for Authentication Bypass
 
-- [ ] Update `/src/middleware.ts` to allow public routes
+- [x] Update `/src/middleware.ts` to allow public routes
   ```typescript
   export const config = {
     matcher: [
@@ -526,7 +526,7 @@ This document outlines the implementation plan for adding public-facing league p
 
 ### 8. Add League Visibility Controls
 
-- [ ] Update League model in `/src/models/league.ts`
+- [x] Update League model in `/src/models/league.ts`
   ```typescript
   // Add to the schema
   isPublic: {
@@ -535,7 +535,7 @@ This document outlines the implementation plan for adding public-facing league p
   },
   ```
 
-- [ ] Update League form component to include visibility toggle
+- [x] Update League form component to include visibility toggle
   ```tsx
   <div className="flex items-center space-x-2">
     <Checkbox 
@@ -551,7 +551,7 @@ This document outlines the implementation plan for adding public-facing league p
 
 ### 9. Add Sharing Feature to Dashboard
 
-- [ ] Add sharing component to league dashboard
+- [x] Add sharing component to league dashboard
   ```tsx
   // src/components/leagues/ShareLeagueButton.tsx
   import { Button } from '@/components/ui/button';
