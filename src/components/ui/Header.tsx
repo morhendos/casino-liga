@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import PadeligaLogo from '@/components/PadeligaLogo';
-import { Menu, X, ChevronDown, Sun, Moon } from 'lucide-react';
+import { Menu, X, ChevronDown, Sun, Moon, LogIn, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface NavLinkProps {
@@ -138,12 +138,13 @@ export default function Header() {
             <NavLink href="/contact" label="Contacto" />
           </nav>
 
-          {/* Right side buttons */}
-          <div className="hidden md:flex items-center space-x-3">
-            {/* Theme toggle */}
+          {/* Right side buttons - REDESIGNED */}
+          <div className="hidden md:flex items-center space-x-4">
+            {/* Theme toggle button with enhanced design */}
             <button 
               onClick={toggleDarkMode}
-              className="p-2 text-gray-600 hover:text-padeliga-teal dark:text-gray-300 dark:hover:text-padeliga-teal"
+              className="p-2 text-gray-600 hover:text-padeliga-teal dark:text-gray-300 dark:hover:text-padeliga-teal bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300"
+              aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
             >
               {isDarkMode ? (
                 <Sun className="h-5 w-5" />
@@ -153,27 +154,53 @@ export default function Header() {
             </button>
             
             {status === 'authenticated' ? (
-              <Button variant="teal" asChild>
-                <Link href="/dashboard">Mi Dashboard</Link>
+              <Button 
+                variant="teal"
+                className="relative overflow-hidden group transform transition-transform duration-300 hover:scale-105 shadow-md"
+                asChild
+              >
+                <Link href="/dashboard">
+                  <span className="relative z-10">Mi Dashboard</span>
+                  <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
+                </Link>
               </Button>
             ) : (
-              <>
-                <Button variant="outline" className="border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/5" asChild>
-                  <Link href="/login">Iniciar Sesión</Link>
+              <div className="flex items-center space-x-3">
+                {/* Login button with icon and hover effect */}
+                <Button 
+                  variant="outline" 
+                  className="border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/5 transition-all duration-300 relative overflow-hidden group flex items-center space-x-2"
+                  asChild
+                >
+                  <Link href="/login">
+                    <LogIn className="h-4 w-4 mr-1" />
+                    <span>Iniciar Sesión</span>
+                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-padeliga-teal transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+                  </Link>
                 </Button>
-                <Button variant="teal" asChild>
-                  <Link href="/signup">Registrarse</Link>
+                
+                {/* Signup button with special styling */}
+                <Button 
+                  variant="default"
+                  className="relative overflow-hidden border-2 border-padeliga-orange bg-padeliga-orange text-white group transform transition-all duration-300 hover:translate-y-[-2px] shadow-md"
+                  asChild
+                >
+                  <Link href="/signup" className="flex items-center space-x-2">
+                    <UserPlus className="h-4 w-4 mr-1" />
+                    <span className="relative z-10">Registrarse</span>
+                    <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
+                  </Link>
                 </Button>
-              </>
+              </div>
             )}
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile menu buttons - ENHANCED */}
           <div className="flex items-center md:hidden space-x-3">
             {/* Theme toggle */}
             <button 
               onClick={toggleDarkMode}
-              className="p-2 text-gray-600 hover:text-padeliga-teal dark:text-gray-300 dark:hover:text-padeliga-teal"
+              className="p-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 hover:text-padeliga-teal dark:text-gray-300 dark:hover:text-padeliga-teal transition-colors duration-300"
             >
               {isDarkMode ? (
                 <Sun className="h-5 w-5" />
@@ -184,7 +211,8 @@ export default function Header() {
             
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-gray-600 hover:text-padeliga-teal dark:text-gray-300 dark:hover:text-padeliga-teal"
+              className="p-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 hover:text-padeliga-teal dark:text-gray-300 dark:hover:text-padeliga-teal transition-colors duration-300"
+              aria-label="Toggle menu"
             >
               {mobileMenuOpen ? (
                 <X className="h-6 w-6" />
@@ -196,9 +224,9 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu - ENHANCED */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white dark:bg-gray-800 shadow-lg">
+        <div className="md:hidden bg-white dark:bg-gray-800 shadow-lg border-t border-gray-200 dark:border-gray-700">
           <nav className="py-2">
             <MobileNavLink href="/leagues" label="Ligas" />
             <MobileNavLink href="/features" label="Características" />
@@ -208,17 +236,41 @@ export default function Header() {
             
             {status === 'authenticated' ? (
               <div className="px-4 py-3">
-                <Button variant="teal" className="w-full" asChild>
-                  <Link href="/dashboard">Mi Dashboard</Link>
+                <Button 
+                  variant="teal"
+                  className="w-full relative overflow-hidden group transform transition-transform duration-300 hover:scale-105"
+                  asChild
+                >
+                  <Link href="/dashboard">
+                    <span className="relative z-10">Mi Dashboard</span>
+                    <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
+                  </Link>
                 </Button>
               </div>
             ) : (
-              <div className="px-4 py-3 space-y-2">
-                <Button variant="teal" className="w-full" asChild>
-                  <Link href="/signup">Registrarse</Link>
+              <div className="px-4 py-3 space-y-3">
+                <Button 
+                  variant="default"
+                  className="w-full relative overflow-hidden border-2 border-padeliga-orange bg-padeliga-orange text-white group transform transition-all duration-300 hover:translate-y-[-2px]"
+                  asChild
+                >
+                  <Link href="/signup" className="flex items-center justify-center">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    <span className="relative z-10">Registrarse</span>
+                    <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
+                  </Link>
                 </Button>
-                <Button variant="outline" className="w-full border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/5" asChild>
-                  <Link href="/login">Iniciar Sesión</Link>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/5 transition-all duration-300 relative overflow-hidden group flex items-center justify-center"
+                  asChild
+                >
+                  <Link href="/login">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    <span>Iniciar Sesión</span>
+                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-padeliga-teal transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+                  </Link>
                 </Button>
               </div>
             )}
