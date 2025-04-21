@@ -138,43 +138,56 @@ export default function Header() {
             <NavLink href="/contact" label="Contacto" />
           </nav>
 
-          {/* Right side buttons - REDESIGNED TO MATCH LOGO STYLE */}
+          {/* Right side buttons - COMPLETELY REDESIGNED WITH LOGO-INSPIRED EFFECTS */}
           <div className="hidden md:flex items-center space-x-4">
-            {/* Theme toggle button with angular design */}
+            {/* Theme toggle button with enhanced geometric effect */}
             <button 
               onClick={toggleDarkMode}
-              className="p-2 text-gray-600 hover:text-padeliga-teal dark:text-gray-300 dark:hover:text-padeliga-teal bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300 relative"
+              className="p-2 text-gray-600 hover:text-padeliga-teal dark:text-gray-300 dark:hover:text-padeliga-teal bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300 relative overflow-hidden"
               aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
             >
-              {isDarkMode ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-              {/* Angular accent line */}
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-padeliga-purple transform scale-x-0 hover:scale-x-100 transition-transform origin-left duration-300"></span>
+              <div className="relative z-10">
+                {isDarkMode ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )}
+              </div>
+              {/* Geometric shape that appears on hover */}
+              <div className="absolute top-0 left-0 w-full h-full">
+                <div className="absolute -top-6 -left-6 w-6 h-12 bg-padeliga-purple/20 transform rotate-45 transition-transform duration-300 scale-0 origin-bottom-right hover:scale-100"></div>
+                <div className="absolute -bottom-6 -right-6 w-6 h-12 bg-padeliga-teal/20 transform rotate-45 transition-transform duration-300 scale-0 origin-top-left hover:scale-100"></div>
+              </div>
             </button>
             
             {status === 'authenticated' ? (
-              <div className="relative inline-block group">
+              {/* Dashboard button with logo-inspired hover effect */}
+              <div className="relative overflow-hidden group">
                 <Button 
                   variant="default"
-                  className="bg-padeliga-teal border border-padeliga-teal text-white relative overflow-hidden transition-all duration-300 px-6 py-2"
+                  className="bg-padeliga-teal text-white relative z-10 overflow-hidden transition-all duration-300 px-6 py-2"
                   asChild
                 >
                   <Link href="/dashboard">Mi Dashboard</Link>
                 </Button>
-                {/* Angular accent line and border effect */}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-padeliga-orange group-hover:w-full transition-all duration-300"></span>
-                <span className="absolute top-0 right-0 w-0 h-0.5 bg-padeliga-orange group-hover:w-full transition-all duration-300"></span>
+                
+                {/* Layered geometric hover effects */}
+                <div className="absolute inset-0 overflow-hidden">
+                  {/* Background geometric shapes */}
+                  <div className="absolute top-0 -left-full w-[200%] h-full bg-padeliga-purple/10 transform skew-x-12 group-hover:animate-slide-right transition-all duration-700"></div>
+                  <div className="absolute -top-full left-0 w-full h-[200%] bg-padeliga-orange/10 transform -skew-y-12 group-hover:animate-slide-down transition-all duration-700"></div>
+                  
+                  {/* Border effect */}
+                  <div className="absolute inset-0 border border-transparent group-hover:border-white/30 transition-colors duration-300"></div>
+                </div>
               </div>
             ) : (
               <div className="flex items-center space-x-4">
-                {/* Login button with angular design and underline effect */}
-                <div className="relative inline-block group">
+                {/* Login button with logo-inspired transparency effects */}
+                <div className="relative overflow-hidden group">
                   <Button 
                     variant="outline" 
-                    className="border border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/5 transition-all duration-300 px-6 py-2 flex items-center"
+                    className="border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent relative z-10 transition-all duration-300 px-6 py-2 flex items-center"
                     asChild
                   >
                     <Link href="/login">
@@ -182,38 +195,66 @@ export default function Header() {
                       <span>Iniciar Sesión</span>
                     </Link>
                   </Button>
-                  {/* Angular accent line */}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-padeliga-teal group-hover:w-full transition-all duration-300"></span>
-                  <span className="absolute top-0 right-0 w-0 h-0.5 bg-padeliga-teal group-hover:w-full transition-all duration-300"></span>
+                  
+                  {/* Logo-inspired geometric layered hover effects */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    {/* First layer - diagonal teal trapezoid */}
+                    <div className="absolute -top-full left-0 right-0 h-[200%] bg-padeliga-teal/5 transform skew-y-12 group-hover:top-0 transition-all ease-out duration-300"></div>
+                    
+                    {/* Second layer - bottom teal triangle */}
+                    <div className="absolute top-full left-0 right-0 h-full bg-padeliga-teal/10 group-hover:top-1/2 transition-all ease-out duration-500 delay-100"></div>
+                    
+                    {/* Animated corner effects */}
+                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] border-padeliga-teal/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
+                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] border-padeliga-teal/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
+                  </div>
                 </div>
                 
-                {/* Signup button now with PURPLE/VIOLET color */}
-                <div className="relative inline-block group">
+                {/* Signup button with purple color and advanced logo-inspired effects */}
+                <div className="relative overflow-hidden group">
                   <Button 
                     variant="default"
-                    className="bg-padeliga-purple border border-padeliga-purple text-white transition-all duration-300 px-6 py-2 flex items-center"
+                    className="bg-padeliga-purple border-none text-white relative z-10 transition-all duration-300 px-6 py-2 flex items-center"
                     asChild
                   >
                     <Link href="/signup">
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      <span>Registrarse</span>
+                      <UserPlus className="h-4 w-4 mr-2 relative z-10" />
+                      <span className="relative z-10">Registrarse</span>
                     </Link>
                   </Button>
-                  {/* Angular accent line */}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
-                  <span className="absolute top-0 right-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
+                  
+                  {/* Logo-inspired geometric layered hover effects */}
+                  <div className="absolute inset-0">
+                    {/* Background base layers */}
+                    <div className="absolute inset-0 bg-padeliga-purple"></div>
+                    
+                    {/* Geometric shape overlays that appear on hover */}
+                    <div className="absolute top-0 -right-full w-full h-full bg-padeliga-orange/20 transform skew-x-12 group-hover:right-0 transition-all ease-out duration-500"></div>
+                    <div className="absolute -bottom-full right-0 w-full h-full bg-padeliga-teal/20 transform -skew-x-12 group-hover:bottom-0 transition-all ease-out duration-500 delay-100"></div>
+                    
+                    {/* Diagonal stripes */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-200">
+                      <div className="absolute top-0 left-0 w-3 h-full bg-white/10 transform -skew-x-45"></div>
+                      <div className="absolute top-0 left-1/3 w-3 h-full bg-white/10 transform -skew-x-45"></div>
+                      <div className="absolute top-0 right-1/3 w-3 h-full bg-white/10 transform -skew-x-45"></div>
+                    </div>
+                    
+                    {/* Corner geometric accents */}
+                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[10px] border-l-[10px] border-white/30 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
+                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[10px] border-r-[10px] border-white/30 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Mobile menu buttons - ENHANCED WITH ANGULAR DESIGN */}
+          {/* Mobile menu buttons - WITH ENHANCED LOGO-INSPIRED EFFECTS */}
           <div className="flex items-center md:hidden space-x-3">
-            {/* Theme toggle */}
-            <div className="relative">
+            {/* Theme toggle with geometric effects */}
+            <div className="relative overflow-hidden group">
               <button 
                 onClick={toggleDarkMode}
-                className="p-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 hover:text-padeliga-teal dark:text-gray-300 dark:hover:text-padeliga-teal transition-colors duration-300"
+                className="p-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 hover:text-padeliga-teal dark:text-gray-300 dark:hover:text-padeliga-teal transition-colors duration-300 relative z-10"
               >
                 {isDarkMode ? (
                   <Sun className="h-5 w-5" />
@@ -221,13 +262,17 @@ export default function Header() {
                   <Moon className="h-5 w-5" />
                 )}
               </button>
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-padeliga-purple transform scale-x-0 hover:scale-x-100 transition-transform origin-left duration-300"></span>
+              
+              {/* Geometric corner accents */}
+              <div className="absolute top-0 left-0 w-0 h-0 border-t-[6px] border-l-[6px] border-padeliga-purple/40 group-hover:w-6 group-hover:h-6 transition-all duration-300"></div>
+              <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[6px] border-r-[6px] border-padeliga-purple/40 group-hover:w-6 group-hover:h-6 transition-all duration-300"></div>
             </div>
             
-            <div className="relative">
+            {/* Menu toggle with geometric effects */}
+            <div className="relative overflow-hidden group">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 hover:text-padeliga-teal dark:text-gray-300 dark:hover:text-padeliga-teal transition-colors duration-300"
+                className="p-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 hover:text-padeliga-teal dark:text-gray-300 dark:hover:text-padeliga-teal transition-colors duration-300 relative z-10"
                 aria-label="Toggle menu"
               >
                 {mobileMenuOpen ? (
@@ -236,13 +281,16 @@ export default function Header() {
                   <Menu className="h-6 w-6" />
                 )}
               </button>
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-padeliga-teal transform scale-x-0 hover:scale-x-100 transition-transform origin-left duration-300"></span>
+              
+              {/* Geometric corner accents */}
+              <div className="absolute top-0 left-0 w-0 h-0 border-t-[6px] border-l-[6px] border-padeliga-teal/40 group-hover:w-6 group-hover:h-6 transition-all duration-300"></div>
+              <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[6px] border-r-[6px] border-padeliga-teal/40 group-hover:w-6 group-hover:h-6 transition-all duration-300"></div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu - ENHANCED WITH MATCHING BUTTON STYLES */}
+      {/* Mobile menu - WITH MATCHING LOGO-INSPIRED BUTTON EFFECTS */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white dark:bg-gray-800 shadow-lg border-t border-gray-200 dark:border-gray-700">
           <nav className="py-2">
@@ -254,42 +302,68 @@ export default function Header() {
             
             {status === 'authenticated' ? (
               <div className="px-4 py-3">
-                <div className="relative group w-full">
+                <div className="relative overflow-hidden group w-full">
                   <Button 
                     variant="default"
-                    className="w-full bg-padeliga-teal border border-padeliga-teal text-white px-6 py-2 relative"
+                    className="w-full bg-padeliga-teal text-white px-6 py-2 relative z-10"
                     asChild
                   >
                     <Link href="/dashboard">Mi Dashboard</Link>
                   </Button>
-                  {/* Angular accent line */}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-padeliga-orange group-hover:w-full transition-all duration-300"></span>
-                  <span className="absolute top-0 right-0 w-0 h-0.5 bg-padeliga-orange group-hover:w-full transition-all duration-300"></span>
+                  
+                  {/* Logo-inspired geometric layered hover effects */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    {/* Background geometric shapes */}
+                    <div className="absolute top-0 -left-full w-[200%] h-full bg-padeliga-purple/10 transform skew-x-12 group-hover:animate-slide-right transition-all duration-700"></div>
+                    <div className="absolute -top-full left-0 w-full h-[200%] bg-padeliga-orange/10 transform -skew-y-12 group-hover:animate-slide-down transition-all duration-700"></div>
+                    
+                    {/* Border effect */}
+                    <div className="absolute inset-0 border border-transparent group-hover:border-white/30 transition-colors duration-300"></div>
+                  </div>
                 </div>
               </div>
             ) : (
               <div className="px-4 py-3 space-y-3">
-                {/* Mobile signup button now with PURPLE/VIOLET color */}
-                <div className="relative group w-full">
+                {/* Mobile signup button with matching effects */}
+                <div className="relative overflow-hidden group w-full">
                   <Button 
                     variant="default"
-                    className="w-full bg-padeliga-purple border border-padeliga-purple text-white px-6 py-2 flex items-center justify-center"
+                    className="w-full bg-padeliga-purple text-white px-6 py-2 flex items-center justify-center relative z-10"
                     asChild
                   >
                     <Link href="/signup">
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      <span>Registrarse</span>
+                      <UserPlus className="h-4 w-4 mr-2 relative z-10" />
+                      <span className="relative z-10">Registrarse</span>
                     </Link>
                   </Button>
-                  {/* Angular accent line */}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
-                  <span className="absolute top-0 right-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
+                  
+                  {/* Logo-inspired geometric layered hover effects */}
+                  <div className="absolute inset-0">
+                    {/* Background base layers */}
+                    <div className="absolute inset-0 bg-padeliga-purple"></div>
+                    
+                    {/* Geometric shape overlays that appear on hover */}
+                    <div className="absolute top-0 -right-full w-full h-full bg-padeliga-orange/20 transform skew-x-12 group-hover:right-0 transition-all ease-out duration-500"></div>
+                    <div className="absolute -bottom-full right-0 w-full h-full bg-padeliga-teal/20 transform -skew-x-12 group-hover:bottom-0 transition-all ease-out duration-500 delay-100"></div>
+                    
+                    {/* Diagonal stripes */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-200">
+                      <div className="absolute top-0 left-0 w-3 h-full bg-white/10 transform -skew-x-45"></div>
+                      <div className="absolute top-0 left-1/3 w-3 h-full bg-white/10 transform -skew-x-45"></div>
+                      <div className="absolute top-0 right-1/3 w-3 h-full bg-white/10 transform -skew-x-45"></div>
+                    </div>
+                    
+                    {/* Corner geometric accents */}
+                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[10px] border-l-[10px] border-white/30 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
+                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[10px] border-r-[10px] border-white/30 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
+                  </div>
                 </div>
                 
-                <div className="relative group w-full">
+                {/* Mobile login button with matching effects */}
+                <div className="relative overflow-hidden group w-full">
                   <Button 
                     variant="outline" 
-                    className="w-full border border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/5 px-6 py-2 flex items-center justify-center"
+                    className="w-full border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent px-6 py-2 flex items-center justify-center relative z-10"
                     asChild
                   >
                     <Link href="/login">
@@ -297,9 +371,19 @@ export default function Header() {
                       <span>Iniciar Sesión</span>
                     </Link>
                   </Button>
-                  {/* Angular accent line */}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-padeliga-teal group-hover:w-full transition-all duration-300"></span>
-                  <span className="absolute top-0 right-0 w-0 h-0.5 bg-padeliga-teal group-hover:w-full transition-all duration-300"></span>
+                  
+                  {/* Logo-inspired geometric layered hover effects */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    {/* First layer - diagonal teal trapezoid */}
+                    <div className="absolute -top-full left-0 right-0 h-[200%] bg-padeliga-teal/5 transform skew-y-12 group-hover:top-0 transition-all ease-out duration-300"></div>
+                    
+                    {/* Second layer - bottom teal triangle */}
+                    <div className="absolute top-full left-0 right-0 h-full bg-padeliga-teal/10 group-hover:top-1/2 transition-all ease-out duration-500 delay-100"></div>
+                    
+                    {/* Animated corner effects */}
+                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] border-padeliga-teal/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
+                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] border-padeliga-teal/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
+                  </div>
                 </div>
               </div>
             )}
