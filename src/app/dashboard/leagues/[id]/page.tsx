@@ -25,6 +25,7 @@ import { hasRole, ROLES } from "@/lib/auth/role-utils";
 import { useSession } from "next-auth/react";
 import MatchHistoryList from "@/components/matches/MatchHistoryList";
 import LeagueRankingsTable from "@/components/league/LeagueRankingsTable";
+import ShareLeagueButton from "@/components/leagues/ShareLeagueButton";
 
 interface Team {
   id: string;
@@ -46,6 +47,7 @@ interface League {
   status: string;
   venue?: string;
   organizer: any;
+  isPublic?: boolean;
 }
 
 function LeagueDetailsPage() {
@@ -245,6 +247,9 @@ function LeagueDetailsPage() {
               Analytics
             </Link>
           </Button>
+
+          {/* Share button */}
+          <ShareLeagueButton leagueId={leagueId} isPublic={league.isPublic !== false} />
         </div>
       </div>
       
@@ -304,6 +309,21 @@ function LeagueDetailsPage() {
                     </dd>
                   </div>
                 )}
+
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">Visibility</dt>
+                  <dd className="mt-1">
+                    {league.isPublic !== false ? (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        Public
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+                        Private
+                      </Badge>
+                    )}
+                  </dd>
+                </div>
               </dl>
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-6">
