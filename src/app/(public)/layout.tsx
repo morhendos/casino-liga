@@ -4,6 +4,8 @@
  */
 
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import PadeligaLogo from '@/components/PadeligaLogo';
 
 export default function PublicLayout({
   children,
@@ -12,29 +14,38 @@ export default function PublicLayout({
 }) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <header className="bg-white dark:bg-gray-800 shadow">
+      <header className="bg-white dark:bg-gray-800 shadow-md">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-primary">
-            Padeliga
-            <span className="text-sm ml-2 text-gray-500 dark:text-gray-400 font-normal italic">
-              Tu liga. Tu juego.
-            </span>
+          <Link href="/" className="flex items-center">
+            <PadeligaLogo size="sm" showTagline={false} />
           </Link>
           
           <div className="flex items-center space-x-4">
             <Link
-              href="/login"
-              className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors"
+              href="/leagues"
+              className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal transition-colors"
             >
-              Sign In
+              Ligas
             </Link>
             
+            <div className="h-4 w-px bg-gray-300 dark:bg-gray-700"></div>
+            
             <Link
-              href="/signup"
-              className="text-sm font-medium bg-primary hover:bg-primary/90 text-white rounded-md px-3 py-2 transition-colors"
+              href="/login"
+              className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal transition-colors"
             >
-              Sign Up
+              Iniciar Sesión
             </Link>
+            
+            <Button
+              variant="gradient"
+              size="sm"
+              asChild
+            >
+              <Link href="/signup">
+                Registrarse
+              </Link>
+            </Button>
           </div>
         </div>
       </header>
@@ -47,32 +58,27 @@ export default function PublicLayout({
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <Link href="/" className="text-xl font-bold text-primary">
-                Padeliga
-              </Link>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Tu liga. Tu juego.
-              </p>
+              <PadeligaLogo size="sm" />
             </div>
             
             <div className="flex flex-col md:flex-row gap-4 md:gap-8">
-              <Link href="/" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">
-                Home
+              <Link href="/" className="text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal transition-colors text-center md:text-left">
+                Inicio
               </Link>
-              <Link href="/leagues" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">
-                Leagues
+              <Link href="/leagues" className="text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal transition-colors text-center md:text-left">
+                Ligas
               </Link>
-              <Link href="/login" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">
-                Sign In
+              <Link href="/login" className="text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal transition-colors text-center md:text-left">
+                Iniciar Sesión
               </Link>
-              <Link href="/signup" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">
-                Sign Up
+              <Link href="/signup" className="text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal transition-colors text-center md:text-left">
+                Registrarse
               </Link>
             </div>
           </div>
           
           <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-            © {new Date().getFullYear()} Padeliga. All rights reserved.
+            © {new Date().getFullYear()} Padeliga. Todos los derechos reservados.
           </div>
         </div>
       </footer>
