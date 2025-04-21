@@ -13,16 +13,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
  
-    --primary: 210 79% 46%; /* Updated to teal color from logo */
+    --primary: 210 79% 46%; /* Teal color from logo */
     --primary-foreground: 0 0% 100%;
  
-    --secondary: 278 65% 56%; /* Updated to purple color from logo */
+    --secondary: 278 65% 56%; /* Purple color from logo */
     --secondary-foreground: 0 0% 100%;
  
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
  
-    --accent: 37 91% 55%; /* Updated to orange color from logo */
+    --accent: 37 91% 55%; /* Orange color from logo */
     --accent-foreground: 222.2 47.4% 11.2%;
  
     --destructive: 0 84.2% 60.2%;
@@ -42,7 +42,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 210 79% 46%; /* Updated to match primary */
  
-    --radius: 0.5rem;
+    --radius: 0; /* Removed border radius to match logo */
   }
  
   .dark {
@@ -55,16 +55,16 @@
     --popover: 240 23% 9%;
     --popover-foreground: 0 0% 98%;
  
-    --primary: 210 79% 46%; /* Updated to teal color from logo */
+    --primary: 210 79% 46%; /* Teal color from logo */
     --primary-foreground: 0 0% 100%;
  
-    --secondary: 278 65% 56%; /* Updated to purple color from logo */
+    --secondary: 278 65% 56%; /* Purple color from logo */
     --secondary-foreground: 0 0% 100%;
  
     --muted: 240 21% 12%;
     --muted-foreground: 210 40% 80%;
  
-    --accent: 37 91% 55%; /* Updated to orange color from logo */
+    --accent: 37 91% 55%; /* Orange color from logo */
     --accent-foreground: 0 0% 100%;
  
     --destructive: 0 62.8% 30.6%;
@@ -160,23 +160,14 @@
 }
 
 /* Card style enhancements */
-.card-gradient-border {
+.card-highlight {
   position: relative;
-  border-radius: var(--radius);
   padding: 1px;
-  background: linear-gradient(
-    45deg, 
-    hsl(var(--orange)), 
-    hsl(var(--teal)), 
-    hsl(var(--purple)), 
-    hsl(var(--green)), 
-    hsl(var(--red))
-  );
+  background: hsl(var(--teal));
   overflow: hidden;
 }
 
-.card-gradient-border > div {
-  border-radius: calc(var(--radius) - 1px);
+.card-highlight > div {
   background: hsl(var(--card));
   height: 100%;
 }
@@ -226,12 +217,8 @@ textarea:focus {
   left: 0;
   height: 3px;
   width: 40%;
-  background: linear-gradient(
-    90deg, 
-    hsl(var(--orange)), 
-    hsl(var(--teal))
-  );
-  border-radius: 2px;
+  background: hsl(var(--teal));
+  border-radius: 0; /* No rounded corners */
 }
 
 /* Fix for popover components */
@@ -246,7 +233,6 @@ textarea:focus {
   position: relative;
   z-index: 50;
   background-color: white;
-  border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   color: #000;
@@ -267,7 +253,6 @@ textarea:focus {
 .dialog-content {
   z-index: 50 !important;
   background-color: white !important;
-  border-radius: 8px !important;
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
   color: #000 !important;
@@ -287,7 +272,6 @@ textarea:focus {
 /* Fix for radix select content */
 [data-radix-select-content] {
   background-color: white !important;
-  border-radius: 8px !important;
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
   color: #000 !important;
@@ -302,7 +286,6 @@ textarea:focus {
 /* Fix for radix popover content */
 [data-radix-popper-content-wrapper] > div {
   background-color: white !important;
-  border-radius: 8px !important;
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
@@ -320,7 +303,6 @@ textarea:focus {
   z-index: 50 !important;
   position: relative !important;
   background-color: white !important;
-  border-radius: 8px !important;
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
@@ -346,7 +328,6 @@ div[data-radix-popper-content-wrapper] [role="dialog"],
 div[data-radix-popper-content-wrapper] [role="menu"],
 div[data-radix-popper-content-wrapper] [role="listbox"] {
   background-color: white !important;
-  border-radius: 8px !important;
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
