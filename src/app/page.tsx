@@ -10,7 +10,11 @@ import Footer from '@/components/ui/Footer';
 import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, ChevronRight, Trophy, Calendar, Users, BarChart, Globe, ShieldCheck, ArrowRight, Mail, Check, Play } from 'lucide-react';
+import { 
+  Loader2, ChevronRight, Trophy, Calendar, Users, BarChart, 
+  Globe, ShieldCheck, ArrowRight, Mail, Check, Play, 
+  ArrowUpRight, Star, AlertTriangle, Settings, Zap, Lock
+} from 'lucide-react';
 
 export default function HomePage() {
   const { data: session, status } = useSession();
@@ -186,128 +190,281 @@ export default function HomePage() {
         <div className="absolute -top-20 -left-20 w-40 h-40 bg-padeliga-orange opacity-10 transform -rotate-15"></div>
       </section>
       
-      {/* Features Section */}
-      <section className="py-20 relative bg-gray-50 dark:bg-gray-900">
-        {/* Section decorative shapes */}
-        <div className="absolute top-0 right-0 w-40 h-40 bg-padeliga-purple opacity-5 transform -rotate-15" />
-        <div className="absolute bottom-0 left-0 w-40 h-40 bg-padeliga-green opacity-5 transform rotate-15" />
+      {/* Features Section - COMPLETELY REDESIGNED */}
+      <section className="py-24 relative bg-gray-50 dark:bg-gray-900 overflow-hidden">
+        {/* Top diagonal divider */}
+        <div className="absolute top-0 left-0 right-0 h-16 bg-white dark:bg-gray-800 transform -skew-y-2"></div>
         
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="heading-accent text-3xl font-bold text-center mb-16">
-            Características Principales
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <Card variant="highlight" hover="raise" className="overflow-hidden border-t-4 border-t-padeliga-teal">
-              <div className="p-1">
-                <CardContent className="bg-card p-6">
-                  <div className="mb-5 flex items-center justify-between">
-                    <Badge variant="teal" size="lg">Gestión de Ligas</Badge>
-                    <Trophy className="h-6 w-6 text-padeliga-teal" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">Organiza tu Liga</h3>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Crea y administra ligas con configuraciones personalizables. Controla fechas, 
-                    formatos de partidos, puntuaciones y más.
-                  </p>
-                </CardContent>
-              </div>
-            </Card>
+        {/* Section decorative shapes */}
+        <div className="absolute -top-20 right-0 w-64 h-64 bg-padeliga-purple/5 transform -rotate-15" />
+        <div className="absolute bottom-40 -left-20 w-80 h-80 bg-padeliga-green/5 transform rotate-15" />
+        <div className="absolute bottom-20 right-20 w-40 h-40 bg-padeliga-orange/5 transform rotate-30" />
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mt-8">
+          {/* Section header with enhanced design */}
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <div className="inline-block bg-padeliga-teal/10 px-4 py-1 mb-4">
+              <span className="text-sm font-medium text-padeliga-teal uppercase tracking-wider">
+                Todo lo que necesitas
+              </span>
+            </div>
             
-            {/* Feature 2 */}
-            <Card variant="highlight" hover="raise" className="overflow-hidden border-t-4 border-t-padeliga-purple">
-              <div className="p-1">
-                <CardContent className="bg-card p-6">
-                  <div className="mb-5 flex items-center justify-between">
-                    <Badge variant="purple" size="lg">Equipos</Badge>
-                    <Users className="h-6 w-6 text-padeliga-purple" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">Gestión de Equipos</h3>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Forma equipos de dos jugadores y únete a ligas. Administra los registros 
-                    de jugadores y controla las inscripciones.
-                  </p>
-                </CardContent>
-              </div>
-            </Card>
+            <h2 className="text-4xl font-bold mb-6 relative inline-block">
+              Características Principales
+              <span className="absolute -bottom-2 left-1/4 right-1/4 h-1 bg-padeliga-teal"></span>
+            </h2>
             
-            {/* Feature 3 */}
-            <Card variant="highlight" hover="raise" className="overflow-hidden border-t-4 border-t-padeliga-orange">
-              <div className="p-1">
-                <CardContent className="bg-card p-6">
-                  <div className="mb-5 flex items-center justify-between">
-                    <Badge variant="orange" size="lg">Partidos</Badge>
-                    <Calendar className="h-6 w-6 text-padeliga-orange" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">Programación de Partidos</h3>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Programa partidos entre equipos, ya sea manualmente o automáticamente. 
-                    Gestiona horarios y ubicaciones.
-                  </p>
-                </CardContent>
-              </div>
-            </Card>
-            
-            {/* Feature 4 */}
-            <Card variant="highlight" hover="raise" className="overflow-hidden border-t-4 border-t-padeliga-green">
-              <div className="p-1">
-                <CardContent className="bg-card p-6">
-                  <div className="mb-5 flex items-center justify-between">
-                    <Badge variant="green" size="lg">Resultados</Badge>
-                    <BarChart className="h-6 w-6 text-padeliga-green" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">Seguimiento de Resultados</h3>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Registra los resultados de los partidos y visualiza las clasificaciones 
-                    de la liga en tiempo real.
-                  </p>
-                </CardContent>
-              </div>
-            </Card>
-            
-            {/* Feature 5 */}
-            <Card variant="highlight" hover="raise" className="overflow-hidden border-t-4 border-t-padeliga-red">
-              <div className="p-1">
-                <CardContent className="bg-card p-6">
-                  <div className="mb-5 flex items-center justify-between">
-                    <Badge variant="red" size="lg">Público</Badge>
-                    <Globe className="h-6 w-6 text-padeliga-red" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">Ligas Públicas</h3>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Haz que tus ligas sean accesibles para usuarios no autenticados. 
-                    Comparte fácilmente la información con todos.
-                  </p>
-                </CardContent>
-              </div>
-            </Card>
-            
-            {/* Feature 6 */}
-            <Card variant="highlight" hover="raise" className="overflow-hidden border-t-4 border-t-padeliga-teal">
-              <div className="p-1">
-                <CardContent className="bg-card p-6">
-                  <div className="mb-5 flex items-center justify-between">
-                    <Badge variant="teal" size="lg">Seguridad</Badge>
-                    <ShieldCheck className="h-6 w-6 text-padeliga-teal" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">Autenticación Segura</h3>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Inicio de sesión seguro y permisos basados en roles para proteger 
-                    la integridad de tus datos.
-                  </p>
-                </CardContent>
-              </div>
-            </Card>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Padeliga ofrece todas las herramientas que necesitas para gestionar tus ligas de padel de forma profesional y sin complicaciones.
+            </p>
           </div>
           
-          <div className="mt-12 text-center">
-            <Link href="/leagues" className="inline-flex items-center text-padeliga-teal hover:text-padeliga-teal/80 font-medium">
-              Ver todas las características
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+          {/* Features tabs for interactive display */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-20">
+            {/* Left column - Main feature highlight */}
+            <div className="lg:col-span-1 order-2 lg:order-1">
+              <div className="sticky top-10 space-y-6">
+                <div className="relative">
+                  <div className="absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-padeliga-teal via-padeliga-purple to-padeliga-orange"></div>
+                  
+                  {/* Feature navigation buttons */}
+                  <div className="space-y-2 pl-6">
+                    <button className="w-full text-left p-4 bg-padeliga-teal text-white flex items-center justify-between group">
+                      <div className="flex items-center">
+                        <Trophy className="h-6 w-6 mr-3" />
+                        <span className="font-medium">Gestión de Ligas</span>
+                      </div>
+                      <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                    
+                    <button className="w-full text-left p-4 bg-white dark:bg-gray-800 hover:bg-padeliga-purple/10 flex items-center justify-between group transition-colors">
+                      <div className="flex items-center">
+                        <Users className="h-6 w-6 mr-3 text-padeliga-purple" />
+                        <span className="font-medium">Gestión de Equipos</span>
+                      </div>
+                      <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity text-padeliga-purple" />
+                    </button>
+                    
+                    <button className="w-full text-left p-4 bg-white dark:bg-gray-800 hover:bg-padeliga-orange/10 flex items-center justify-between group transition-colors">
+                      <div className="flex items-center">
+                        <Calendar className="h-6 w-6 mr-3 text-padeliga-orange" />
+                        <span className="font-medium">Programación de Partidos</span>
+                      </div>
+                      <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity text-padeliga-orange" />
+                    </button>
+                    
+                    <button className="w-full text-left p-4 bg-white dark:bg-gray-800 hover:bg-padeliga-green/10 flex items-center justify-between group transition-colors">
+                      <div className="flex items-center">
+                        <BarChart className="h-6 w-6 mr-3 text-padeliga-green" />
+                        <span className="font-medium">Seguimiento de Resultados</span>
+                      </div>
+                      <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity text-padeliga-green" />
+                    </button>
+                    
+                    <button className="w-full text-left p-4 bg-white dark:bg-gray-800 hover:bg-padeliga-red/10 flex items-center justify-between group transition-colors">
+                      <div className="flex items-center">
+                        <Globe className="h-6 w-6 mr-3 text-padeliga-red" />
+                        <span className="font-medium">Ligas Públicas</span>
+                      </div>
+                      <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity text-padeliga-red" />
+                    </button>
+                    
+                    <button className="w-full text-left p-4 bg-white dark:bg-gray-800 hover:bg-padeliga-teal/10 flex items-center justify-between group transition-colors">
+                      <div className="flex items-center">
+                        <ShieldCheck className="h-6 w-6 mr-3 text-padeliga-teal" />
+                        <span className="font-medium">Autenticación Segura</span>
+                      </div>
+                      <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity text-padeliga-teal" />
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="pl-6 pt-4">
+                  <Button variant="outline" className="border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/5" asChild>
+                    <Link href="/features" className="flex items-center">
+                      Ver todas las características
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Right column - Feature content display */}
+            <div className="lg:col-span-2 order-1 lg:order-2">
+              <div className="relative">
+                {/* Feature highlight card */}
+                <div className="relative z-10 bg-white dark:bg-gray-800 p-8 shadow-lg border-l-4 border-padeliga-teal">
+                  <div className="flex items-center mb-8">
+                    <div className="h-14 w-14 bg-padeliga-teal/10 flex items-center justify-center mr-4">
+                      <Trophy className="h-8 w-8 text-padeliga-teal" />
+                    </div>
+                    <div>
+                      <Badge variant="teal" size="lg" className="mb-2">Destacado</Badge>
+                      <h3 className="text-2xl font-bold">Gestión de Ligas</h3>
+                    </div>
+                  </div>
+                  
+                  <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
+                    Crea y administra tus ligas de padel con configuraciones personalizadas. 
+                    Controla todos los aspectos: fechas, formatos de partidos, puntuaciones, 
+                    reglas y más.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div className="flex items-start">
+                      <div className="flex-shrink-0 mt-1">
+                        <Zap className="h-5 w-5 text-padeliga-orange" />
+                      </div>
+                      <div className="ml-3">
+                        <h4 className="font-medium mb-1">Creación Rápida</h4>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
+                          Configura una nueva liga en minutos con nuestros asistentes y plantillas.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start">
+                      <div className="flex-shrink-0 mt-1">
+                        <Settings className="h-5 w-5 text-padeliga-orange" />
+                      </div>
+                      <div className="ml-3">
+                        <h4 className="font-medium mb-1">Personalización Total</h4>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
+                          Adapta las reglas, puntuaciones y formatos a tus necesidades específicas.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start">
+                      <div className="flex-shrink-0 mt-1">
+                        <Lock className="h-5 w-5 text-padeliga-orange" />
+                      </div>
+                      <div className="ml-3">
+                        <h4 className="font-medium mb-1">Control de Privacidad</h4>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
+                          Decide quién puede ver, unirse o administrar tu liga.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start">
+                      <div className="flex-shrink-0 mt-1">
+                        <Star className="h-5 w-5 text-padeliga-orange" />
+                      </div>
+                      <div className="ml-3">
+                        <h4 className="font-medium mb-1">Gestión de Rankings</h4>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
+                          Administra clasificaciones automáticas basadas en resultados.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-50 dark:bg-gray-900 p-4 border-l-4 border-padeliga-orange mb-6">
+                    <div className="flex">
+                      <AlertTriangle className="h-5 w-5 text-padeliga-orange mr-3 flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        <strong>Consejo Pro:</strong> Usa nuestras plantillas predefinidas para crear tu liga en segundos, 
+                        y luego personaliza los detalles según necesites.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Feature screenshot/mockup */}
+                  <div className="h-80 bg-gray-100 dark:bg-gray-700 rounded-none overflow-hidden relative">
+                    <div className="absolute top-0 left-0 right-0 h-10 bg-padeliga-teal flex items-center px-4">
+                      <div className="flex space-x-3">
+                        <div className="h-3 w-3 rounded-full bg-red-400"></div>
+                        <div className="h-3 w-3 rounded-full bg-yellow-400"></div>
+                        <div className="h-3 w-3 rounded-full bg-green-400"></div>
+                      </div>
+                      <div className="mx-auto h-5 w-40 bg-white/20"></div>
+                    </div>
+                    
+                    <div className="pt-14 px-4 grid grid-cols-12 gap-4">
+                      {/* Sidebar */}
+                      <div className="col-span-3">
+                        <div className="space-y-2">
+                          <div className="h-8 bg-padeliga-teal/20 w-full"></div>
+                          <div className="h-8 bg-white/20 dark:bg-white/10 w-full"></div>
+                          <div className="h-8 bg-white/20 dark:bg-white/10 w-full"></div>
+                          <div className="h-8 bg-white/20 dark:bg-white/10 w-full"></div>
+                          <div className="h-8 bg-white/20 dark:bg-white/10 w-full"></div>
+                          <div className="mt-8 h-24 bg-padeliga-orange/20 w-full"></div>
+                        </div>
+                      </div>
+                      
+                      {/* Main content */}
+                      <div className="col-span-9">
+                        <div className="h-12 bg-gray-200 dark:bg-gray-600 mb-4 flex items-center px-4">
+                          <div className="h-4 w-32 bg-gray-400 dark:bg-gray-500"></div>
+                          <div className="ml-auto flex space-x-2">
+                            <div className="h-6 w-20 bg-padeliga-orange"></div>
+                            <div className="h-6 w-6 bg-padeliga-teal"></div>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-white dark:bg-gray-600 p-3 h-28">
+                            <div className="h-5 w-24 bg-gray-200 dark:bg-gray-500 mb-2"></div>
+                            <div className="h-3 w-full bg-gray-100 dark:bg-gray-500 mb-1"></div>
+                            <div className="h-3 w-5/6 bg-gray-100 dark:bg-gray-500 mb-1"></div>
+                            <div className="h-3 w-4/6 bg-gray-100 dark:bg-gray-500 mb-3"></div>
+                            <div className="flex justify-end">
+                              <div className="h-5 w-16 bg-padeliga-teal"></div>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white dark:bg-gray-600 p-3 h-28">
+                            <div className="h-5 w-20 bg-gray-200 dark:bg-gray-500 mb-2"></div>
+                            <div className="h-3 w-full bg-gray-100 dark:bg-gray-500 mb-1"></div>
+                            <div className="h-3 w-3/6 bg-gray-100 dark:bg-gray-500 mb-1"></div>
+                            <div className="h-3 w-5/6 bg-gray-100 dark:bg-gray-500 mb-3"></div>
+                            <div className="flex justify-end">
+                              <div className="h-5 w-16 bg-padeliga-teal"></div>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white dark:bg-gray-600 p-3 h-28">
+                            <div className="h-5 w-28 bg-gray-200 dark:bg-gray-500 mb-2"></div>
+                            <div className="h-3 w-full bg-gray-100 dark:bg-gray-500 mb-1"></div>
+                            <div className="h-3 w-4/6 bg-gray-100 dark:bg-gray-500 mb-1"></div>
+                            <div className="h-3 w-5/6 bg-gray-100 dark:bg-gray-500 mb-3"></div>
+                            <div className="flex justify-end">
+                              <div className="h-5 w-16 bg-padeliga-teal"></div>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white dark:bg-gray-600 p-3 h-28">
+                            <div className="h-5 w-16 bg-gray-200 dark:bg-gray-500 mb-2"></div>
+                            <div className="h-3 w-full bg-gray-100 dark:bg-gray-500 mb-1"></div>
+                            <div className="h-3 w-5/6 bg-gray-100 dark:bg-gray-500 mb-1"></div>
+                            <div className="h-3 w-2/6 bg-gray-100 dark:bg-gray-500 mb-3"></div>
+                            <div className="flex justify-end">
+                              <div className="h-5 w-16 bg-padeliga-teal"></div>
+                            </div>
+                          </div>
+                          
+                          <div className="col-span-2 flex justify-center mt-4">
+                            <div className="h-8 w-40 bg-padeliga-orange"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Decorative elements */}
+                <div className="absolute top-6 -right-6 w-12 h-12 bg-padeliga-teal transform rotate-12 z-0"></div>
+                <div className="absolute bottom-6 -left-6 w-12 h-12 bg-padeliga-orange transform -rotate-12 z-0"></div>
+              </div>
+            </div>
           </div>
         </div>
+        
+        {/* Bottom diagonal divider */}
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-white dark:bg-gray-800 transform -skew-y-2"></div>
       </section>
       
       {/* Testimonials Section */}
@@ -387,7 +544,7 @@ export default function HomePage() {
           </div>
           
           {/* Diagonal divider */}
-          <div className="absolute top-0 left-0 right-0 h-12 bg-gray-50 dark:bg-gray-900 transform -skew-y-2"></div>
+          <div className="absolute top-0 left-0 right-0 h-12 bg-white dark:bg-gray-800 transform -skew-y-2"></div>
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 py-20">
