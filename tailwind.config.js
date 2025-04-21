@@ -28,6 +28,10 @@ module.exports = {
         'float-delay-3': 'float 9s ease-in-out 3s infinite',
         'float-delay-4': 'float 10s ease-in-out 4s infinite',
         'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'slide-right': 'slideRight 0.7s ease-out forwards',
+        'slide-down': 'slideDown 0.7s ease-out forwards',
+        'shape-appear': 'shapeAppear 0.4s ease-out forwards',
+        'diagonal-stripe': 'diagonalStripe 1.2s ease-in-out infinite'
       },
       keyframes: {
         slideIn: {
@@ -42,6 +46,22 @@ module.exports = {
           '0%, 100%': { opacity: 1 },
           '50%': { opacity: 0.7 },
         },
+        slideRight: {
+          '0%': { transform: 'translateX(-100%) skew(12deg)' },
+          '100%': { transform: 'translateX(0) skew(12deg)' },
+        },
+        slideDown: {
+          '0%': { transform: 'translateY(-100%) skew(-12deg)' },
+          '100%': { transform: 'translateY(0) skew(-12deg)' },
+        },
+        shapeAppear: {
+          '0%': { transform: 'scale(0)', opacity: 0 },
+          '100%': { transform: 'scale(1)', opacity: 1 },
+        },
+        diagonalStripe: {
+          '0%': { transform: 'translateX(-100%) skew(-45deg)' },
+          '100%': { transform: 'translateX(300%) skew(-45deg)' }
+        }
       },
       boxShadow: {
         'colored': '0 4px 14px 0 rgba(var(--accent-rgb), 0.15)',
@@ -53,6 +73,10 @@ module.exports = {
       rotate: {
         '15': '15deg',
         '30': '30deg',
+        '45': '45deg',
+      },
+      skew: {
+        '45': '45deg',
       },
       transitionDuration: {
         '2000': '2000ms',
