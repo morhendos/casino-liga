@@ -3,16 +3,17 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const cardVariants = cva(
-  "rounded-lg border bg-card text-card-foreground shadow-sm",
+  "border bg-card text-card-foreground shadow-sm",
   {
     variants: {
       variant: {
         default: "",
-        gradient: "card-gradient-border p-0",
+        highlight: "card-highlight p-0",
         teal: "border-padeliga-teal/30 shadow-md hover:shadow-padeliga-teal/20",
         orange: "border-padeliga-orange/30 shadow-md hover:shadow-padeliga-orange/20",
         purple: "border-padeliga-purple/30 shadow-md hover:shadow-padeliga-purple/20",
         green: "border-padeliga-green/30 shadow-md hover:shadow-padeliga-green/20",
+        red: "border-padeliga-red/30 shadow-md hover:shadow-padeliga-red/20",
         elevated: "shadow-md hover:shadow-lg transition-shadow duration-300",
       },
       hover: {
