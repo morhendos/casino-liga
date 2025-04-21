@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
@@ -19,17 +19,15 @@ const badgeVariants = cva(
           "border-transparent bg-success text-success-foreground hover:bg-success/80",
         // Logo-inspired variants
         teal: 
-          "border-transparent bg-padeliga-teal/90 text-white hover:bg-padeliga-teal",
+          "border-transparent bg-padeliga-teal text-white hover:bg-padeliga-teal/90",
         orange: 
-          "border-transparent bg-padeliga-orange/90 text-white hover:bg-padeliga-orange",
+          "border-transparent bg-padeliga-orange text-white hover:bg-padeliga-orange/90",
         purple: 
-          "border-transparent bg-padeliga-purple/90 text-white hover:bg-padeliga-purple",
+          "border-transparent bg-padeliga-purple text-white hover:bg-padeliga-purple/90",
         green: 
-          "border-transparent bg-padeliga-green/90 text-white hover:bg-padeliga-green",
+          "border-transparent bg-padeliga-green text-white hover:bg-padeliga-green/90",
         red: 
-          "border-transparent bg-padeliga-red/90 text-white hover:bg-padeliga-red",
-        gradient:
-          "border-transparent bg-padeliga-gradient text-white",
+          "border-transparent bg-padeliga-red text-white hover:bg-padeliga-red/90",
         // Subtle variants with transparent backgrounds
         "teal-subtle": 
           "border-padeliga-teal/30 bg-padeliga-teal/10 text-padeliga-teal hover:bg-padeliga-teal/20",
