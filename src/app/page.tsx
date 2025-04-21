@@ -9,7 +9,7 @@ import PadeligaLogo from '@/components/PadeligaLogo';
 import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, ChevronRight, Trophy, Calendar, Users, BarChart, Globe, ShieldCheck, ArrowRight, Mail } from 'lucide-react';
+import { Loader2, ChevronRight, Trophy, Calendar, Users, BarChart, Globe, ShieldCheck, ArrowRight, Mail, Check } from 'lucide-react';
 
 export default function HomePage() {
   const { data: session, status } = useSession();
@@ -49,40 +49,140 @@ export default function HomePage() {
       <GeometricBackground variant="default" animated={true} />
       
       {/* Hero Section */}
-      <section className="relative pt-20 pb-32 overflow-hidden">
+      <section className="relative py-16 md:py-24 overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center text-center">
-            <div className="mb-10 transform hover:scale-105 transition-transform duration-300">
-              <PadeligaLogo size="xl" />
+          {/* Two-column layout for larger screens */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left column - Content */}
+            <div className="text-left order-2 lg:order-1">
+              {/* Slogan above heading with better visibility */}
+              <div className="inline-block bg-padeliga-teal/10 px-4 py-2 mb-6 border-l-4 border-padeliga-teal">
+                <span className="text-lg md:text-xl font-semibold text-padeliga-teal">
+                  TU LIGA. TU JUEGO.
+                </span>
+              </div>
+              
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+                Administra Tu Liga de <span className="text-padeliga-teal">Padel</span> con Facilidad
+              </h1>
+              
+              <p className="text-xl mb-8 text-gray-600 dark:text-gray-300 max-w-xl">
+                La plataforma completa para organizar, gestionar y disfrutar de tus ligas de padel 
+                de manera sencilla y eficiente.
+              </p>
+              
+              {/* Feature bullets */}
+              <div className="mb-10 space-y-3">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 mt-1">
+                    <Check className="h-5 w-5 text-padeliga-orange" />
+                  </div>
+                  <p className="ml-3 text-gray-600 dark:text-gray-300">
+                    <strong>Fácil de usar</strong> — Interfaz intuitiva para todos los usuarios
+                  </p>
+                </div>
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 mt-1">
+                    <Check className="h-5 w-5 text-padeliga-orange" />
+                  </div>
+                  <p className="ml-3 text-gray-600 dark:text-gray-300">
+                    <strong>100% personalizable</strong> — Adapta la liga a tus necesidades
+                  </p>
+                </div>
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 mt-1">
+                    <Check className="h-5 w-5 text-padeliga-orange" />
+                  </div>
+                  <p className="ml-3 text-gray-600 dark:text-gray-300">
+                    <strong>Resultados en tiempo real</strong> — Mantén a todos informados
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-5">
+                <Button variant="cta" size="xl" className="min-w-[180px]" asChild>
+                  <Link href="/signup">
+                    Comenzar Ahora
+                    <ChevronRight className="ml-1 h-5 w-5" />
+                  </Link>
+                </Button>
+                
+                <Button variant="outline" size="xl" className="min-w-[180px] border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/5" asChild>
+                  <Link href="/leagues">Explorar Ligas</Link>
+                </Button>
+              </div>
+              
+              {/* Trust indicators */}
+              <div className="mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-gray-500 mb-2">Plataforma Preferida Por:</p>
+                <div className="flex flex-wrap gap-6 items-center">
+                  <div className="h-8 w-24 bg-gray-300 dark:bg-gray-600"></div>
+                  <div className="h-8 w-20 bg-gray-300 dark:bg-gray-600"></div>
+                  <div className="h-8 w-28 bg-gray-300 dark:bg-gray-600"></div>
+                </div>
+              </div>
             </div>
             
-            <h1 className="heading-accent text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-8">
-              Administra Tu Liga de Padel
-            </h1>
-            
-            <p className="text-xl max-w-2xl mb-12 text-gray-600 dark:text-gray-300">
-              La plataforma completa para organizar, gestionar y disfrutar de tus ligas de padel 
-              de manera sencilla y eficiente.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-5">
-              <Button variant="cta" size="xl" className="min-w-[180px]" asChild>
-                <Link href="/signup">
-                  Comenzar Ahora
-                  <ChevronRight className="ml-1 h-5 w-5" />
-                </Link>
-              </Button>
-              
-              <Button variant="outline" size="xl" className="min-w-[180px] border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/5" asChild>
-                <Link href="/leagues">Explorar Ligas</Link>
-              </Button>
+            {/* Right column - Visual */}
+            <div className="flex justify-center items-center order-1 lg:order-2">
+              <div className="relative">
+                {/* Background shape for the visual */}
+                <div className="absolute inset-0 bg-padeliga-orange/5 -m-6 transform rotate-3"></div>
+                
+                {/* Main visual container */}
+                <div className="relative bg-white dark:bg-gray-800 shadow-xl p-8 mb-6">
+                  {/* Logo with slogan better positioned */}
+                  <div className="flex flex-col items-center">
+                    <PadeligaLogo size="lg" showTagline={false} />
+                    
+                    {/* Visual content - mockup of the app */}
+                    <div className="mt-8 h-64 w-full max-w-md bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
+                      {/* Sample mockup UI elements */}
+                      <div className="absolute top-0 left-0 right-0 h-10 bg-padeliga-teal flex items-center px-4">
+                        <div className="w-24 h-4 bg-white/30 rounded-sm"></div>
+                      </div>
+                      
+                      <div className="pt-12 px-4 grid grid-cols-2 gap-2">
+                        <div className="h-16 bg-white/20 dark:bg-white/10"></div>
+                        <div className="h-16 bg-white/20 dark:bg-white/10"></div>
+                        <div className="h-16 bg-white/20 dark:bg-white/10"></div>
+                        <div className="h-16 bg-white/20 dark:bg-white/10"></div>
+                      </div>
+                      
+                      <div className="absolute bottom-0 left-0 right-0 h-12 bg-white/20 dark:bg-white/10 flex items-center justify-between px-4">
+                        <div className="w-20 h-4 bg-white/30"></div>
+                        <div className="w-20 h-6 bg-padeliga-orange"></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Stats indicators below the visual */}
+                  <div className="mt-8 grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <p className="text-2xl md:text-3xl font-bold text-padeliga-teal">150+</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Ligas Activas</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl md:text-3xl font-bold text-padeliga-purple">5.000+</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Jugadores</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl md:text-3xl font-bold text-padeliga-orange">25.000+</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Partidos</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Decorative shape below */}
+                <div className="absolute inset-x-10 bottom-0 h-4 bg-padeliga-teal -mb-2 transform -rotate-1"></div>
+              </div>
             </div>
           </div>
         </div>
         
         {/* Decorative elements */}
-        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-padeliga-teal opacity-10 transform rotate-15" />
-        <div className="absolute -top-20 -left-20 w-40 h-40 bg-padeliga-orange opacity-10 transform -rotate-15" />
+        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-padeliga-teal opacity-10 transform rotate-15"></div>
+        <div className="absolute -top-20 -left-20 w-40 h-40 bg-padeliga-orange opacity-10 transform -rotate-15"></div>
       </section>
       
       {/* Features Section */}
