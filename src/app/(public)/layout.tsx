@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Public layout component
  * Provides consistent layout for all public pages
@@ -6,12 +8,16 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import PadeligaLogo from '@/components/PadeligaLogo';
+import { useSession } from 'next-auth/react';
 
 export default function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === 'authenticated';
+  
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <header className="bg-white dark:bg-gray-800 shadow-md">
@@ -30,22 +36,30 @@ export default function PublicLayout({
             
             <div className="h-4 w-px bg-gray-300 dark:bg-gray-700"></div>
             
-            <Link
-              href="/login"
-              className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal transition-colors"
-            >
-              Iniciar Sesión
-            </Link>
-            
-            <Button
-              variant="gradient"
-              size="sm"
-              asChild
-            >
-              <Link href="/signup">
-                Registrarse
-              </Link>
-            </Button>
+            {isAuthenticated ? (
+              /* Show dashboard link for authenticated users */
+              <Button variant="gradient" size="sm" asChild>
+                <Link href="/dashboard">
+                  Dashboard
+                </Link>
+              </Button>
+            ) : (
+              /* Show login/signup for non-authenticated users */
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal transition-colors"
+                >
+                  Iniciar Sesión
+                </Link>
+                
+                <Button variant="gradient" size="sm" asChild>
+                  <Link href="/signup">
+                    Registrarse
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -68,12 +82,21 @@ export default function PublicLayout({
               <Link href="/leagues" className="text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal transition-colors text-center md:text-left">
                 Ligas
               </Link>
-              <Link href="/login" className="text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal transition-colors text-center md:text-left">
-                Iniciar Sesión
-              </Link>
-              <Link href="/signup" className="text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal transition-colors text-center md:text-left">
-                Registrarse
-              </Link>
+              
+              {isAuthenticated ? (
+                <Link href="/dashboard" className="text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal transition-colors text-center md:text-left">
+                  Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link href="/login" className="text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal transition-colors text-center md:text-left">
+                    Iniciar Sesión
+                  </Link>
+                  <Link href="/signup" className="text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal transition-colors text-center md:text-left">
+                    Registrarse
+                  </Link>
+                </>
+              )}
             </div>
           </div>
           
