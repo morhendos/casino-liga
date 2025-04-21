@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createRateLimit } from './middleware/rate-limit';
+import { getToken } from 'next-auth/jwt';
 
 // Rate limit configuration for different endpoints
 const rateLimitConfigs = {
@@ -70,6 +71,16 @@ export async function middleware(request: NextRequest) {
     return rateLimitResponse;
   }
 
+  // Check authentication for protected routes
+  if (path.startsWith('/dashboard')) {
+    const token = await getToken({ req: request });
+    
+    if (!token) {
+      // Redirect to login if not authenticated
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
+
   // Continue with the request
   const response = NextResponse.next();
 
@@ -96,7 +107,7 @@ export const config = {
     // Auth routes
     '/auth/:path*', 
     
-    // Dashboard routes
+    // Dashboard routes (protected)
     '/dashboard/:path*',
   ],
 };
