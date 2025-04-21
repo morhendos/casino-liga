@@ -5,12 +5,14 @@ interface PadeligaLogoProps {
   className?: string;
   variant?: 'default' | 'light' | 'dark';
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  showTagline?: boolean;
 }
 
 export function PadeligaLogo({
   className,
   variant = 'default',
   size = 'md',
+  showTagline = true,
 }: PadeligaLogoProps) {
   // Map sizes to specific heights - adjusted to be more compact
   const sizeClassMap = {
@@ -22,7 +24,6 @@ export function PadeligaLogo({
 
   const containerClass = cn(
     'inline-block',
-    sizeClassMap[size],
     className
   );
 
@@ -35,11 +36,21 @@ export function PadeligaLogo({
 
   return (
     <div className={containerClass}>
-      <img
-        src={logoSrc}
-        alt="Padeliga"
-        className="h-full w-auto object-contain"
-      />
+      <div className="flex flex-col items-start">
+        <img
+          src={logoSrc}
+          alt="Padeliga"
+          className={cn('object-contain', sizeClassMap[size])}
+        />
+        {showTagline && (
+          <span className={cn(
+            "font-medium italic mt-1 text-xs",
+            variant === 'light' ? 'text-white' : variant === 'dark' ? 'text-gray-300' : 'text-gray-500'
+          )}>
+            Tu liga. Tu juego.
+          </span>
+        )}
+      </div>
     </div>
   );
 }
