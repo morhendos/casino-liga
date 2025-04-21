@@ -10,7 +10,7 @@ import Footer from '@/components/ui/Footer';
 import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, ChevronRight, Trophy, Calendar, Users, BarChart, Globe, ShieldCheck, ArrowRight, Mail, Check } from 'lucide-react';
+import { Loader2, ChevronRight, Trophy, Calendar, Users, BarChart, Globe, ShieldCheck, ArrowRight, Mail, Check, Play } from 'lucide-react';
 
 export default function HomePage() {
   const { data: session, status } = useSession();
@@ -375,29 +375,192 @@ export default function HomePage() {
         </div>
       </section>
       
-      {/* CTA Section */}
-      <section className="py-20 relative bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-padeliga-orange text-white p-12 relative overflow-hidden">
-            {/* Geometric shapes */}
-            <div className="absolute top-0 -right-10 w-40 h-40 bg-white opacity-10 transform rotate-45" />
-            <div className="absolute bottom-0 -left-10 w-40 h-40 bg-white opacity-10 transform -rotate-45" />
-            
-            <div className="relative z-10 text-center">
-              <h2 className="text-4xl font-bold mb-6">¿Listo para comenzar?</h2>
-              <p className="text-xl mb-10 max-w-2xl mx-auto">
-                Únete a la comunidad de Padeliga y lleva tus ligas de padel al siguiente nivel.
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-5">
-                <Button variant="default" size="xl" className="bg-white text-padeliga-orange hover:bg-gray-100 min-w-[180px]" asChild>
-                  <Link href="/signup">Registrarse</Link>
-                </Button>
-                <Button variant="outline" size="xl" className="border-white text-white hover:bg-white/10 min-w-[180px]" asChild>
-                  <Link href="/login">Iniciar Sesión</Link>
-                </Button>
+      {/* CTA Section - DRAMATICALLY IMPROVED */}
+      <section className="py-20 relative">
+        <div className="bg-gradient-to-br from-padeliga-teal/90 to-padeliga-purple/90 text-white overflow-hidden relative">
+          {/* Complex geometric background */}
+          <div className="absolute inset-0 overflow-hidden opacity-20">
+            <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-padeliga-orange transform rotate-15"></div>
+            <div className="absolute top-1/4 -left-20 w-80 h-80 bg-padeliga-teal transform -rotate-15"></div>
+            <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-padeliga-purple transform rotate-45"></div>
+            <div className="absolute top-10 right-1/3 w-40 h-40 bg-padeliga-green transform -rotate-12"></div>
+          </div>
+          
+          {/* Diagonal divider */}
+          <div className="absolute top-0 left-0 right-0 h-12 bg-gray-50 dark:bg-gray-900 transform -skew-y-2"></div>
+          
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 py-20">
+              {/* Left column - Content */}
+              <div className="lg:pr-12">
+                <div className="inline-block bg-white/10 px-4 py-2 mb-6 transform -rotate-1">
+                  <span className="text-lg font-medium">¡Comienza hoy mismo!</span>
+                </div>
+                
+                <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+                  ¿Listo para revolucionar tus ligas de padel?
+                </h2>
+                
+                <p className="text-xl mb-8 opacity-90 leading-relaxed">
+                  Únete a más de 5.000 jugadores y administradores que ya están 
+                  disfrutando de la experiencia Padeliga para organizar sus competiciones.
+                </p>
+                
+                <div className="space-y-4 mb-10">
+                  <div className="flex items-center">
+                    <div className="mr-4 h-10 w-10 bg-white/20 rounded-full flex items-center justify-center">
+                      <span className="font-bold text-2xl">1</span>
+                    </div>
+                    <p className="text-lg">Regístrate en menos de 60 segundos</p>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <div className="mr-4 h-10 w-10 bg-white/20 rounded-full flex items-center justify-center">
+                      <span className="font-bold text-2xl">2</span>
+                    </div>
+                    <p className="text-lg">Crea tu primera liga o únete a una existente</p>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <div className="mr-4 h-10 w-10 bg-white/20 rounded-full flex items-center justify-center">
+                      <span className="font-bold text-2xl">3</span>
+                    </div>
+                    <p className="text-lg">¡Disfruta del juego y la competición!</p>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button 
+                    variant="default" 
+                    size="xl" 
+                    className="bg-padeliga-orange hover:bg-padeliga-orange/90 text-white border-2 border-white/20 min-w-[200px]" 
+                    asChild
+                  >
+                    <Link href="/signup">
+                      Registrarse Gratis
+                      <ChevronRight className="ml-1 h-5 w-5" />
+                    </Link>
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="xl" 
+                    className="border-2 border-white hover:bg-white/10 text-white min-w-[200px]" 
+                    asChild
+                  >
+                    <Link href="/login">
+                      Iniciar Sesión
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Right column - Visual */}
+              <div className="hidden lg:flex items-center justify-center">
+                <div className="relative">
+                  {/* Phone mockup container */}
+                  <div className="w-80 h-[500px] bg-gray-800 border-8 border-gray-900 relative overflow-hidden shadow-2xl transform rotate-2">
+                    {/* Screen content */}
+                    <div className="absolute inset-0 bg-gray-100 dark:bg-gray-800">
+                      {/* App header */}
+                      <div className="h-12 bg-padeliga-teal flex items-center px-4">
+                        <PadeligaLogo size="sm" variant="light" showTagline={false} />
+                        <div className="ml-auto flex space-x-2">
+                          <div className="w-4 h-4 bg-white/20 rounded-full"></div>
+                          <div className="w-4 h-4 bg-white/20 rounded-full"></div>
+                        </div>
+                      </div>
+                      
+                      {/* League standings mockup */}
+                      <div className="p-4">
+                        <div className="mb-4">
+                          <div className="h-6 w-36 bg-gray-300 dark:bg-gray-700 mb-2"></div>
+                          <div className="h-4 w-24 bg-gray-200 dark:bg-gray-600"></div>
+                        </div>
+                        
+                        <div className="bg-white dark:bg-gray-700 p-3 mb-3">
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="h-5 w-5 bg-padeliga-orange rounded-full"></div>
+                            <div className="h-4 w-24 bg-gray-200 dark:bg-gray-600"></div>
+                            <div className="h-4 w-8 bg-gray-300 dark:bg-gray-500 font-bold"></div>
+                          </div>
+                          <div className="h-2 w-full bg-gray-100 dark:bg-gray-600"></div>
+                        </div>
+                        
+                        <div className="bg-white dark:bg-gray-700 p-3 mb-3">
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="h-5 w-5 bg-padeliga-teal rounded-full"></div>
+                            <div className="h-4 w-24 bg-gray-200 dark:bg-gray-600"></div>
+                            <div className="h-4 w-8 bg-gray-300 dark:bg-gray-500 font-bold"></div>
+                          </div>
+                          <div className="h-2 w-full bg-gray-100 dark:bg-gray-600"></div>
+                        </div>
+                        
+                        <div className="bg-white dark:bg-gray-700 p-3 mb-3">
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="h-5 w-5 bg-padeliga-purple rounded-full"></div>
+                            <div className="h-4 w-24 bg-gray-200 dark:bg-gray-600"></div>
+                            <div className="h-4 w-8 bg-gray-300 dark:bg-gray-500 font-bold"></div>
+                          </div>
+                          <div className="h-2 w-full bg-gray-100 dark:bg-gray-600"></div>
+                        </div>
+                        
+                        <div className="mt-6 mb-4">
+                          <div className="h-6 w-48 bg-gray-300 dark:bg-gray-700 mb-2"></div>
+                          <div className="h-4 w-32 bg-gray-200 dark:bg-gray-600"></div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 gap-3">
+                          <div className="bg-white dark:bg-gray-700 p-3 flex justify-between items-center">
+                            <div className="h-4 w-20 bg-gray-200 dark:bg-gray-600"></div>
+                            <div className="flex items-center">
+                              <div className="h-6 w-6 bg-padeliga-orange mx-1"></div>
+                              <div className="h-4 w-8 text-center bg-gray-300 dark:bg-gray-500"></div>
+                              <div className="h-4 w-8 text-center bg-gray-300 dark:bg-gray-500 mx-1"></div>
+                              <div className="h-6 w-6 bg-padeliga-teal mx-1"></div>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white dark:bg-gray-700 p-3 flex justify-between items-center">
+                            <div className="h-4 w-20 bg-gray-200 dark:bg-gray-600"></div>
+                            <div className="flex items-center">
+                              <div className="h-6 w-6 bg-padeliga-purple mx-1"></div>
+                              <div className="h-4 w-8 text-center bg-gray-300 dark:bg-gray-500"></div>
+                              <div className="h-4 w-8 text-center bg-gray-300 dark:bg-gray-500 mx-1"></div>
+                              <div className="h-6 w-6 bg-padeliga-green mx-1"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* App navbar */}
+                      <div className="absolute bottom-0 left-0 right-0 h-14 bg-white dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 flex items-center justify-around px-4">
+                        <div className="h-6 w-6 bg-gray-400 dark:bg-gray-500"></div>
+                        <div className="h-6 w-6 bg-gray-400 dark:bg-gray-500"></div>
+                        <div className="h-10 w-10 bg-padeliga-orange rounded-full flex items-center justify-center -mt-4 border-4 border-white dark:border-gray-800">
+                          <Play className="h-4 w-4 text-white ml-0.5" />
+                        </div>
+                        <div className="h-6 w-6 bg-gray-400 dark:bg-gray-500"></div>
+                        <div className="h-6 w-6 bg-gray-400 dark:bg-gray-500"></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Decorative elements */}
+                  <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-padeliga-orange opacity-80 transform rotate-12"></div>
+                  <div className="absolute -top-4 -left-4 w-16 h-16 bg-padeliga-teal opacity-80 transform -rotate-12"></div>
+                  
+                  {/* "Play badge" */}
+                  <div className="absolute -top-6 -right-6 bg-padeliga-orange text-white h-16 w-16 rounded-full flex items-center justify-center border-2 border-white transform rotate-12 shadow-lg">
+                    <span className="font-bold text-sm">JUEGA</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+          
+          {/* Bottom diagonal divider */}
+          <div className="absolute bottom-0 left-0 right-0 h-12 bg-white dark:bg-gray-800 transform -skew-y-2"></div>
         </div>
       </section>
 
