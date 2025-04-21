@@ -57,7 +57,7 @@ const getErrorMessage = (errorCode: string | null | undefined): string => {
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"; // Default to dashboard
   // Check for error in URL (e.g., redirected from protected page)
   const urlError = searchParams.get("error");
 
@@ -209,7 +209,7 @@ function LoginPageContent() {
               <button
                 type="submit"
                 disabled={isLoading || isRedirecting}
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-[rgb(210,50,170)] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[rgb(180,40,150)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgb(210,50,170)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex w-full items-center justify-center gap-2 rounded-md bg-padeliga-gradient px-6 py-3 text-sm font-semibold text-white shadow-sm hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-padeliga-teal transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -233,7 +233,7 @@ function LoginPageContent() {
                 Don&apos;t have an account?{" "}
                 <Link
                   href="/signup"
-                  className="text-[rgb(210,50,170)] hover:text-[rgb(180,40,150)] hover:underline font-medium"
+                  className="text-padeliga-teal hover:text-padeliga-teal/80 hover:underline font-medium"
                   tabIndex={isLoading || isRedirecting ? -1 : 0}
                 >
                   Create one
