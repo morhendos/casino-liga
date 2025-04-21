@@ -6,6 +6,8 @@ interface PadeligaLogoProps {
   variant?: 'default' | 'light' | 'dark';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showTagline?: boolean;
+  sloganPosition?: 'below' | 'right';
+  sloganSize?: 'sm' | 'md' | 'lg';
 }
 
 export function PadeligaLogo({
@@ -13,13 +15,22 @@ export function PadeligaLogo({
   variant = 'default',
   size = 'md',
   showTagline = true,
+  sloganPosition = 'below',
+  sloganSize = 'md',
 }: PadeligaLogoProps) {
-  // Map sizes to specific heights - adjusted to be more compact
+  // Map sizes to specific heights
   const sizeClassMap = {
     sm: 'h-8',
     md: 'h-10',
     lg: 'h-12',
     xl: 'h-16',
+  };
+  
+  // Map slogan sizes to specific text classes
+  const sloganSizeMap = {
+    sm: 'text-xs',
+    md: 'text-sm',
+    lg: 'text-base',
   };
 
   const containerClass = cn(
@@ -36,21 +47,43 @@ export function PadeligaLogo({
 
   return (
     <div className={containerClass}>
-      <div className="flex flex-col items-start">
-        <img
-          src={logoSrc}
-          alt="Padeliga"
-          className={cn('object-contain', sizeClassMap[size])}
-        />
-        {showTagline && (
-          <span className={cn(
-            "font-medium italic mt-1 text-xs",
-            variant === 'light' ? 'text-white' : variant === 'dark' ? 'text-gray-300' : 'text-gray-500'
-          )}>
-            Tu liga. Tu juego.
-          </span>
-        )}
-      </div>
+      {sloganPosition === 'below' ? (
+        // Vertical arrangement (logo above slogan)
+        <div className="flex flex-col items-start">
+          <img
+            src={logoSrc}
+            alt="Padeliga"
+            className={cn('object-contain', sizeClassMap[size])}
+          />
+          {showTagline && (
+            <span className={cn(
+              "font-medium italic mt-1",
+              sloganSizeMap[sloganSize],
+              variant === 'light' ? 'text-white' : variant === 'dark' ? 'text-gray-300' : 'text-gray-500'
+            )}>
+              Tu liga. Tu juego.
+            </span>
+          )}
+        </div>
+      ) : (
+        // Horizontal arrangement (logo and slogan side by side)
+        <div className="flex items-center">
+          <img
+            src={logoSrc}
+            alt="Padeliga"
+            className={cn('object-contain', sizeClassMap[size])}
+          />
+          {showTagline && (
+            <span className={cn(
+              "font-medium italic ml-3",
+              sloganSizeMap[sloganSize],
+              variant === 'light' ? 'text-white' : variant === 'dark' ? 'text-gray-300' : 'text-gray-500'
+            )}>
+              Tu liga. Tu juego.
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
