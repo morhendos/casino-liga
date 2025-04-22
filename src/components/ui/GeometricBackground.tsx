@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { cn } from '@/lib/utils';
 
 interface GeometricBackgroundProps {
@@ -12,13 +12,6 @@ export function GeometricBackground({
   variant = 'default',
   animated = true,
 }: GeometricBackgroundProps) {
-  // Add client-side only animation to prevent hydration issues
-  const [isClient, setIsClient] = useState(false);
-  
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const opacityMap = {
     default: {
       shape1: 'opacity-10',
@@ -43,79 +36,140 @@ export function GeometricBackground({
     },
   };
 
-  // Only apply animations on the client side
-  const animationMap = {
-    shape1: isClient && animated ? 'animate-float' : '',
-    shape2: isClient && animated ? 'animate-float-delay-1' : '',
-    shape3: isClient && animated ? 'animate-float-delay-2' : '',
-    shape4: isClient && animated ? 'animate-float-delay-3' : '',
-    shape5: isClient && animated ? 'animate-float-delay-4' : '',
-  };
-
   return (
     <div className={cn('absolute inset-0 overflow-hidden -z-10', className)}>
       {/* Orange Shape */}
       <div
-        className={cn(
-          'absolute -top-20 -left-20 w-64 h-64 bg-padeliga-orange',
-          opacityMap[variant].shape1,
-          animationMap.shape1
-        )}
+        style={{
+          position: 'absolute',
+          top: '-80px',
+          left: '-80px',
+          width: '256px',
+          height: '256px',
+          transform: 'rotate(15deg)',
+          backgroundColor: 'hsl(var(--orange))',
+          opacity: variant === 'default' ? 0.1 : variant === 'subtle' ? 0.05 : 0.2,
+          animation: animated ? 'floatShape1 8s ease-in-out infinite' : 'none'
+        }}
       />
       
       {/* Teal Rectangle */}
       <div
-        className={cn(
-          'absolute top-1/4 right-10 w-48 h-48 bg-padeliga-teal',
-          opacityMap[variant].shape2,
-          animationMap.shape2
-        )}
+        style={{
+          position: 'absolute',
+          top: '25%',
+          right: '40px',
+          width: '192px',
+          height: '192px',
+          transform: 'rotate(-12deg)',
+          backgroundColor: 'hsl(var(--teal))',
+          opacity: variant === 'default' ? 0.15 : variant === 'subtle' ? 0.05 : 0.25,
+          animation: animated ? 'floatShape2 9s ease-in-out 1s infinite' : 'none'
+        }}
       />
       
-      {/* Purple Shape */}
+      {/* Purple Parallelogram */}
       <div
-        className={cn(
-          'absolute bottom-20 left-1/4 w-64 h-48 bg-padeliga-purple',
-          opacityMap[variant].shape3,
-          animationMap.shape3
-        )}
+        style={{
+          position: 'absolute',
+          bottom: '80px',
+          left: '25%',
+          width: '256px',
+          height: '192px',
+          transform: 'rotate(45deg)',
+          backgroundColor: 'hsl(var(--purple))',
+          opacity: variant === 'default' ? 0.1 : variant === 'subtle' ? 0.05 : 0.2,
+          animation: animated ? 'floatShape3 10s ease-in-out 2s infinite' : 'none'
+        }}
       />
       
       {/* Green Shape */}
       <div
-        className={cn(
-          'absolute top-1/3 left-1/3 w-80 h-64 bg-padeliga-green',
-          opacityMap[variant].shape4,
-          animationMap.shape4
-        )}
+        style={{
+          position: 'absolute',
+          top: '33%',
+          left: '33%',
+          width: '320px',
+          height: '256px',
+          transform: 'skew(12deg) rotate(12deg)',
+          backgroundColor: 'hsl(var(--green))',
+          opacity: variant === 'default' ? 0.05 : variant === 'subtle' ? 0.03 : 0.15,
+          animation: animated ? 'floatShape4 11s ease-in-out 3s infinite' : 'none'
+        }}
       />
       
       {/* Red Shape */}
       <div
-        className={cn(
-          'absolute -bottom-10 -right-10 w-48 h-48 bg-padeliga-red',
-          opacityMap[variant].shape1,
-          animationMap.shape5
-        )}
+        style={{
+          position: 'absolute',
+          bottom: '-40px',
+          right: '-40px',
+          width: '192px',
+          height: '192px',
+          transform: 'rotate(-15deg)',
+          backgroundColor: 'hsl(var(--red))',
+          opacity: variant === 'default' ? 0.1 : variant === 'subtle' ? 0.05 : 0.2,
+          animation: animated ? 'floatShape5 12s ease-in-out 4s infinite' : 'none'
+        }}
       />
       
       {/* Additional Teal Shape */}
       <div
-        className={cn(
-          'absolute top-2/3 right-1/4 w-32 h-32 bg-padeliga-teal',
-          opacityMap[variant].shape5,
-          animationMap.shape2
-        )}
+        style={{
+          position: 'absolute',
+          top: '66%',
+          right: '25%',
+          width: '128px',
+          height: '128px',
+          transform: 'rotate(30deg)',
+          backgroundColor: 'hsl(var(--teal))',
+          opacity: variant === 'default' ? 0.08 : variant === 'subtle' ? 0.04 : 0.18,
+          animation: animated ? 'floatShape1 9s ease-in-out 2s infinite' : 'none'
+        }}
       />
       
       {/* Additional Orange Shape */}
       <div
-        className={cn(
-          'absolute top-1/2 -left-10 w-40 h-40 bg-padeliga-orange',
-          opacityMap[variant].shape5,
-          animationMap.shape3
-        )}
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '-40px',
+          width: '160px',
+          height: '160px',
+          transform: 'rotate(-10deg)',
+          backgroundColor: 'hsl(var(--orange))',
+          opacity: variant === 'default' ? 0.08 : variant === 'subtle' ? 0.04 : 0.18,
+          animation: animated ? 'floatShape3 10s ease-in-out 3s infinite' : 'none'
+        }}
       />
+
+      {/* Add this style element to define the animations */}
+      <style jsx>{`
+        @keyframes floatShape1 {
+          0%, 100% { transform: translateY(0) rotate(15deg); }
+          50% { transform: translateY(-10px) rotate(15deg); }
+        }
+        
+        @keyframes floatShape2 {
+          0%, 100% { transform: translateY(0) rotate(-12deg); }
+          50% { transform: translateY(-15px) rotate(-12deg); }
+        }
+        
+        @keyframes floatShape3 {
+          0%, 100% { transform: translateY(0) rotate(45deg); }
+          50% { transform: translateY(-12px) rotate(45deg); }
+        }
+        
+        @keyframes floatShape4 {
+          0%, 100% { transform: translateY(0) skew(12deg) rotate(12deg); }
+          50% { transform: translateY(-8px) skew(12deg) rotate(12deg); }
+        }
+        
+        @keyframes floatShape5 {
+          0%, 100% { transform: translateY(0) rotate(-15deg); }
+          50% { transform: translateY(-10px) rotate(-15deg); }
+        }
+      `}</style>
     </div>
   );
 }
