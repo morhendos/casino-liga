@@ -208,17 +208,24 @@ export default function Header() {
                   </div>
                 </div>
                 
-                {/* Signup button with CLEARLY VISIBLE HOVER EFFECT */}
-                <div className="group">
+                {/* Signup button with SAME CORNER EFFECTS but adapted for solid background */}
+                <div className="relative overflow-hidden group">
                   <Button 
                     variant="default"
-                    className="bg-padeliga-purple hover:bg-padeliga-purple/90 text-white px-6 py-2 group-hover:shadow-[0_0_0_3px_rgba(255,255,255,0.4),_0_0_20px_rgba(111,71,150,0.8)] transition-all duration-300"
+                    className="bg-padeliga-purple hover:bg-padeliga-purple/90 text-white relative z-10 transition-all duration-300 px-6 py-2"
                     asChild
                   >
                     <Link href="/signup">
-                      <span className="relative z-10">Registrarse</span>
+                      <span>Registrarse</span>
                     </Link>
                   </Button>
+                  
+                  {/* EXACTLY THE SAME CORNER EFFECT as login button but with white borders */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    {/* Animated corner effects - WHITE version for visibility against purple */}
+                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] border-white/70 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
+                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] border-white/70 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
+                  </div>
                 </div>
               </div>
             )}
@@ -303,17 +310,24 @@ export default function Header() {
               </div>
             ) : (
               <div className="px-4 py-3 space-y-3">
-                {/* Mobile signup button with solid background hover effects */}
-                <div className="group w-full">
+                {/* Mobile signup button with SAME CORNER EFFECTS as login but adapted for solid background */}
+                <div className="relative overflow-hidden group w-full">
                   <Button 
                     variant="default"
-                    className="w-full bg-padeliga-purple hover:bg-padeliga-purple/90 text-white px-6 py-2 group-hover:shadow-[0_0_0_3px_rgba(255,255,255,0.4),_0_0_20px_rgba(111,71,150,0.8)] transition-all duration-300"
+                    className="w-full bg-padeliga-purple hover:bg-padeliga-purple/90 text-white px-6 py-2 flex items-center justify-center relative z-10"
                     asChild
                   >
                     <Link href="/signup">
-                      <span className="relative z-10">Registrarse</span>
+                      <span>Registrarse</span>
                     </Link>
                   </Button>
+                  
+                  {/* EXACTLY THE SAME CORNER EFFECT as login button but with white borders */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    {/* Animated corner effects - WHITE version for visibility against purple */}
+                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] border-white/70 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
+                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] border-white/70 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
+                  </div>
                 </div>
                 
                 {/* Mobile login button with outline hover effects */}
