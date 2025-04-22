@@ -136,30 +136,29 @@ export default function Header() {
             <NavLink href="/pricing" label="Precios" />
             <NavLink href="/about" label="Nosotros" />
             <NavLink href="/contact" label="Contacto" />
+            
+            {/* Theme toggle moved to right side of navbar with updated styling */}
+            <button 
+              onClick={toggleDarkMode}
+              className="ml-4 px-2 py-1 flex items-center text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal border-l border-gray-200 dark:border-gray-700 transition-colors duration-300"
+              aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {isDarkMode ? (
+                <>
+                  <Sun className="h-3.5 w-3.5 mr-1" />
+                  <span>Claro</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="h-3.5 w-3.5 mr-1" />
+                  <span>Oscuro</span>
+                </>
+              )}
+            </button>
           </nav>
 
           {/* Right side buttons - COMPLETELY REDESIGNED WITH LOGO-INSPIRED EFFECTS */}
           <div className="hidden md:flex items-center space-x-4">
-            {/* Theme toggle button with enhanced geometric effect */}
-            <button 
-              onClick={toggleDarkMode}
-              className="p-2 text-gray-600 hover:text-padeliga-teal dark:text-gray-300 dark:hover:text-padeliga-teal bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300 relative overflow-hidden"
-              aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-            >
-              <div className="relative z-10">
-                {isDarkMode ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                )}
-              </div>
-              {/* Geometric shape that appears on hover */}
-              <div className="absolute top-0 left-0 w-full h-full">
-                <div className="absolute -top-6 -left-6 w-6 h-12 bg-padeliga-purple/20 transform rotate-45 transition-transform duration-300 scale-0 origin-bottom-right hover:scale-100"></div>
-                <div className="absolute -bottom-6 -right-6 w-6 h-12 bg-padeliga-teal/20 transform rotate-45 transition-transform duration-300 scale-0 origin-top-left hover:scale-100"></div>
-              </div>
-            </button>
-            
             {status === 'authenticated' ? (
               // Dashboard button with logo-inspired hover effect
               <div className="relative overflow-hidden group">
@@ -209,33 +208,17 @@ export default function Header() {
                   </div>
                 </div>
                 
-                {/* Signup button with solid background and visible hover effects */}
-                <div className="relative overflow-hidden group">
+                {/* Signup button with CLEARLY VISIBLE HOVER EFFECT */}
+                <div className="group">
                   <Button 
                     variant="default"
-                    className="bg-padeliga-purple border-none text-white relative z-10 transition-all duration-300 px-6 py-2"
+                    className="bg-padeliga-purple hover:bg-padeliga-purple/90 text-white px-6 py-2 group-hover:shadow-[0_0_0_3px_rgba(255,255,255,0.4),_0_0_20px_rgba(111,71,150,0.8)] transition-all duration-300"
                     asChild
                   >
                     <Link href="/signup">
                       <span className="relative z-10">Registrarse</span>
                     </Link>
                   </Button>
-                  
-                  {/* REVISED HOVER EFFECTS FOR SOLID BACKGROUND */}
-                  <div className="absolute inset-0 overflow-hidden">
-                    {/* White border that appears on hover */}
-                    <div className="absolute inset-0 border-2 border-white/0 group-hover:border-white/20 transition-all duration-300"></div>
-                    
-                    {/* Interior border that pulses */}
-                    <div className="absolute inset-[3px] border border-white/0 group-hover:border-white/15 group-hover:animate-pulse-slow transition-all duration-300"></div>
-                    
-                    {/* Radial gradient highlight that appears */}
-                    <div className="absolute inset-0 bg-radial-gradient-purple opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    
-                    {/* Animated corner effects - more visible against solid background */}
-                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[10px] border-l-[10px] border-white/40 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
-                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[10px] border-r-[10px] border-white/40 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
-                  </div>
                 </div>
               </div>
             )}
@@ -243,24 +226,6 @@ export default function Header() {
 
           {/* Mobile menu buttons - WITH ENHANCED LOGO-INSPIRED EFFECTS */}
           <div className="flex items-center md:hidden space-x-3">
-            {/* Theme toggle with geometric effects */}
-            <div className="relative overflow-hidden group">
-              <button 
-                onClick={toggleDarkMode}
-                className="p-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 hover:text-padeliga-teal dark:text-gray-300 dark:hover:text-padeliga-teal transition-colors duration-300 relative z-10"
-              >
-                {isDarkMode ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                )}
-              </button>
-              
-              {/* Geometric corner accents */}
-              <div className="absolute top-0 left-0 w-0 h-0 border-t-[6px] border-l-[6px] border-padeliga-purple/40 group-hover:w-6 group-hover:h-6 transition-all duration-300"></div>
-              <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[6px] border-r-[6px] border-padeliga-purple/40 group-hover:w-6 group-hover:h-6 transition-all duration-300"></div>
-            </div>
-            
             {/* Menu toggle with geometric effects */}
             <div className="relative overflow-hidden group">
               <button
@@ -293,6 +258,27 @@ export default function Header() {
             <MobileNavLink href="/about" label="Nosotros" />
             <MobileNavLink href="/contact" label="Contacto" />
             
+            {/* Theme toggle in mobile menu */}
+            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-600 flex items-center justify-between">
+              <span className="text-gray-700 dark:text-gray-300">Modo de Tema</span>
+              <button 
+                onClick={toggleDarkMode}
+                className="flex items-center text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-padeliga-teal dark:hover:text-padeliga-teal transition-colors duration-300"
+              >
+                {isDarkMode ? (
+                  <>
+                    <Sun className="h-4 w-4 mr-1" />
+                    <span>Claro</span>
+                  </>
+                ) : (
+                  <>
+                    <Moon className="h-4 w-4 mr-1" />
+                    <span>Oscuro</span>
+                  </>
+                )}
+              </button>
+            </div>
+            
             {status === 'authenticated' ? (
               <div className="px-4 py-3">
                 <div className="relative overflow-hidden group w-full">
@@ -318,32 +304,16 @@ export default function Header() {
             ) : (
               <div className="px-4 py-3 space-y-3">
                 {/* Mobile signup button with solid background hover effects */}
-                <div className="relative overflow-hidden group w-full">
+                <div className="group w-full">
                   <Button 
                     variant="default"
-                    className="w-full bg-padeliga-purple text-white px-6 py-2 flex items-center justify-center relative z-10"
+                    className="w-full bg-padeliga-purple hover:bg-padeliga-purple/90 text-white px-6 py-2 group-hover:shadow-[0_0_0_3px_rgba(255,255,255,0.4),_0_0_20px_rgba(111,71,150,0.8)] transition-all duration-300"
                     asChild
                   >
                     <Link href="/signup">
                       <span className="relative z-10">Registrarse</span>
                     </Link>
                   </Button>
-                  
-                  {/* REVISED HOVER EFFECTS FOR SOLID BACKGROUND */}
-                  <div className="absolute inset-0 overflow-hidden">
-                    {/* White border that appears on hover */}
-                    <div className="absolute inset-0 border-2 border-white/0 group-hover:border-white/20 transition-all duration-300"></div>
-                    
-                    {/* Interior border that pulses */}
-                    <div className="absolute inset-[3px] border border-white/0 group-hover:border-white/15 group-hover:animate-pulse-slow transition-all duration-300"></div>
-                    
-                    {/* Radial gradient highlight that appears */}
-                    <div className="absolute inset-0 bg-radial-gradient-purple opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    
-                    {/* Animated corner effects - more visible against solid background */}
-                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[10px] border-l-[10px] border-white/40 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
-                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[10px] border-r-[10px] border-white/40 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
-                  </div>
                 </div>
                 
                 {/* Mobile login button with outline hover effects */}
