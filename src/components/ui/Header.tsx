@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import PadeligaLogo from '@/components/PadeligaLogo';
 import { Menu, X, ChevronDown, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import ButtonHoverEffect from './ButtonHoverEffect';
 
 interface NavLinkProps {
   href: string;
@@ -182,7 +183,7 @@ export default function Header() {
               </div>
             ) : (
               <div className="flex items-center space-x-4">
-                {/* Login button with outline style and transparent hover effects */}
+                {/* Login button with outline style and hover effects */}
                 <div className="relative overflow-hidden group">
                   <Button 
                     variant="outline" 
@@ -194,21 +195,11 @@ export default function Header() {
                     </Link>
                   </Button>
                   
-                  {/* Logo-inspired geometric layered hover effects */}
-                  <div className="absolute inset-0 overflow-hidden">
-                    {/* First layer - diagonal teal trapezoid */}
-                    <div className="absolute -top-full left-0 right-0 h-[200%] bg-padeliga-teal/5 transform skew-y-12 group-hover:top-0 transition-all ease-out duration-300"></div>
-                    
-                    {/* Second layer - bottom teal triangle */}
-                    <div className="absolute top-full left-0 right-0 h-full bg-padeliga-teal/10 group-hover:top-1/2 transition-all ease-out duration-500 delay-100"></div>
-                    
-                    {/* Animated corner effects */}
-                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] border-padeliga-teal/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
-                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] border-padeliga-teal/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
-                  </div>
+                  {/* Using the reusable hover effect component */}
+                  <ButtonHoverEffect variant="outline" color="teal" />
                 </div>
                 
-                {/* Signup button with SAME CORNER EFFECTS but adapted for solid background */}
+                {/* Signup button with solid background and same hover effects */}
                 <div className="relative overflow-hidden group">
                   <Button 
                     variant="default"
@@ -220,12 +211,8 @@ export default function Header() {
                     </Link>
                   </Button>
                   
-                  {/* EXACTLY THE SAME CORNER EFFECT as login button but with white borders */}
-                  <div className="absolute inset-0 overflow-hidden">
-                    {/* Animated corner effects - WHITE version for visibility against purple */}
-                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] border-white/70 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
-                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] border-white/70 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
-                  </div>
+                  {/* Using the reusable hover effect component for solid button */}
+                  <ButtonHoverEffect variant="solid" color="purple" />
                 </div>
               </div>
             )}
@@ -310,7 +297,7 @@ export default function Header() {
               </div>
             ) : (
               <div className="px-4 py-3 space-y-3">
-                {/* Mobile signup button with SAME CORNER EFFECTS as login but adapted for solid background */}
+                {/* Mobile signup button with same effects as login */}
                 <div className="relative overflow-hidden group w-full">
                   <Button 
                     variant="default"
@@ -322,12 +309,8 @@ export default function Header() {
                     </Link>
                   </Button>
                   
-                  {/* EXACTLY THE SAME CORNER EFFECT as login button but with white borders */}
-                  <div className="absolute inset-0 overflow-hidden">
-                    {/* Animated corner effects - WHITE version for visibility against purple */}
-                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] border-white/70 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
-                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] border-white/70 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
-                  </div>
+                  {/* Using the reusable hover effect component for solid button */}
+                  <ButtonHoverEffect variant="solid" color="purple" />
                 </div>
                 
                 {/* Mobile login button with outline hover effects */}
@@ -342,18 +325,8 @@ export default function Header() {
                     </Link>
                   </Button>
                   
-                  {/* Logo-inspired geometric layered hover effects */}
-                  <div className="absolute inset-0 overflow-hidden">
-                    {/* First layer - diagonal teal trapezoid */}
-                    <div className="absolute -top-full left-0 right-0 h-[200%] bg-padeliga-teal/5 transform skew-y-12 group-hover:top-0 transition-all ease-out duration-300"></div>
-                    
-                    {/* Second layer - bottom teal triangle */}
-                    <div className="absolute top-full left-0 right-0 h-full bg-padeliga-teal/10 group-hover:top-1/2 transition-all ease-out duration-500 delay-100"></div>
-                    
-                    {/* Animated corner effects */}
-                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] border-padeliga-teal/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
-                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] border-padeliga-teal/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
-                  </div>
+                  {/* Using the reusable hover effect component */}
+                  <ButtonHoverEffect variant="outline" color="teal" />
                 </div>
               </div>
             )}
