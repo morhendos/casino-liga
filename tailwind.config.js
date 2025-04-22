@@ -69,6 +69,8 @@ module.exports = {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'radial-gradient-purple': 'radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, rgba(102,71,142,0) 70%)',
+        'radial-gradient-teal': 'radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, rgba(53,121,179,0) 70%)',
       },
       rotate: {
         '15': '15deg',
