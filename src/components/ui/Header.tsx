@@ -183,11 +183,11 @@ export default function Header() {
               </div>
             ) : (
               <div className="flex items-center space-x-4">
-                {/* Login button with logo-inspired transparency effects */}
+                {/* Login button with outline style and transparent hover effects */}
                 <div className="relative overflow-hidden group">
                   <Button 
                     variant="outline" 
-                    className="border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent relative z-10 transition-all duration-300 px-6 py-2 flex items-center"
+                    className="border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent relative z-10 transition-all duration-300 px-6 py-2"
                     asChild
                   >
                     <Link href="/login">
@@ -209,11 +209,11 @@ export default function Header() {
                   </div>
                 </div>
                 
-                {/* Signup button with teal color and same effects as login button */}
+                {/* Signup button with solid background and visible hover effects */}
                 <div className="relative overflow-hidden group">
                   <Button 
                     variant="default"
-                    className="bg-padeliga-purple border-none text-white relative z-10 transition-all duration-300 px-6 py-2 flex items-center"
+                    className="bg-padeliga-purple border-none text-white relative z-10 transition-all duration-300 px-6 py-2"
                     asChild
                   >
                     <Link href="/signup">
@@ -221,17 +221,20 @@ export default function Header() {
                     </Link>
                   </Button>
                   
-                  {/* Logo-inspired geometric layered hover effects - SAME AS LOGIN BUTTON */}
+                  {/* REVISED HOVER EFFECTS FOR SOLID BACKGROUND */}
                   <div className="absolute inset-0 overflow-hidden">
-                    {/* First layer - diagonal purple trapezoid */}
-                    <div className="absolute -top-full left-0 right-0 h-[200%] bg-padeliga-teal/5 transform skew-y-12 group-hover:top-0 transition-all ease-out duration-300"></div>
+                    {/* White border that appears on hover */}
+                    <div className="absolute inset-0 border-2 border-white/0 group-hover:border-white/20 transition-all duration-300"></div>
                     
-                    {/* Second layer - bottom purple triangle */}
-                    <div className="absolute top-full left-0 right-0 h-full bg-padeliga-teal/10 group-hover:top-1/2 transition-all ease-out duration-500 delay-100"></div>
+                    {/* Interior border that pulses */}
+                    <div className="absolute inset-[3px] border border-white/0 group-hover:border-white/15 group-hover:animate-pulse-slow transition-all duration-300"></div>
                     
-                    {/* Animated corner effects */}
-                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] border-padeliga-purple/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
-                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] border-padeliga-purple/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
+                    {/* Radial gradient highlight that appears */}
+                    <div className="absolute inset-0 bg-radial-gradient-purple opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    {/* Animated corner effects - more visible against solid background */}
+                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[10px] border-l-[10px] border-white/40 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
+                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[10px] border-r-[10px] border-white/40 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
                   </div>
                 </div>
               </div>
@@ -314,7 +317,7 @@ export default function Header() {
               </div>
             ) : (
               <div className="px-4 py-3 space-y-3">
-                {/* Mobile signup button with same effects as login */}
+                {/* Mobile signup button with solid background hover effects */}
                 <div className="relative overflow-hidden group w-full">
                   <Button 
                     variant="default"
@@ -326,21 +329,24 @@ export default function Header() {
                     </Link>
                   </Button>
                   
-                  {/* Logo-inspired geometric layered hover effects - SAME AS LOGIN */}
+                  {/* REVISED HOVER EFFECTS FOR SOLID BACKGROUND */}
                   <div className="absolute inset-0 overflow-hidden">
-                    {/* First layer - diagonal purple trapezoid */}
-                    <div className="absolute -top-full left-0 right-0 h-[200%] bg-padeliga-teal/5 transform skew-y-12 group-hover:top-0 transition-all ease-out duration-300"></div>
+                    {/* White border that appears on hover */}
+                    <div className="absolute inset-0 border-2 border-white/0 group-hover:border-white/20 transition-all duration-300"></div>
                     
-                    {/* Second layer - bottom purple triangle */}
-                    <div className="absolute top-full left-0 right-0 h-full bg-padeliga-teal/10 group-hover:top-1/2 transition-all ease-out duration-500 delay-100"></div>
+                    {/* Interior border that pulses */}
+                    <div className="absolute inset-[3px] border border-white/0 group-hover:border-white/15 group-hover:animate-pulse-slow transition-all duration-300"></div>
                     
-                    {/* Animated corner effects */}
-                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] border-padeliga-purple/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
-                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] border-padeliga-purple/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
+                    {/* Radial gradient highlight that appears */}
+                    <div className="absolute inset-0 bg-radial-gradient-purple opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    {/* Animated corner effects - more visible against solid background */}
+                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[10px] border-l-[10px] border-white/40 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
+                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[10px] border-r-[10px] border-white/40 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
                   </div>
                 </div>
                 
-                {/* Mobile login button with matching effects */}
+                {/* Mobile login button with outline hover effects */}
                 <div className="relative overflow-hidden group w-full">
                   <Button 
                     variant="outline" 
