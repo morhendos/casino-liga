@@ -221,9 +221,9 @@ function LoginPageContent() {
                 <Button
                   type="submit"
                   disabled={isLoading || isRedirecting}
-                  variant="teal"
+                  variant="ghost"
                   size="lg"
-                  className="w-full relative z-10"
+                  className="w-full relative z-10 border border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/10"
                 >
                   <span>
                     {isRedirecting
@@ -233,19 +233,19 @@ function LoginPageContent() {
                       : "Iniciar Sesión"}
                   </span>
                 </Button>
-                <ButtonHoverEffect variant="solid" color="teal" />
+                <ButtonHoverEffect variant="outline" color="teal" />
               </div>
 
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2">
                 <p className="text-sm text-muted-foreground">
                   ¿No tienes una cuenta?
                 </p>
-                {/* Register button with ButtonHoverEffect and opposite skew for visual interest */}
+                {/* Register button with ButtonHoverEffect and explicit skew transform */}
                 <div className="relative overflow-hidden group" style={{ transform: "skewX(354deg)" }}>
                   <Button 
-                    variant="outline" 
+                    variant="ghost" 
                     size="sm" 
-                    className="text-padeliga-orange border-padeliga-orange hover:bg-transparent bg-transparent relative z-10"
+                    className="text-padeliga-orange border border-padeliga-orange hover:bg-padeliga-orange/10 relative z-10"
                     asChild
                   >
                     <Link href="/signup" className="flex items-center gap-1">
