@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import PadeligaLogo from '@/components/PadeligaLogo';
-import { Menu, X, ChevronDown, Sun, Moon, LogIn, UserPlus } from 'lucide-react';
+import { Menu, X, ChevronDown, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface NavLinkProps {
@@ -191,7 +191,6 @@ export default function Header() {
                     asChild
                   >
                     <Link href="/login">
-                      <LogIn className="h-4 w-4 mr-2" />
                       <span>Iniciar Sesión</span>
                     </Link>
                   </Button>
@@ -210,7 +209,7 @@ export default function Header() {
                   </div>
                 </div>
                 
-                {/* Signup button with purple color and advanced logo-inspired effects */}
+                {/* Signup button with teal color and same effects as login button */}
                 <div className="relative overflow-hidden group">
                   <Button 
                     variant="default"
@@ -218,30 +217,21 @@ export default function Header() {
                     asChild
                   >
                     <Link href="/signup">
-                      <UserPlus className="h-4 w-4 mr-2 relative z-10" />
                       <span className="relative z-10">Registrarse</span>
                     </Link>
                   </Button>
                   
-                  {/* Logo-inspired geometric layered hover effects */}
-                  <div className="absolute inset-0">
-                    {/* Background base layers */}
-                    <div className="absolute inset-0 bg-padeliga-purple"></div>
+                  {/* Logo-inspired geometric layered hover effects - SAME AS LOGIN BUTTON */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    {/* First layer - diagonal purple trapezoid */}
+                    <div className="absolute -top-full left-0 right-0 h-[200%] bg-padeliga-teal/5 transform skew-y-12 group-hover:top-0 transition-all ease-out duration-300"></div>
                     
-                    {/* Geometric shape overlays that appear on hover */}
-                    <div className="absolute top-0 -right-full w-full h-full bg-padeliga-orange/20 transform skew-x-12 group-hover:right-0 transition-all ease-out duration-500"></div>
-                    <div className="absolute -bottom-full right-0 w-full h-full bg-padeliga-teal/20 transform -skew-x-12 group-hover:bottom-0 transition-all ease-out duration-500 delay-100"></div>
+                    {/* Second layer - bottom purple triangle */}
+                    <div className="absolute top-full left-0 right-0 h-full bg-padeliga-teal/10 group-hover:top-1/2 transition-all ease-out duration-500 delay-100"></div>
                     
-                    {/* Diagonal stripes */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-200">
-                      <div className="absolute top-0 left-0 w-3 h-full bg-white/10 transform -skew-x-45"></div>
-                      <div className="absolute top-0 left-1/3 w-3 h-full bg-white/10 transform -skew-x-45"></div>
-                      <div className="absolute top-0 right-1/3 w-3 h-full bg-white/10 transform -skew-x-45"></div>
-                    </div>
-                    
-                    {/* Corner geometric accents */}
-                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[10px] border-l-[10px] border-white/30 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
-                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[10px] border-r-[10px] border-white/30 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
+                    {/* Animated corner effects */}
+                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] border-padeliga-purple/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
+                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] border-padeliga-purple/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
                   </div>
                 </div>
               </div>
@@ -324,7 +314,7 @@ export default function Header() {
               </div>
             ) : (
               <div className="px-4 py-3 space-y-3">
-                {/* Mobile signup button with matching effects */}
+                {/* Mobile signup button with same effects as login */}
                 <div className="relative overflow-hidden group w-full">
                   <Button 
                     variant="default"
@@ -332,30 +322,21 @@ export default function Header() {
                     asChild
                   >
                     <Link href="/signup">
-                      <UserPlus className="h-4 w-4 mr-2 relative z-10" />
                       <span className="relative z-10">Registrarse</span>
                     </Link>
                   </Button>
                   
-                  {/* Logo-inspired geometric layered hover effects */}
-                  <div className="absolute inset-0">
-                    {/* Background base layers */}
-                    <div className="absolute inset-0 bg-padeliga-purple"></div>
+                  {/* Logo-inspired geometric layered hover effects - SAME AS LOGIN */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    {/* First layer - diagonal purple trapezoid */}
+                    <div className="absolute -top-full left-0 right-0 h-[200%] bg-padeliga-teal/5 transform skew-y-12 group-hover:top-0 transition-all ease-out duration-300"></div>
                     
-                    {/* Geometric shape overlays that appear on hover */}
-                    <div className="absolute top-0 -right-full w-full h-full bg-padeliga-orange/20 transform skew-x-12 group-hover:right-0 transition-all ease-out duration-500"></div>
-                    <div className="absolute -bottom-full right-0 w-full h-full bg-padeliga-teal/20 transform -skew-x-12 group-hover:bottom-0 transition-all ease-out duration-500 delay-100"></div>
+                    {/* Second layer - bottom purple triangle */}
+                    <div className="absolute top-full left-0 right-0 h-full bg-padeliga-teal/10 group-hover:top-1/2 transition-all ease-out duration-500 delay-100"></div>
                     
-                    {/* Diagonal stripes */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-200">
-                      <div className="absolute top-0 left-0 w-3 h-full bg-white/10 transform -skew-x-45"></div>
-                      <div className="absolute top-0 left-1/3 w-3 h-full bg-white/10 transform -skew-x-45"></div>
-                      <div className="absolute top-0 right-1/3 w-3 h-full bg-white/10 transform -skew-x-45"></div>
-                    </div>
-                    
-                    {/* Corner geometric accents */}
-                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[10px] border-l-[10px] border-white/30 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
-                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[10px] border-r-[10px] border-white/30 group-hover:w-10 group-hover:h-10 transition-all duration-300"></div>
+                    {/* Animated corner effects */}
+                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] border-padeliga-purple/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
+                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] border-padeliga-purple/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
                   </div>
                 </div>
                 
@@ -367,7 +348,6 @@ export default function Header() {
                     asChild
                   >
                     <Link href="/login">
-                      <LogIn className="h-4 w-4 mr-2" />
                       <span>Iniciar Sesión</span>
                     </Link>
                   </Button>
