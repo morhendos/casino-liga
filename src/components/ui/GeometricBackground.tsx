@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface GeometricBackgroundProps {
@@ -12,6 +12,13 @@ export function GeometricBackground({
   variant = 'default',
   animated = true,
 }: GeometricBackgroundProps) {
+  // Add client-side only animation to prevent hydration issues
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const opacityMap = {
     default: {
       shape1: 'opacity-10',
@@ -36,12 +43,13 @@ export function GeometricBackground({
     },
   };
 
+  // Only apply animations on the client side
   const animationMap = {
-    shape1: animated ? 'animate-float' : '',
-    shape2: animated ? 'animate-float-delay-1' : '',
-    shape3: animated ? 'animate-float-delay-2' : '',
-    shape4: animated ? 'animate-float-delay-3' : '',
-    shape5: animated ? 'animate-float-delay-4' : '',
+    shape1: isClient && animated ? 'animate-float' : '',
+    shape2: isClient && animated ? 'animate-float-delay-1' : '',
+    shape3: isClient && animated ? 'animate-float-delay-2' : '',
+    shape4: isClient && animated ? 'animate-float-delay-3' : '',
+    shape5: isClient && animated ? 'animate-float-delay-4' : '',
   };
 
   return (
@@ -53,6 +61,7 @@ export function GeometricBackground({
           opacityMap[variant].shape1,
           animationMap.shape1
         )}
+        style={{ transformOrigin: 'center center' }}
       />
       
       {/* Teal Rectangle */}
@@ -62,6 +71,7 @@ export function GeometricBackground({
           opacityMap[variant].shape2,
           animationMap.shape2
         )}
+        style={{ transformOrigin: 'center center' }}
       />
       
       {/* Purple Parallelogram */}
@@ -71,6 +81,7 @@ export function GeometricBackground({
           opacityMap[variant].shape3,
           animationMap.shape3
         )}
+        style={{ transformOrigin: 'center center' }}
       />
       
       {/* Green Shape */}
@@ -80,6 +91,7 @@ export function GeometricBackground({
           opacityMap[variant].shape4,
           animationMap.shape4
         )}
+        style={{ transformOrigin: 'center center' }}
       />
       
       {/* Red Shape */}
@@ -89,6 +101,7 @@ export function GeometricBackground({
           opacityMap[variant].shape1,
           animationMap.shape5
         )}
+        style={{ transformOrigin: 'center center' }}
       />
       
       {/* Additional Teal Shape */}
@@ -98,6 +111,7 @@ export function GeometricBackground({
           opacityMap[variant].shape5,
           animationMap.shape2
         )}
+        style={{ transformOrigin: 'center center' }}
       />
       
       {/* Additional Orange Shape */}
@@ -107,6 +121,7 @@ export function GeometricBackground({
           opacityMap[variant].shape5,
           animationMap.shape3
         )}
+        style={{ transformOrigin: 'center center' }}
       />
     </div>
   );
