@@ -216,8 +216,8 @@ function LoginPageContent() {
                 </div>
               </div>
 
-              {/* Login button with ButtonHoverEffect */}
-              <div className="relative overflow-hidden group">
+              {/* Login button with ButtonHoverEffect and skew transform */}
+              <div className="relative overflow-hidden group transform -skew-x-1">
                 <Button
                   type="submit"
                   disabled={isLoading || isRedirecting}
@@ -240,8 +240,8 @@ function LoginPageContent() {
                 <p className="text-sm text-muted-foreground">
                   ¿No tienes una cuenta?
                 </p>
-                {/* Register button with ButtonHoverEffect */}
-                <div className="relative overflow-hidden group">
+                {/* Register button with ButtonHoverEffect and opposite skew for visual interest */}
+                <div className="relative overflow-hidden group transform skew-x-1">
                   <Button 
                     variant="outline" 
                     size="sm" 
