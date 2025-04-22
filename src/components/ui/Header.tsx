@@ -183,7 +183,7 @@ export default function Header() {
               </div>
             ) : (
               <div className="flex items-center space-x-4">
-                {/* Login button with enhanced ring-inspired effects */}
+                {/* Login button with enhanced ring-inspired effects - SIMPLIFIED */}
                 <div className="relative overflow-hidden group">
                   <Button 
                     variant="outline" 
@@ -191,16 +191,11 @@ export default function Header() {
                     asChild
                   >
                     <Link href="/login">
-                      {/* Custom geometric icon that matches the aesthetic */}
-                      <div className="mr-2 h-4 w-4 relative">
-                        <div className="absolute inset-0 border border-current"></div>
-                        <div className="absolute inset-[2px] border border-current opacity-70"></div>
-                      </div>
                       <span>Iniciar Sesión</span>
                     </Link>
                   </Button>
                   
-                  {/* Enhanced geometric layered hover effects with concentric rings */}
+                  {/* Enhanced geometric layered hover effects with concentric rings - SIMPLIFIED */}
                   <div className="absolute inset-0 overflow-hidden">
                     {/* Base layer - full teal wash with very low opacity */}
                     <div className="absolute inset-0 bg-padeliga-teal/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -208,15 +203,6 @@ export default function Header() {
                     {/* Concentric ring effect with thin borders */}
                     <div className="absolute inset-3 border border-padeliga-teal/0 group-hover:border-padeliga-teal/20 transition-colors duration-500 scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transform-gpu"></div>
                     <div className="absolute inset-6 border border-padeliga-teal/0 group-hover:border-padeliga-teal/30 transition-colors duration-500 delay-100 scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transform-gpu"></div>
-                    
-                    {/* Diagonal striped overlays */}
-                    <div className="absolute -top-full -left-full w-[200%] h-[200%] group-hover:top-[-20%] group-hover:left-[-20%] transition-all duration-500">
-                      <div className="absolute h-[20%] w-[500%] bg-padeliga-teal/5 rotate-45 transform origin-top-left"></div>
-                      <div className="absolute h-[20%] w-[500%] bg-padeliga-teal/5 rotate-45 transform origin-top-left" style={{ top: '20%' }}></div>
-                      <div className="absolute h-[20%] w-[500%] bg-padeliga-teal/5 rotate-45 transform origin-top-left" style={{ top: '40%' }}></div>
-                      <div className="absolute h-[20%] w-[500%] bg-padeliga-teal/5 rotate-45 transform origin-top-left" style={{ top: '60%' }}></div>
-                      <div className="absolute h-[20%] w-[500%] bg-padeliga-teal/5 rotate-45 transform origin-top-left" style={{ top: '80%' }}></div>
-                    </div>
                     
                     {/* Angular geometric accent shapes */}
                     <div className="absolute top-0 left-0 w-0 h-0 border-t-[12px] border-l-[12px] border-padeliga-teal/40 group-hover:w-6 group-hover:h-6 transition-all duration-300"></div>
@@ -376,7 +362,7 @@ export default function Header() {
                   </div>
                 </div>
                 
-                {/* Mobile login button with enhanced ring-inspired effects */}
+                {/* Mobile login button with simplified ring effects */}
                 <div className="relative overflow-hidden group w-full">
                   <Button 
                     variant="outline" 
@@ -384,16 +370,11 @@ export default function Header() {
                     asChild
                   >
                     <Link href="/login">
-                      {/* Custom geometric icon that matches the aesthetic */}
-                      <div className="mr-2 h-4 w-4 relative">
-                        <div className="absolute inset-0 border border-current"></div>
-                        <div className="absolute inset-[2px] border border-current opacity-70"></div>
-                      </div>
                       <span>Iniciar Sesión</span>
                     </Link>
                   </Button>
                   
-                  {/* Enhanced geometric layered hover effects with concentric rings */}
+                  {/* Enhanced geometric layered hover effects with concentric rings - SIMPLIFIED */}
                   <div className="absolute inset-0 overflow-hidden">
                     {/* Base layer - full teal wash with very low opacity */}
                     <div className="absolute inset-0 bg-padeliga-teal/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -401,15 +382,6 @@ export default function Header() {
                     {/* Concentric ring effect with thin borders */}
                     <div className="absolute inset-3 border border-padeliga-teal/0 group-hover:border-padeliga-teal/20 transition-colors duration-500 scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transform-gpu"></div>
                     <div className="absolute inset-6 border border-padeliga-teal/0 group-hover:border-padeliga-teal/30 transition-colors duration-500 delay-100 scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transform-gpu"></div>
-                    
-                    {/* Diagonal striped overlays */}
-                    <div className="absolute -top-full -left-full w-[200%] h-[200%] group-hover:top-[-20%] group-hover:left-[-20%] transition-all duration-500">
-                      <div className="absolute h-[20%] w-[500%] bg-padeliga-teal/5 rotate-45 transform origin-top-left"></div>
-                      <div className="absolute h-[20%] w-[500%] bg-padeliga-teal/5 rotate-45 transform origin-top-left" style={{ top: '20%' }}></div>
-                      <div className="absolute h-[20%] w-[500%] bg-padeliga-teal/5 rotate-45 transform origin-top-left" style={{ top: '40%' }}></div>
-                      <div className="absolute h-[20%] w-[500%] bg-padeliga-teal/5 rotate-45 transform origin-top-left" style={{ top: '60%' }}></div>
-                      <div className="absolute h-[20%] w-[500%] bg-padeliga-teal/5 rotate-45 transform origin-top-left" style={{ top: '80%' }}></div>
-                    </div>
                     
                     {/* Angular geometric accent shapes */}
                     <div className="absolute top-0 left-0 w-0 h-0 border-t-[12px] border-l-[12px] border-padeliga-teal/40 group-hover:w-6 group-hover:h-6 transition-all duration-300"></div>
