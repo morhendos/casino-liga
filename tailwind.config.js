@@ -39,8 +39,9 @@ module.exports = {
           '100%': { transform: 'translateY(0)', opacity: 1 },
         },
         float: {
-          '0%, 100%': { transform: 'translateY(0)' },
+          '0%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-10px)' },
+          '100%': { transform: 'translateY(0px)' },
         },
         pulse: {
           '0%, 100%': { opacity: 1 },
