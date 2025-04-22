@@ -32,9 +32,9 @@ export function ButtonHoverEffect({
         orange: 'bg-padeliga-orange/5'
       }[color]
     : {
-        teal: 'bg-white/5',
-        purple: 'bg-white/5',
-        orange: 'bg-white/5'
+        teal: 'bg-white/15',  // Increased opacity from 5% to 15%
+        purple: 'bg-white/15',
+        orange: 'bg-white/15'
       }[color];
     
   const secondLayerColor = variant === 'outline'
@@ -44,9 +44,9 @@ export function ButtonHoverEffect({
         orange: 'bg-padeliga-orange/10'
       }[color]
     : {
-        teal: 'bg-white/10',
-        purple: 'bg-white/10',
-        orange: 'bg-white/10'
+        teal: 'bg-white/25',  // Increased opacity from 10% to 25%
+        purple: 'bg-white/25',
+        orange: 'bg-white/25'
       }[color];
   
   return (
@@ -63,15 +63,20 @@ export function ButtonHoverEffect({
         secondLayerColor
       )}></div>
       
-      {/* Animated corner effects */}
+      {/* Animated corner effects - larger for solid buttons */}
       <div className={cn(
-        "absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] group-hover:w-8 group-hover:h-8 transition-all duration-300",
+        "absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] group-hover:w-10 group-hover:h-10 transition-all duration-300", // Increased from w-8/h-8 to w-10/h-10
         cornerBorderColor
       )}></div>
       <div className={cn(
-        "absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] group-hover:w-8 group-hover:h-8 transition-all duration-300",
+        "absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] group-hover:w-10 group-hover:h-10 transition-all duration-300", // Increased from w-8/h-8 to w-10/h-10
         cornerBorderColor
       )}></div>
+      
+      {/* Add subtle shine effect for solid buttons */}
+      {variant === 'solid' && (
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-all duration-1000 ease-in-out"></div>
+      )}
     </div>
   );
 }
