@@ -8,6 +8,7 @@ import GeometricBackground from '@/components/ui/GeometricBackground';
 import PadeligaLogo from '@/components/PadeligaLogo';
 import Footer from '@/components/ui/Footer';
 import Header from '@/components/ui/Header';
+import ButtonHoverEffect from '@/components/ui/ButtonHoverEffect';
 import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -109,16 +110,40 @@ export default function HomePage() {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-5">
-                <Button variant="cta" size="xl" className="min-w-[180px]" asChild>
-                  <Link href="/signup">
-                    Comenzar Ahora
-                    <ChevronRight className="ml-1 h-5 w-5" />
-                  </Link>
-                </Button>
+                {/* CTA Button with ButtonHoverEffect */}
+                <div className="relative overflow-hidden group">
+                  <Button 
+                    variant="default"
+                    className="bg-padeliga-orange text-white relative z-10 transition-all duration-300 px-6 py-2 min-w-[180px] font-bold"
+                    size="xl"
+                    asChild
+                  >
+                    <Link href="/signup">
+                      Comenzar Ahora
+                      <ChevronRight className="ml-1 h-5 w-5" />
+                    </Link>
+                  </Button>
+                  
+                  {/* Apply the same hover effect */}
+                  <ButtonHoverEffect variant="solid" color="orange" />
+                </div>
                 
-                <Button variant="outline" size="xl" className="min-w-[180px] border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/5" asChild>
-                  <Link href="/leagues">Explorar Ligas</Link>
-                </Button>
+                {/* Secondary Button with ButtonHoverEffect */}
+                <div className="relative overflow-hidden group">
+                  <Button 
+                    variant="outline" 
+                    size="xl"
+                    className="border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent relative z-10 transition-all duration-300 min-w-[180px]"
+                    asChild
+                  >
+                    <Link href="/leagues">
+                      Explorar Ligas
+                    </Link>
+                  </Button>
+                  
+                  {/* Apply the same hover effect */}
+                  <ButtonHoverEffect variant="outline" color="teal" />
+                </div>
               </div>
               
               {/* Trust indicators */}
@@ -283,13 +308,21 @@ export default function HomePage() {
                   </div>
                 </div>
                 
-                <div className="pl-6 pt-4">
-                  <Button variant="outline" className="border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/5" asChild>
+                {/* "Ver todas las características" button with hover effect */}
+                <div className="pl-6 pt-4 relative overflow-hidden group">
+                  <Button 
+                    variant="outline" 
+                    className="border-padeliga-teal text-padeliga-teal hover:bg-transparent bg-transparent relative z-10 transition-all duration-300"
+                    asChild
+                  >
                     <Link href="/features" className="flex items-center">
                       Ver todas las características
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
+                  
+                  {/* Apply the same hover effect */}
+                  <ButtonHoverEffect variant="outline" color="teal" />
                 </div>
               </div>
             </div>
@@ -591,28 +624,50 @@ export default function HomePage() {
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button 
-                    variant="default" 
-                    size="xl" 
-                    className="bg-padeliga-orange hover:bg-padeliga-orange/90 text-white border-2 border-white/20 min-w-[200px]" 
-                    asChild
-                  >
-                    <Link href="/signup">
-                      Registrarse Gratis
-                      <ChevronRight className="ml-1 h-5 w-5" />
-                    </Link>
-                  </Button>
+                  {/* CTA button with ButtonHoverEffect */}
+                  <div className="relative overflow-hidden group">
+                    <Button 
+                      variant="default" 
+                      size="xl" 
+                      className="bg-padeliga-orange hover:bg-padeliga-orange/90 text-white border-2 border-white/20 min-w-[200px] relative z-10" 
+                      asChild
+                    >
+                      <Link href="/signup">
+                        Registrarse Gratis
+                        <ChevronRight className="ml-1 h-5 w-5" />
+                      </Link>
+                    </Button>
+                    
+                    {/* Use ButtonHoverEffect with solid variant */}
+                    <ButtonHoverEffect variant="solid" color="orange" />
+                  </div>
                   
-                  <Button 
-                    variant="outline" 
-                    size="xl" 
-                    className="border-2 border-white hover:bg-white/10 text-white min-w-[200px]" 
-                    asChild
-                  >
-                    <Link href="/login">
-                      Iniciar Sesión
-                    </Link>
-                  </Button>
+                  {/* Secondary CTA button with ButtonHoverEffect */}
+                  <div className="relative overflow-hidden group">
+                    <Button 
+                      variant="outline" 
+                      size="xl" 
+                      className="border-2 border-white hover:bg-transparent bg-transparent text-white min-w-[200px] relative z-10" 
+                      asChild
+                    >
+                      <Link href="/login">
+                        Iniciar Sesión
+                      </Link>
+                    </Button>
+                    
+                    {/* Use a special white version of ButtonHoverEffect */}
+                    <div className="absolute inset-0 overflow-hidden">
+                      {/* First layer - diagonal white trapezoid */}
+                      <div className="absolute -top-full left-0 right-0 h-[200%] bg-white/5 transform skew-y-12 group-hover:top-0 transition-all ease-out duration-300"></div>
+                      
+                      {/* Second layer - bottom white triangle */}
+                      <div className="absolute top-full left-0 right-0 h-full bg-white/10 group-hover:top-1/2 transition-all ease-out duration-500 delay-100"></div>
+                      
+                      {/* Animated corner effects */}
+                      <div className="absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] border-white/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
+                      <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] border-white/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
               
