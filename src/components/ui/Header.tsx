@@ -183,11 +183,11 @@ export default function Header() {
               </div>
             ) : (
               <div className="flex items-center space-x-4">
-                {/* Login button with enhanced ring-inspired effects - SIMPLIFIED */}
-                <div className="relative overflow-hidden group">
+                {/* Login button with COMPLETELY REDESIGNED CLEAN RING EFFECT */}
+                <div className="relative group">
                   <Button 
                     variant="outline" 
-                    className="border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent relative z-10 transition-all duration-300 px-6 py-2 flex items-center"
+                    className="border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent relative z-10 transition-all duration-300 px-6 py-2"
                     asChild
                   >
                     <Link href="/login">
@@ -195,22 +195,8 @@ export default function Header() {
                     </Link>
                   </Button>
                   
-                  {/* Enhanced geometric layered hover effects with concentric rings - SIMPLIFIED */}
-                  <div className="absolute inset-0 overflow-hidden">
-                    {/* Base layer - full teal wash with very low opacity */}
-                    <div className="absolute inset-0 bg-padeliga-teal/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    
-                    {/* Concentric ring effect with thin borders */}
-                    <div className="absolute inset-3 border border-padeliga-teal/0 group-hover:border-padeliga-teal/20 transition-colors duration-500 scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transform-gpu"></div>
-                    <div className="absolute inset-6 border border-padeliga-teal/0 group-hover:border-padeliga-teal/30 transition-colors duration-500 delay-100 scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transform-gpu"></div>
-                    
-                    {/* Angular geometric accent shapes */}
-                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[12px] border-l-[12px] border-padeliga-teal/40 group-hover:w-6 group-hover:h-6 transition-all duration-300"></div>
-                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[12px] border-r-[12px] border-padeliga-teal/40 group-hover:w-6 group-hover:h-6 transition-all duration-300"></div>
-                    
-                    {/* Pulsing ring effect on hover */}
-                    <div className="absolute inset-0 border-2 border-padeliga-teal/0 group-hover:border-padeliga-teal/20 scale-50 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-700 group-hover:animate-pulse-slow"></div>
-                  </div>
+                  {/* Single clean pulsing ring effect */}
+                  <div className="absolute -inset-px rounded-none border-2 border-padeliga-teal/30 opacity-0 group-hover:opacity-100 group-hover:animate-pulse-slow transition-all duration-300 pointer-events-none"></div>
                 </div>
                 
                 {/* Signup button with purple color and advanced logo-inspired effects */}
@@ -362,8 +348,8 @@ export default function Header() {
                   </div>
                 </div>
                 
-                {/* Mobile login button with simplified ring effects */}
-                <div className="relative overflow-hidden group w-full">
+                {/* Mobile login button with clean single ring effect */}
+                <div className="relative group w-full">
                   <Button 
                     variant="outline" 
                     className="w-full border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent px-6 py-2 flex items-center justify-center relative z-10"
@@ -374,22 +360,8 @@ export default function Header() {
                     </Link>
                   </Button>
                   
-                  {/* Enhanced geometric layered hover effects with concentric rings - SIMPLIFIED */}
-                  <div className="absolute inset-0 overflow-hidden">
-                    {/* Base layer - full teal wash with very low opacity */}
-                    <div className="absolute inset-0 bg-padeliga-teal/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    
-                    {/* Concentric ring effect with thin borders */}
-                    <div className="absolute inset-3 border border-padeliga-teal/0 group-hover:border-padeliga-teal/20 transition-colors duration-500 scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transform-gpu"></div>
-                    <div className="absolute inset-6 border border-padeliga-teal/0 group-hover:border-padeliga-teal/30 transition-colors duration-500 delay-100 scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 transform-gpu"></div>
-                    
-                    {/* Angular geometric accent shapes */}
-                    <div className="absolute top-0 left-0 w-0 h-0 border-t-[12px] border-l-[12px] border-padeliga-teal/40 group-hover:w-6 group-hover:h-6 transition-all duration-300"></div>
-                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[12px] border-r-[12px] border-padeliga-teal/40 group-hover:w-6 group-hover:h-6 transition-all duration-300"></div>
-                    
-                    {/* Pulsing ring effect on hover */}
-                    <div className="absolute inset-0 border-2 border-padeliga-teal/0 group-hover:border-padeliga-teal/20 scale-50 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-700 group-hover:animate-pulse-slow"></div>
-                  </div>
+                  {/* Single clean pulsing ring effect */}
+                  <div className="absolute -inset-px rounded-none border-2 border-padeliga-teal/30 opacity-0 group-hover:opacity-100 group-hover:animate-pulse-slow transition-all duration-300 pointer-events-none"></div>
                 </div>
               </div>
             )}
