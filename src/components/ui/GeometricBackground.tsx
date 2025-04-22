@@ -57,71 +57,64 @@ export function GeometricBackground({
       {/* Orange Shape */}
       <div
         className={cn(
-          'absolute -top-20 -left-20 w-64 h-64 bg-padeliga-orange transform rotate-15',
+          'absolute -top-20 -left-20 w-64 h-64 bg-padeliga-orange',
           opacityMap[variant].shape1,
           animationMap.shape1
         )}
-        style={{ transformOrigin: 'center center' }}
       />
       
       {/* Teal Rectangle */}
       <div
         className={cn(
-          'absolute top-1/4 right-10 w-48 h-48 bg-padeliga-teal transform -rotate-12',
+          'absolute top-1/4 right-10 w-48 h-48 bg-padeliga-teal',
           opacityMap[variant].shape2,
           animationMap.shape2
         )}
-        style={{ transformOrigin: 'center center' }}
       />
       
-      {/* Purple Parallelogram */}
+      {/* Purple Shape */}
       <div
         className={cn(
-          'absolute bottom-20 left-1/4 w-64 h-48 bg-padeliga-purple transform rotate-45',
+          'absolute bottom-20 left-1/4 w-64 h-48 bg-padeliga-purple',
           opacityMap[variant].shape3,
           animationMap.shape3
         )}
-        style={{ transformOrigin: 'center center' }}
       />
       
       {/* Green Shape */}
       <div
         className={cn(
-          'absolute top-1/3 left-1/3 w-80 h-64 bg-padeliga-green transform skew-x-12 rotate-12',
+          'absolute top-1/3 left-1/3 w-80 h-64 bg-padeliga-green',
           opacityMap[variant].shape4,
           animationMap.shape4
         )}
-        style={{ transformOrigin: 'center center' }}
       />
       
       {/* Red Shape */}
       <div
         className={cn(
-          'absolute -bottom-10 -right-10 w-48 h-48 bg-padeliga-red transform -rotate-15',
+          'absolute -bottom-10 -right-10 w-48 h-48 bg-padeliga-red',
           opacityMap[variant].shape1,
           animationMap.shape5
         )}
-        style={{ transformOrigin: 'center center' }}
       />
       
       {/* Additional Teal Shape */}
       <div
         className={cn(
-          'absolute top-2/3 right-1/4 w-32 h-32 bg-padeliga-teal transform rotate-30',
+          'absolute top-2/3 right-1/4 w-32 h-32 bg-padeliga-teal',
           opacityMap[variant].shape5,
           animationMap.shape2
         )}
-        style={{ transformOrigin: 'center center' }}
       />
       
       {/* Additional Orange Shape */}
       <div
         className={cn(
-          'absolute top-1/2 -left-10 w-40 h-40 bg-padeliga-orange transform -rotate-10',
+          'absolute top-1/2 -left-10 w-40 h-40 bg-padeliga-orange',
           opacityMap[variant].shape5,
           animationMap.shape3
         )}
-        style={{ transformOrigin: 'center center' }}
       />
     </div>
   );
