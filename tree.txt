@@ -1,6 +1,5 @@
 root/
 ├── ANALYTICS-IMPROVEMENTS.md
-├── BUTTON-ENHANCEMENTS.md
 ├── IMPLEMENTATION-STATUS.md
 ├── README.md
 ├── REBRANDING.md
@@ -253,6 +252,7 @@ root/
 │   │   │   ├── TeamsListSection.tsx
 │   │   │   └── index.ts
 │   │   ├── ui
+│   │   │   ├── ButtonHoverEffect.tsx
 │   │   │   ├── Footer.tsx
 │   │   │   ├── GeometricBackground.tsx
 │   │   │   ├── Header.tsx
