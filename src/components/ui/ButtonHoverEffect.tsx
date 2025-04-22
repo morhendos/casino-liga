@@ -23,7 +23,7 @@ export function ButtonHoverEffect({
         purple: 'border-padeliga-purple/60',
         orange: 'border-padeliga-orange/60'
       }[color]
-    : 'border-white'; // Removed opacity for full white borders
+    : 'border-white/70'; // For solid buttons, always use white with opacity
     
   const firstLayerColor = variant === 'outline'
     ? {
@@ -32,9 +32,9 @@ export function ButtonHoverEffect({
         orange: 'bg-padeliga-orange/5'
       }[color]
     : {
-        teal: 'bg-white/30',  // Significantly increased opacity to 30%
-        purple: 'bg-white/30',
-        orange: 'bg-white/30'
+        teal: 'bg-white/5',
+        purple: 'bg-white/5',
+        orange: 'bg-white/5'
       }[color];
     
   const secondLayerColor = variant === 'outline'
@@ -44,9 +44,9 @@ export function ButtonHoverEffect({
         orange: 'bg-padeliga-orange/10'
       }[color]
     : {
-        teal: 'bg-white/40',  // Significantly increased opacity to 40%
-        purple: 'bg-white/40',
-        orange: 'bg-white/40'
+        teal: 'bg-white/10',
+        purple: 'bg-white/10',
+        orange: 'bg-white/10'
       }[color];
   
   return (
@@ -63,20 +63,15 @@ export function ButtonHoverEffect({
         secondLayerColor
       )}></div>
       
-      {/* Animated corner effects - larger for solid buttons */}
+      {/* Animated corner effects */}
       <div className={cn(
-        "absolute top-0 left-0 w-0 h-0 border-t-[12px] border-l-[12px] group-hover:w-16 group-hover:h-16 transition-all duration-300", // Significantly increased size
+        "absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] group-hover:w-8 group-hover:h-8 transition-all duration-300",
         cornerBorderColor
       )}></div>
       <div className={cn(
-        "absolute bottom-0 right-0 w-0 h-0 border-b-[12px] border-r-[12px] group-hover:w-16 group-hover:h-16 transition-all duration-300", // Significantly increased size
+        "absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] group-hover:w-8 group-hover:h-8 transition-all duration-300",
         cornerBorderColor
       )}></div>
-      
-      {/* Add more dramatic shine effect for solid buttons */}
-      {variant === 'solid' && (
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-all duration-800 ease-in-out"></div>
-      )}
     </div>
   );
 }
