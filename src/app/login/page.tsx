@@ -6,10 +6,11 @@ import Link from "next/link";
 import { useState, useCallback, Suspense } from "react";
 import { validateEmail, validatePassword } from "@/lib/auth/validation";
 import { Section } from "@/components/common/Section";
-import { LogIn, AlertCircle, Loader2, ArrowRight } from "lucide-react";
+import { AlertCircle, Loader2, ArrowRight } from "lucide-react";
 import PadeligaLogo from "@/components/PadeligaLogo";
 import GeometricBackground from "@/components/ui/GeometricBackground";
 import { Button } from "@/components/ui/button";
+import ButtonHoverEffect from "@/components/ui/ButtonHoverEffect";
 
 interface FormErrors {
   email?: string;
@@ -215,46 +216,45 @@ function LoginPageContent() {
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                disabled={isLoading || isRedirecting}
-                variant="teal"
-                size="lg"
-                className="w-full flex items-center justify-center gap-2"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <LogIn
-                    size={18}
-                    className="transition-transform"
-                    strokeWidth={1.5}
-                  />
-                )}
-                <span>
-                  {isRedirecting
-                    ? "Redirigiendo..."
-                    : isLoading
-                    ? "Iniciando sesión..."
-                    : "Iniciar Sesión"}
-                </span>
-              </Button>
+              {/* Login button with ButtonHoverEffect */}
+              <div className="relative overflow-hidden group">
+                <Button
+                  type="submit"
+                  disabled={isLoading || isRedirecting}
+                  variant="teal"
+                  size="lg"
+                  className="w-full relative z-10"
+                >
+                  <span>
+                    {isRedirecting
+                      ? "Redirigiendo..."
+                      : isLoading
+                      ? "Iniciando sesión..."
+                      : "Iniciar Sesión"}
+                  </span>
+                </Button>
+                <ButtonHoverEffect variant="solid" color="teal" />
+              </div>
 
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2">
                 <p className="text-sm text-muted-foreground">
                   ¿No tienes una cuenta?
                 </p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="text-padeliga-teal border-padeliga-teal hover:bg-padeliga-teal/10"
-                  asChild
-                >
-                  <Link href="/signup" className="flex items-center gap-1">
-                    Registrarse
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                </Button>
+                {/* Register button with ButtonHoverEffect */}
+                <div className="relative overflow-hidden group">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-padeliga-orange border-padeliga-orange hover:bg-transparent bg-transparent relative z-10"
+                    asChild
+                  >
+                    <Link href="/signup" className="flex items-center gap-1">
+                      Registrarse
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </Button>
+                  <ButtonHoverEffect variant="outline" color="orange" />
+                </div>
               </div>
             </form>
           </div>
