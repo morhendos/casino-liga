@@ -6,7 +6,6 @@
  */
 
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { SkewedButton } from '@/components/ui/SkewedButton';
 import PadeligaLogo from '@/components/PadeligaLogo';
 import { useSession } from 'next-auth/react';
@@ -40,14 +39,14 @@ export default function PublicLayout({
           </div>
           
           <div className="flex items-center space-x-3">
+            {/* Ligas button - Clean ghost style */}
             <SkewedButton 
               buttonVariant="ghost"
               buttonSize="sm"
               hoverEffectColor="teal"
               hoverEffectVariant="outline"
-              className="border border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
+              className="text-white hover:bg-teal-500/10 border-0"
               asChild
-              skewAngle={354}
             >
               <Link href="/leagues" className="flex items-center gap-1.5">
                 <Trophy className="h-4 w-4" />
@@ -62,8 +61,7 @@ export default function PublicLayout({
                 buttonSize="sm"
                 hoverEffectColor="teal"
                 hoverEffectVariant="solid"
-                className="text-white font-medium"
-                skewAngle={354}
+                className="text-white border-0"
                 asChild
               >
                 <Link href="/dashboard">
@@ -73,13 +71,13 @@ export default function PublicLayout({
             ) : (
               /* Show login/signup for non-authenticated users */
               <>
+                {/* Login button - Clean ghost style with no border */}
                 <SkewedButton 
                   buttonVariant="ghost" 
                   buttonSize="sm"
                   hoverEffectColor="teal"
                   hoverEffectVariant="outline"
-                  className="border border-gray-600 text-gray-200 hover:bg-white/10"
-                  skewAngle={354}
+                  className="text-white hover:bg-white/10 border-0"
                   asChild
                 >
                   <Link href="/login">
@@ -87,13 +85,13 @@ export default function PublicLayout({
                   </Link>
                 </SkewedButton>
                 
+                {/* Register button - Purple instead of blue */}
                 <SkewedButton 
-                  buttonVariant="teal" 
+                  buttonVariant="purple" 
                   buttonSize="sm"
-                  hoverEffectColor="teal"
+                  hoverEffectColor="purple"
                   hoverEffectVariant="solid"
-                  className="text-white font-medium"
-                  skewAngle={354}
+                  className="text-white border-0"
                   asChild
                 >
                   <Link href="/signup">
