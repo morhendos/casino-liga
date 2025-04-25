@@ -11,7 +11,9 @@ import PadeligaLogo from '@/components/PadeligaLogo';
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import Footer from '@/components/ui/Footer';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { Trophy } from 'lucide-react';
+import { ThemeProvider } from '@/components/layout/ThemeProvider';
 
 export default function PublicLayout({
   children,
@@ -26,89 +28,94 @@ export default function PublicLayout({
   const isLeaguesPage = pathname === '/leagues';
   
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
-      <header className="bg-[#1A1F2C] text-white shadow-md">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2 md:space-x-3">
-            <Link href="/" className="flex items-center">
-              <PadeligaLogo variant="light" size="sm" showTagline={false} />
-            </Link>
-            
-            {/* Will be used by child pages to inject the league name */}
-            <div id="dynamic-title"></div>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            {/* Ligas button - Clean ghost style */}
-            <SkewedButton 
-              buttonVariant="ghost"
-              buttonSize="sm"
-              hoverEffectColor="teal"
-              hoverEffectVariant="outline"
-              className="text-white hover:bg-teal-500/10 border-0"
-              asChild
-            >
-              <Link href="/leagues" className="flex items-center gap-1.5">
-                <Trophy className="h-4 w-4" />
-                <span>Ligas</span>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+        <header className="bg-[#1A1F2C] text-white shadow-md">
+          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div className="flex items-center space-x-2 md:space-x-3">
+              <Link href="/" className="flex items-center">
+                <PadeligaLogo variant="light" size="sm" showTagline={false} />
               </Link>
-            </SkewedButton>
+              
+              {/* Will be used by child pages to inject the league name */}
+              <div id="dynamic-title"></div>
+            </div>
             
-            {isAuthenticated ? (
-              /* Show dashboard link for authenticated users */
+            <div className="flex items-center space-x-3">
+              {/* Theme Toggle */}
+              <ThemeToggle />
+              
+              {/* Ligas button - Clean ghost style */}
               <SkewedButton 
-                buttonVariant="teal" 
+                buttonVariant="ghost"
                 buttonSize="sm"
                 hoverEffectColor="teal"
-                hoverEffectVariant="solid"
-                className="text-white border-0"
+                hoverEffectVariant="outline"
+                className="text-white hover:bg-teal-500/10 border-0"
                 asChild
               >
-                <Link href="/dashboard">
-                  Dashboard
+                <Link href="/leagues" className="flex items-center gap-1.5">
+                  <Trophy className="h-4 w-4" />
+                  <span>Ligas</span>
                 </Link>
               </SkewedButton>
-            ) : (
-              /* Show login/signup for non-authenticated users */
-              <>
-                {/* Login button - Clean ghost style with no border */}
+              
+              {isAuthenticated ? (
+                /* Show dashboard link for authenticated users */
                 <SkewedButton 
-                  buttonVariant="ghost" 
+                  buttonVariant="teal" 
                   buttonSize="sm"
                   hoverEffectColor="teal"
-                  hoverEffectVariant="outline"
-                  className="text-white hover:bg-white/10 border-0"
-                  asChild
-                >
-                  <Link href="/login">
-                    Iniciar Sesión
-                  </Link>
-                </SkewedButton>
-                
-                {/* Register button - Purple instead of blue */}
-                <SkewedButton 
-                  buttonVariant="purple" 
-                  buttonSize="sm"
-                  hoverEffectColor="purple"
                   hoverEffectVariant="solid"
                   className="text-white border-0"
                   asChild
                 >
-                  <Link href="/signup">
-                    Registrarse
+                  <Link href="/dashboard">
+                    Dashboard
                   </Link>
                 </SkewedButton>
-              </>
-            )}
+              ) : (
+                /* Show login/signup for non-authenticated users */
+                <>
+                  {/* Login button - Clean ghost style with no border */}
+                  <SkewedButton 
+                    buttonVariant="ghost" 
+                    buttonSize="sm"
+                    hoverEffectColor="teal"
+                    hoverEffectVariant="outline"
+                    className="text-white hover:bg-white/10 border-0"
+                    asChild
+                  >
+                    <Link href="/login">
+                      Iniciar Sesión
+                    </Link>
+                  </SkewedButton>
+                  
+                  {/* Register button - Purple instead of blue */}
+                  <SkewedButton 
+                    buttonVariant="purple" 
+                    buttonSize="sm"
+                    hoverEffectColor="purple"
+                    hoverEffectVariant="solid"
+                    className="text-white border-0"
+                    asChild
+                  >
+                    <Link href="/signup">
+                      Registrarse
+                    </Link>
+                  </SkewedButton>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      </header>
-      
-      <main className="flex-grow">
-        {children}
-      </main>
-      
-      <Footer />
-    </div>
+        </header>
+        
+        <main className="flex-grow">
+          {children}
+        </main>
+        
+        <Footer />
+      </div>
+    </ThemeProvider>
   );
 }
