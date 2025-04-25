@@ -12,7 +12,6 @@ import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import Footer from '@/components/ui/Footer';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
-import { Trophy } from 'lucide-react';
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
 
 export default function PublicLayout({
@@ -22,10 +21,6 @@ export default function PublicLayout({
 }) {
   const { data: session, status } = useSession();
   const isAuthenticated = status === 'authenticated';
-  const pathname = usePathname();
-  
-  // Determine if current page is the leagues page
-  const isLeaguesPage = pathname === '/leagues';
   
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
@@ -44,21 +39,6 @@ export default function PublicLayout({
             <div className="flex items-center space-x-3">
               {/* Theme Toggle */}
               <ThemeToggle />
-              
-              {/* Ligas button with consistent styling */}
-              <SkewedButton 
-                buttonVariant="ghost"
-                buttonSize="sm"
-                hoverEffectColor="teal"
-                hoverEffectVariant="outline"
-                className="text-white hover:text-white"
-                asChild
-              >
-                <Link href="/leagues" className="flex items-center gap-1.5">
-                  <Trophy className="h-4 w-4" />
-                  <span>Ligas</span>
-                </Link>
-              </SkewedButton>
               
               {isAuthenticated ? (
                 /* Show dashboard link for authenticated users */
