@@ -58,26 +58,9 @@ export default async function PublicLeaguePage({ params }: { params: { id: strin
       <GeometricBackground variant="subtle" animated={true} />
       
       <div className="relative z-10 flex-grow">
-        {/* Back to leagues button - fixed width instead of full width */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-          <div className="w-auto inline-block">
-            <SkewedButton
-              buttonVariant="ghost"
-              buttonSize="sm"
-              hoverEffectColor="teal"
-              hoverEffectVariant="outline"
-              className="bg-white/70 backdrop-blur-sm border border-padeliga-teal/30 text-padeliga-teal hover:bg-padeliga-teal/10"
-              asChild
-            >
-              <Link href="/leagues" className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                <span>Todas las Ligas</span>
-              </Link>
-            </SkewedButton>
-          </div>
-        </div>
+        {/* Removed the back button since we already have "Ligas" in the header */}
         
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-8">
           <Card variant="gradient" className="overflow-hidden mb-6">
             <div className="p-1">
               <CardContent className="bg-card p-0">
@@ -191,8 +174,6 @@ export default async function PublicLeaguePage({ params }: { params: { id: strin
           </div>
         </div>
       </div>
-      
-      {/* Removed duplicate footer - footer is already in layout */}
     </div>
   );
 }
