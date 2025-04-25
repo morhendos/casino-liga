@@ -45,7 +45,7 @@ export default function LeagueHeader({ league }: LeagueHeaderProps) {
               {league.name}
             </h1>
             
-            {/* Action buttons */}
+            {/* Action buttons - Improved styling and spacing */}
             <div className="flex flex-wrap gap-3 mt-4">
               {league.status === 'registration' && (
                 <SkewedButton
@@ -53,7 +53,7 @@ export default function LeagueHeader({ league }: LeagueHeaderProps) {
                   buttonSize="sm"
                   hoverEffectColor="orange"
                   hoverEffectVariant="solid"
-                  className="text-white"
+                  className="text-white font-medium"
                   asChild
                 >
                   <Link href={`/leagues/${league._id}/register`} className="flex items-center gap-2">
@@ -68,7 +68,7 @@ export default function LeagueHeader({ league }: LeagueHeaderProps) {
                 buttonSize="sm"
                 hoverEffectColor="teal"
                 hoverEffectVariant="outline"
-                className="text-white"
+                className="text-white font-medium"
                 asChild
               >
                 <Link href={`/leagues/${league._id}/schedule`} className="flex items-center gap-2">
@@ -82,7 +82,7 @@ export default function LeagueHeader({ league }: LeagueHeaderProps) {
                 buttonSize="sm"
                 hoverEffectColor="purple"
                 hoverEffectVariant="outline"
-                className="bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30"
+                className="bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 font-medium"
               >
                 <div className="flex items-center gap-2">
                   <Share2 className="h-4 w-4" />
@@ -103,7 +103,7 @@ export default function LeagueHeader({ league }: LeagueHeaderProps) {
             {league.name}
           </h1>
           
-          {/* Action buttons */}
+          {/* Action buttons - Improved styling and consistent with banner version */}
           <div className="flex flex-wrap gap-3 my-4">
             {league.status === 'registration' && (
               <SkewedButton
@@ -111,7 +111,7 @@ export default function LeagueHeader({ league }: LeagueHeaderProps) {
                 buttonSize="sm"
                 hoverEffectColor="orange"
                 hoverEffectVariant="solid"
-                className="text-white"
+                className="text-white font-medium"
                 asChild
               >
                 <Link href={`/leagues/${league._id}/register`} className="flex items-center gap-2">
@@ -126,7 +126,7 @@ export default function LeagueHeader({ league }: LeagueHeaderProps) {
               buttonSize="sm"
               hoverEffectColor="teal"
               hoverEffectVariant="outline"
-              className="text-white"
+              className="text-white font-medium"
               asChild
             >
               <Link href={`/leagues/${league._id}/schedule`} className="flex items-center gap-2">
@@ -140,7 +140,7 @@ export default function LeagueHeader({ league }: LeagueHeaderProps) {
               buttonSize="sm"
               hoverEffectColor="purple"
               hoverEffectVariant="outline"
-              className="border border-padeliga-purple text-padeliga-purple hover:bg-padeliga-purple/10"
+              className="border border-padeliga-purple text-padeliga-purple hover:bg-padeliga-purple/10 font-medium"
             >
               <div className="flex items-center gap-2">
                 <Share2 className="h-4 w-4" />
@@ -151,31 +151,32 @@ export default function LeagueHeader({ league }: LeagueHeaderProps) {
         </div>
       )}
       
+      {/* League information - Better spacing */}
       <div className="p-6 pt-0">
         {league.description && (
-          <p className="text-gray-600 dark:text-gray-300 mb-4">
+          <p className="text-gray-600 dark:text-gray-300 mb-5">
             {league.description}
           </p>
         )}
         
         <div className="flex flex-wrap gap-4 text-sm">
           {league.startDate && (
-            <div className="flex items-center bg-gray-100 dark:bg-gray-700 px-3 py-1">
-              <span className="font-semibold mr-1">Inicio:</span> 
+            <div className="flex items-center bg-gray-100 dark:bg-gray-700 px-4 py-1.5 rounded">
+              <span className="font-semibold mr-2">Inicio:</span> 
               {formatDate(league.startDate)}
             </div>
           )}
           
           {league.endDate && (
-            <div className="flex items-center bg-gray-100 dark:bg-gray-700 px-3 py-1">
-              <span className="font-semibold mr-1">Fin:</span>
+            <div className="flex items-center bg-gray-100 dark:bg-gray-700 px-4 py-1.5 rounded">
+              <span className="font-semibold mr-2">Fin:</span>
               {formatDate(league.endDate)}
             </div>
           )}
           
           {league.venue && (
-            <div className="flex items-center bg-gray-100 dark:bg-gray-700 px-3 py-1">
-              <span className="font-semibold mr-1">Sede:</span>
+            <div className="flex items-center bg-gray-100 dark:bg-gray-700 px-4 py-1.5 rounded">
+              <span className="font-semibold mr-2">Sede:</span>
               {league.venue}
             </div>
           )}
