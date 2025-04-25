@@ -45,13 +45,13 @@ export default function PublicLayout({
               {/* Theme Toggle */}
               <ThemeToggle />
               
-              {/* Ligas button - Clean ghost style */}
+              {/* Ligas button with consistent styling */}
               <SkewedButton 
                 buttonVariant="ghost"
                 buttonSize="sm"
                 hoverEffectColor="teal"
                 hoverEffectVariant="outline"
-                className="text-white hover:bg-teal-500/10 border-0"
+                className="text-white hover:text-white"
                 asChild
               >
                 <Link href="/leagues" className="flex items-center gap-1.5">
@@ -67,7 +67,7 @@ export default function PublicLayout({
                   buttonSize="sm"
                   hoverEffectColor="teal"
                   hoverEffectVariant="solid"
-                  className="text-white border-0"
+                  className="text-white"
                   asChild
                 >
                   <Link href="/dashboard">
@@ -77,13 +77,13 @@ export default function PublicLayout({
               ) : (
                 /* Show login/signup for non-authenticated users */
                 <>
-                  {/* Login button - Clean ghost style with no border */}
+                  {/* Login button with proper styling */}
                   <SkewedButton 
                     buttonVariant="ghost" 
                     buttonSize="sm"
                     hoverEffectColor="teal"
                     hoverEffectVariant="outline"
-                    className="text-white hover:bg-white/10 border-0"
+                    className="text-white hover:text-white"
                     asChild
                   >
                     <Link href="/login">
@@ -91,13 +91,13 @@ export default function PublicLayout({
                     </Link>
                   </SkewedButton>
                   
-                  {/* Register button - Purple instead of blue */}
+                  {/* Register button - Purple as requested */}
                   <SkewedButton 
                     buttonVariant="purple" 
                     buttonSize="sm"
                     hoverEffectColor="purple"
                     hoverEffectVariant="solid"
-                    className="text-white border-0"
+                    className="text-white"
                     asChild
                   >
                     <Link href="/signup">
