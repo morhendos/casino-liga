@@ -5,6 +5,7 @@ import { ChevronRight, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/utils/date';
 import { createPortal } from 'react-dom';
+import { useTheme } from 'next-themes';
 
 interface LeagueTitleHeaderProps {
   league: {
@@ -18,6 +19,7 @@ interface LeagueTitleHeaderProps {
 export default function LeagueTitleHeader({ league }: LeagueTitleHeaderProps) {
   // Client-side only rendering for the portal
   const [mounted, setMounted] = React.useState(false);
+  const { theme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
@@ -48,7 +50,7 @@ export default function LeagueTitleHeader({ league }: LeagueTitleHeaderProps) {
     return statusMap[status] || status;
   };
 
-  // The content to be rendered in the portal
+  // The content to be rendered in the portal - with theme support
   const titleContent = (
     <div className="flex items-center ml-1.5">
       <ChevronRight className="h-4 w-4 text-gray-400" />
@@ -61,7 +63,7 @@ export default function LeagueTitleHeader({ league }: LeagueTitleHeaderProps) {
         </div>
         
         {(league.startDate || league.endDate) && (
-          <div className="hidden md:flex items-center ml-3 text-xs text-gray-300">
+          <div className="hidden md:flex items-center ml-3 text-xs text-gray-300 dark:text-gray-300">
             <Clock className="h-3.5 w-3.5 mr-1 text-gray-400" />
             {league.startDate && (
               <span>{formatDate(league.startDate)}</span>
