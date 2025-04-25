@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import ButtonHoverEffect from '@/components/ui/ButtonHoverEffect';
 import { cn } from '@/lib/utils';
 
 type ButtonVariant = 'default' | 'teal' | 'orange' | 'purple' | 'green' | 'red' | 'cta' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
@@ -21,8 +22,23 @@ interface SkewedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement
 /**
  * SkewedButton - A reusable button component with skew transformation and hover effects
  * 
- * This component combines the standard Button with hover effects and applies
+ * This component combines the standard Button with ButtonHoverEffect and applies
  * a skew transformation for a distinctive look consistent with the Padeliga brand.
+ * 
+ * @example
+ * <SkewedButton
+ *   buttonVariant="orange"
+ *   buttonSize="xl"
+ *   hoverEffectColor="orange"
+ *   hoverEffectVariant="solid"
+ *   className="text-white font-bold"
+ *   asChild
+ * >
+ *   <Link href="/signup">
+ *     Comenzar Ahora
+ *     <ChevronRight className="ml-1 h-5 w-5" />
+ *   </Link>
+ * </SkewedButton>
  */
 export function SkewedButton({
   children,
@@ -30,29 +46,11 @@ export function SkewedButton({
   buttonSize = 'default',
   hoverEffectColor = 'teal',
   hoverEffectVariant = 'outline',
-  skewAngle = 354, // Default to the 354deg skew
+  skewAngle = 354, // Default to the 354deg skew used in the login page
   className,
   asChild = false,
   ...props
 }: SkewedButtonProps) {
-  
-  // Define hover effect colors
-  const getHoverBgColor = () => {
-    if (hoverEffectVariant === 'outline') {
-      return {
-        teal: 'group-hover:bg-padeliga-teal/10',
-        purple: 'group-hover:bg-padeliga-purple/10',
-        orange: 'group-hover:bg-padeliga-orange/10',
-      }[hoverEffectColor];
-    } else {
-      return {
-        teal: 'group-hover:bg-padeliga-teal/90',
-        purple: 'group-hover:bg-padeliga-purple/90',
-        orange: 'group-hover:bg-padeliga-orange/90',
-      }[hoverEffectColor];
-    }
-  };
-
   return (
     <div 
       className="relative overflow-hidden group" 
@@ -61,22 +59,16 @@ export function SkewedButton({
       <Button
         variant={buttonVariant as any}
         size={buttonSize as any}
-        className={cn(
-          "relative z-10",
-          buttonVariant === 'ghost' && "hover:bg-transparent",
-          className
-        )}
+        className={cn("relative z-10", className)}
         asChild={asChild}
         {...props}
       >
         {children}
       </Button>
-      
-      {/* Simple hover effect without corner boxes */}
-      <div className={cn(
-        "absolute inset-0 w-full h-full transition-all duration-300 opacity-0 group-hover:opacity-100",
-        getHoverBgColor()
-      )}></div>
+      <ButtonHoverEffect 
+        variant={hoverEffectVariant} 
+        color={hoverEffectColor} 
+      />
     </div>
   );
 }
