@@ -75,15 +75,15 @@ export default function PublicLayout({
                   </Link>
                 </SkewedButton>
               ) : (
-                /* Show login/signup for non-authenticated users */
+                /* Show login/signup for non-authenticated users - with login page styling */
                 <>
-                  {/* Login button with proper styling */}
+                  {/* Login button with border styling from login page */}
                   <SkewedButton 
                     buttonVariant="ghost" 
                     buttonSize="sm"
                     hoverEffectColor="teal"
                     hoverEffectVariant="outline"
-                    className="text-white hover:text-white"
+                    className="border border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/10"
                     asChild
                   >
                     <Link href="/login">
@@ -91,13 +91,13 @@ export default function PublicLayout({
                     </Link>
                   </SkewedButton>
                   
-                  {/* Register button - Purple as requested */}
+                  {/* Register button with border and orange styling from login page */}
                   <SkewedButton 
-                    buttonVariant="purple" 
+                    buttonVariant="ghost" 
                     buttonSize="sm"
-                    hoverEffectColor="purple"
-                    hoverEffectVariant="solid"
-                    className="text-white"
+                    hoverEffectColor="orange"
+                    hoverEffectVariant="outline"
+                    className="border border-padeliga-orange text-padeliga-orange hover:bg-padeliga-orange/10"
                     asChild
                   >
                     <Link href="/signup">
