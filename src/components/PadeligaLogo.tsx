@@ -1,42 +1,91 @@
 import React from 'react';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 interface PadeligaLogoProps {
-  variant?: 'light' | 'dark';
-  size?: 'xs' | 'sm' | 'md' | 'lg';
   className?: string;
+  variant?: 'default' | 'light' | 'dark';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  showTagline?: boolean;
+  sloganPosition?: 'below' | 'right';
+  sloganSize?: 'sm' | 'md' | 'lg';
 }
 
-export default function PadeligaLogo({
-  variant = 'light',
+export function PadeligaLogo({
+  className,
+  variant = 'default',
   size = 'md',
-  className
+  showTagline = true,
+  sloganPosition = 'below',
+  sloganSize = 'md',
 }: PadeligaLogoProps) {
-  // Size mappings
-  const sizeMap = {
-    xs: { width: 100, height: 28 },
-    sm: { width: 150, height: 42 },
-    md: { width: 180, height: 50 },
-    lg: { width: 220, height: 62 },
+  // Map sizes to specific heights
+  const sizeClassMap = {
+    sm: 'h-8',
+    md: 'h-10',
+    lg: 'h-12',
+    xl: 'h-16',
   };
   
-  // Choose logo source based on variant
-  const logoSource = variant === 'dark' 
-    ? '/logo-padeliga-dark.png' 
-    : '/logo-padeliga-light.png';
-  
-  const { width, height } = sizeMap[size];
-  
+  // Map slogan sizes to specific text classes
+  const sloganSizeMap = {
+    sm: 'text-xs',
+    md: 'text-sm',
+    lg: 'text-base',
+  };
+
+  const containerClass = cn(
+    'inline-block',
+    className
+  );
+
+  // Choose the appropriate image based on variant
+  const logoSrc = variant === 'dark' 
+    ? '/logo-dark.png' 
+    : variant === 'light' 
+      ? '/logo-light.png' 
+      : '/logo.png';
+
   return (
-    <div className={cn("relative", className)}>
-      <Image 
-        src={logoSource}
-        alt="Padeliga" 
-        width={width} 
-        height={height}
-        className="object-contain"
-      />
+    <div className={containerClass}>
+      {sloganPosition === 'below' ? (
+        // Vertical arrangement (logo above slogan)
+        <div className="flex flex-col items-start">
+          <img
+            src={logoSrc}
+            alt="Padeliga"
+            className={cn('object-contain', sizeClassMap[size])}
+          />
+          {showTagline && (
+            <span className={cn(
+              "font-medium italic mt-1",
+              sloganSizeMap[sloganSize],
+              variant === 'light' ? 'text-white' : variant === 'dark' ? 'text-gray-300' : 'text-gray-500'
+            )}>
+              Tu liga. Tu juego.
+            </span>
+          )}
+        </div>
+      ) : (
+        // Horizontal arrangement (logo and slogan side by side)
+        <div className="flex items-center">
+          <img
+            src={logoSrc}
+            alt="Padeliga"
+            className={cn('object-contain', sizeClassMap[size])}
+          />
+          {showTagline && (
+            <span className={cn(
+              "font-medium italic ml-3",
+              sloganSizeMap[sloganSize],
+              variant === 'light' ? 'text-white' : variant === 'dark' ? 'text-gray-300' : 'text-gray-500'
+            )}>
+              Tu liga. Tu juego.
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
+
+export default PadeligaLogo;
