@@ -154,9 +154,10 @@ function LoginPageContent() {
       <GeometricBackground variant="subtle" animated={true} />
 
       <main className="container mx-auto h-screen px-3 py-4 sm:px-4 sm:py-12 max-w-6xl relative flex flex-col items-center justify-center z-10">
-        <div className="mb-8">
+        {/* Make the logo clickable and redirect to home page */}
+        <Link href="/" className="mb-8 transition-transform hover:scale-105 duration-300">
           <PadeligaLogo size="lg" showTagline={true} />
-        </div>
+        </Link>
 
         <Section title="" className="w-full max-w-[450px] bg-white dark:bg-gray-800 shadow-lg border-l-4 border-padeliga-teal">
           <div className="w-full mx-auto relative">
