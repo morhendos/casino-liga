@@ -12,7 +12,6 @@ import { LeagueHeader, RankingsTable, MatchResults, UpcomingMatches } from '@/co
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import GeometricBackground from '@/components/ui/GeometricBackground';
-import Footer from '@/components/ui/Footer';
 import { SkewedButton } from '@/components/ui/SkewedButton';
 import Link from 'next/link';
 import { ArrowLeft, Trophy, BarChart3 } from 'lucide-react';
@@ -59,24 +58,26 @@ export default async function PublicLeaguePage({ params }: { params: { id: strin
       <GeometricBackground variant="subtle" animated={true} />
       
       <div className="relative z-10 flex-grow">
-        {/* Back to leagues button */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-6 mb-4">
-          <SkewedButton
-            buttonVariant="ghost"
-            buttonSize="sm"
-            hoverEffectColor="teal"
-            hoverEffectVariant="outline"
-            className="bg-white/70 backdrop-blur-sm border border-padeliga-teal/30 text-padeliga-teal hover:bg-padeliga-teal/10"
-            asChild
-          >
-            <Link href="/leagues" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              <span>Todas las Ligas</span>
-            </Link>
-          </SkewedButton>
+        {/* Back to leagues button - fixed width instead of full width */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+          <div className="w-auto inline-block">
+            <SkewedButton
+              buttonVariant="ghost"
+              buttonSize="sm"
+              hoverEffectColor="teal"
+              hoverEffectVariant="outline"
+              className="bg-white/70 backdrop-blur-sm border border-padeliga-teal/30 text-padeliga-teal hover:bg-padeliga-teal/10"
+              asChild
+            >
+              <Link href="/leagues" className="flex items-center gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                <span>Todas las Ligas</span>
+              </Link>
+            </SkewedButton>
+          </div>
         </div>
         
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <Card variant="gradient" className="overflow-hidden mb-6">
             <div className="p-1">
               <CardContent className="bg-card p-0">
@@ -85,7 +86,7 @@ export default async function PublicLeaguePage({ params }: { params: { id: strin
             </div>
           </Card>
           
-          {/* League Stats Summary */}
+          {/* League Stats Summary - Improved spacing and layout */}
           {rankings.length > 0 && (
             <Card variant="elevated" hover="highlight" className="mb-6">
               <CardContent className="py-6">
@@ -134,9 +135,10 @@ export default async function PublicLeaguePage({ params }: { params: { id: strin
             </Card>
           )}
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8 mb-16">
-            <div className="lg:col-span-2">
-              <Card variant="elevated" className="mb-8 shadow-lg">
+          {/* Improved grid layout for better space usage */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6 mb-16">
+            <div className="lg:col-span-2 flex flex-col gap-6">
+              <Card variant="elevated" className="shadow-lg">
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <span className="heading-accent text-2xl font-bold mb-2 text-gray-900 dark:text-white">
@@ -170,7 +172,7 @@ export default async function PublicLeaguePage({ params }: { params: { id: strin
             </div>
             
             <div>
-              <Card variant="elevated" className="shadow-lg">
+              <Card variant="elevated" className="shadow-lg h-full">
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <span className="heading-accent text-2xl font-bold mb-2 text-gray-900 dark:text-white">
@@ -190,8 +192,7 @@ export default async function PublicLeaguePage({ params }: { params: { id: strin
         </div>
       </div>
       
-      {/* Add Footer */}
-      <Footer />
+      {/* Removed duplicate footer - footer is already in layout */}
     </div>
   );
 }
