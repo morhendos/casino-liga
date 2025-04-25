@@ -9,8 +9,7 @@ import { Section } from "@/components/common/Section";
 import { AlertCircle, Loader2, ArrowRight } from "lucide-react";
 import PadeligaLogo from "@/components/PadeligaLogo";
 import GeometricBackground from "@/components/ui/GeometricBackground";
-import { Button } from "@/components/ui/button";
-import ButtonHoverEffect from "@/components/ui/ButtonHoverEffect";
+import { SkewedButton } from "@/components/ui/SkewedButton";
 
 interface FormErrors {
   email?: string;
@@ -216,45 +215,43 @@ function LoginPageContent() {
                 </div>
               </div>
 
-              {/* Login button with ButtonHoverEffect and explicit skew transform */}
-              <div className="relative overflow-hidden group" style={{ transform: "skewX(354deg)" }}>
-                <Button
-                  type="submit"
-                  disabled={isLoading || isRedirecting}
-                  variant="ghost"
-                  size="lg"
-                  className="w-full relative z-10 border border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/10"
-                >
-                  <span>
-                    {isRedirecting
-                      ? "Redirigiendo..."
-                      : isLoading
-                      ? "Iniciando sesión..."
-                      : "Iniciar Sesión"}
-                  </span>
-                </Button>
-                <ButtonHoverEffect variant="outline" color="teal" />
-              </div>
+              {/* Login button using the new SkewedButton component */}
+              <SkewedButton
+                type="submit"
+                buttonVariant="ghost"
+                buttonSize="lg"
+                hoverEffectColor="teal"
+                hoverEffectVariant="outline"
+                className="w-full border border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/10"
+                disabled={isLoading || isRedirecting}
+              >
+                <span>
+                  {isRedirecting
+                    ? "Redirigiendo..."
+                    : isLoading
+                    ? "Iniciando sesión..."
+                    : "Iniciar Sesión"}
+                </span>
+              </SkewedButton>
 
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2">
                 <p className="text-sm text-muted-foreground">
                   ¿No tienes una cuenta?
                 </p>
-                {/* Register button with ButtonHoverEffect and explicit skew transform */}
-                <div className="relative overflow-hidden group" style={{ transform: "skewX(354deg)" }}>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-padeliga-orange border border-padeliga-orange hover:bg-padeliga-orange/10 relative z-10"
-                    asChild
-                  >
-                    <Link href="/signup" className="flex items-center gap-1">
-                      Registrarse
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
-                  </Button>
-                  <ButtonHoverEffect variant="outline" color="orange" />
-                </div>
+                {/* Register button using the new SkewedButton component */}
+                <SkewedButton
+                  buttonVariant="ghost"
+                  buttonSize="sm"
+                  hoverEffectColor="orange"
+                  hoverEffectVariant="outline"
+                  className="text-padeliga-orange border border-padeliga-orange hover:bg-padeliga-orange/10"
+                  asChild
+                >
+                  <Link href="/signup" className="flex items-center gap-1">
+                    Registrarse
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </SkewedButton>
               </div>
             </form>
           </div>
