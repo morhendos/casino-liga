@@ -8,7 +8,7 @@ import GeometricBackground from '@/components/ui/GeometricBackground';
 import PadeligaLogo from '@/components/PadeligaLogo';
 import Footer from '@/components/ui/Footer';
 import Header from '@/components/ui/Header';
-import ButtonHoverEffect from '@/components/ui/ButtonHoverEffect';
+import { SkewedButton } from '@/components/ui/SkewedButton';
 import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -110,40 +110,34 @@ export default function HomePage() {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-5">
-                {/* CTA Button with ButtonHoverEffect */}
-                <div className="relative overflow-hidden group">
-                  <Button 
-                    variant="default"
-                    className="bg-padeliga-orange text-white relative z-10 transition-all duration-300 px-6 py-2 min-w-[180px] font-bold"
-                    size="xl"
-                    asChild
-                  >
-                    <Link href="/signup">
-                      Comenzar Ahora
-                      <ChevronRight className="ml-1 h-5 w-5" />
-                    </Link>
-                  </Button>
-                  
-                  {/* Apply the same hover effect */}
-                  <ButtonHoverEffect variant="solid" color="orange" />
-                </div>
+                {/* Primary CTA button using SkewedButton */}
+                <SkewedButton
+                  buttonVariant="orange"
+                  buttonSize="xl"
+                  hoverEffectColor="orange"
+                  hoverEffectVariant="solid"
+                  className="text-white font-bold min-w-[180px] px-6 py-2"
+                  asChild
+                >
+                  <Link href="/signup">
+                    Comenzar Ahora
+                    <ChevronRight className="ml-1 h-5 w-5" />
+                  </Link>
+                </SkewedButton>
                 
-                {/* Secondary Button with ButtonHoverEffect */}
-                <div className="relative overflow-hidden group">
-                  <Button 
-                    variant="outline" 
-                    size="xl"
-                    className="border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent relative z-10 transition-all duration-300 min-w-[180px]"
-                    asChild
-                  >
-                    <Link href="/leagues">
-                      Explorar Ligas
-                    </Link>
-                  </Button>
-                  
-                  {/* Apply the same hover effect */}
-                  <ButtonHoverEffect variant="outline" color="teal" />
-                </div>
+                {/* Secondary button using SkewedButton */}
+                <SkewedButton
+                  buttonVariant="outline"
+                  buttonSize="xl"
+                  hoverEffectColor="teal"
+                  hoverEffectVariant="outline"
+                  className="border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent min-w-[180px]"
+                  asChild
+                >
+                  <Link href="/leagues">
+                    Explorar Ligas
+                  </Link>
+                </SkewedButton>
               </div>
               
               {/* Trust indicators */}
@@ -219,7 +213,7 @@ export default function HomePage() {
         <div className="absolute -top-20 -left-20 w-40 h-40 bg-padeliga-orange opacity-10 transform -rotate-15"></div>
       </section>
       
-      {/* Features Section - COMPLETELY REDESIGNED */}
+      {/* Features Section */}
       <section className="py-24 relative bg-gray-50 dark:bg-gray-900 overflow-hidden">
         {/* Top diagonal divider */}
         <div className="absolute top-0 left-0 right-0 h-16 bg-white dark:bg-gray-800 transform -skew-y-2"></div>
@@ -308,21 +302,20 @@ export default function HomePage() {
                   </div>
                 </div>
                 
-                {/* "Ver todas las características" button with hover effect */}
-                <div className="pl-6 pt-4 relative overflow-hidden group">
-                  <Button 
-                    variant="outline" 
-                    className="border-padeliga-teal text-padeliga-teal hover:bg-transparent bg-transparent relative z-10 transition-all duration-300"
+                {/* "Ver todas las características" button using SkewedButton */}
+                <div className="pl-6 pt-4">
+                  <SkewedButton
+                    buttonVariant="outline"
+                    hoverEffectColor="teal"
+                    hoverEffectVariant="outline"
+                    className="border-padeliga-teal text-padeliga-teal hover:bg-transparent bg-transparent transition-all duration-300"
                     asChild
                   >
                     <Link href="/features" className="flex items-center">
                       Ver todas las características
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
-                  </Button>
-                  
-                  {/* Apply the same hover effect */}
-                  <ButtonHoverEffect variant="outline" color="teal" />
+                  </SkewedButton>
                 </div>
               </div>
             </div>
@@ -569,7 +562,7 @@ export default function HomePage() {
         </div>
       </section>
       
-      {/* CTA Section - DRAMATICALLY IMPROVED */}
+      {/* CTA Section */}
       <section className="py-20 relative">
         <div className="bg-gradient-to-br from-padeliga-teal/90 to-padeliga-purple/90 text-white overflow-hidden relative">
           {/* Complex geometric background */}
@@ -624,50 +617,34 @@ export default function HomePage() {
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-4">
-                  {/* CTA button with ButtonHoverEffect */}
-                  <div className="relative overflow-hidden group">
-                    <Button 
-                      variant="default" 
-                      size="xl" 
-                      className="bg-padeliga-orange hover:bg-padeliga-orange/90 text-white border-2 border-white/20 min-w-[200px] relative z-10" 
-                      asChild
-                    >
-                      <Link href="/signup">
-                        Registrarse Gratis
-                        <ChevronRight className="ml-1 h-5 w-5" />
-                      </Link>
-                    </Button>
-                    
-                    {/* Use ButtonHoverEffect with solid variant */}
-                    <ButtonHoverEffect variant="solid" color="orange" />
-                  </div>
+                  {/* CTA button using SkewedButton */}
+                  <SkewedButton
+                    buttonVariant="orange"
+                    buttonSize="xl"
+                    hoverEffectColor="orange"
+                    hoverEffectVariant="solid"
+                    className="bg-padeliga-orange hover:bg-padeliga-orange/90 text-white border-2 border-white/20 min-w-[200px]"
+                    asChild
+                  >
+                    <Link href="/signup">
+                      Registrarse Gratis
+                      <ChevronRight className="ml-1 h-5 w-5" />
+                    </Link>
+                  </SkewedButton>
                   
-                  {/* Secondary CTA button with ButtonHoverEffect */}
-                  <div className="relative overflow-hidden group">
-                    <Button 
-                      variant="outline" 
-                      size="xl" 
-                      className="border-2 border-white hover:bg-transparent bg-transparent text-white min-w-[200px] relative z-10" 
-                      asChild
-                    >
-                      <Link href="/login">
-                        Iniciar Sesión
-                      </Link>
-                    </Button>
-                    
-                    {/* Use a special white version of ButtonHoverEffect */}
-                    <div className="absolute inset-0 overflow-hidden">
-                      {/* First layer - diagonal white trapezoid */}
-                      <div className="absolute -top-full left-0 right-0 h-[200%] bg-white/5 transform skew-y-12 group-hover:top-0 transition-all ease-out duration-300"></div>
-                      
-                      {/* Second layer - bottom white triangle */}
-                      <div className="absolute top-full left-0 right-0 h-full bg-white/10 group-hover:top-1/2 transition-all ease-out duration-500 delay-100"></div>
-                      
-                      {/* Animated corner effects */}
-                      <div className="absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] border-white/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
-                      <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] border-white/60 group-hover:w-8 group-hover:h-8 transition-all duration-300"></div>
-                    </div>
-                  </div>
+                  {/* Secondary CTA button using SkewedButton */}
+                  <SkewedButton
+                    buttonVariant="outline"
+                    buttonSize="xl"
+                    hoverEffectColor="orange"
+                    hoverEffectVariant="outline"
+                    className="border-2 border-white hover:bg-transparent bg-transparent text-white min-w-[200px]"
+                    asChild
+                  >
+                    <Link href="/login">
+                      Iniciar Sesión
+                    </Link>
+                  </SkewedButton>
                 </div>
               </div>
               
