@@ -58,46 +58,46 @@ export default async function PublicLeaguePage({ params }: { params: { id: strin
       
       <div className="relative z-10 flex-grow">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-          {/* Stats cards in a grid at the top */}
+          {/* Stats cards in a grid at the top - with theme support */}
           <div className="grid grid-cols-4 gap-4 mb-6">
-            <Card className="bg-[#13151c] text-white shadow-lg">
+            <Card className="bg-white/50 dark:bg-[#13151c] text-gray-800 dark:text-white shadow-lg backdrop-blur-sm">
               <CardContent className="p-4 flex flex-col items-center justify-center text-center">
                 <Trophy className="h-6 w-6 text-padeliga-purple mb-1" />
-                <h3 className="text-sm text-gray-400">Equipos</h3>
+                <h3 className="text-sm text-gray-600 dark:text-gray-400">Equipos</h3>
                 <p className="text-2xl font-bold text-padeliga-purple">{rankings.length}</p>
               </CardContent>
             </Card>
             
-            <Card className="bg-[#13151c] text-white shadow-lg">
+            <Card className="bg-white/50 dark:bg-[#13151c] text-gray-800 dark:text-white shadow-lg backdrop-blur-sm">
               <CardContent className="p-4 flex flex-col items-center justify-center text-center">
                 <BarChart3 className="h-6 w-6 text-padeliga-teal mb-1" />
-                <h3 className="text-sm text-gray-400">Partidos</h3>
+                <h3 className="text-sm text-gray-600 dark:text-gray-400">Partidos</h3>
                 <p className="text-2xl font-bold text-padeliga-teal">{matches.length}</p>
               </CardContent>
             </Card>
             
-            <Card className="bg-[#13151c] text-white shadow-lg">
+            <Card className="bg-white/50 dark:bg-[#13151c] text-gray-800 dark:text-white shadow-lg backdrop-blur-sm">
               <CardContent className="p-4 flex flex-col items-center justify-center text-center">
                 <CheckCircle className="h-6 w-6 text-padeliga-green mb-1" />
-                <h3 className="text-sm text-gray-400">Jugados</h3>
+                <h3 className="text-sm text-gray-600 dark:text-gray-400">Jugados</h3>
                 <p className="text-2xl font-bold text-padeliga-green">{completedMatches.length}</p>
               </CardContent>
             </Card>
             
-            <Card className="bg-[#13151c] text-white shadow-lg">
+            <Card className="bg-white/50 dark:bg-[#13151c] text-gray-800 dark:text-white shadow-lg backdrop-blur-sm">
               <CardContent className="p-4 flex flex-col items-center justify-center text-center">
                 <Calendar className="h-6 w-6 text-padeliga-orange mb-1" />
-                <h3 className="text-sm text-gray-400">Próximos</h3>
+                <h3 className="text-sm text-gray-600 dark:text-gray-400">Próximos</h3>
                 <p className="text-2xl font-bold text-padeliga-orange">{upcomingMatches.length}</p>
               </CardContent>
             </Card>
           </div>
           
-          {/* League description if available */}
+          {/* League description if available - with theme support */}
           {league.description && (
-            <Card className="mb-6">
+            <Card className="mb-6 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
               <CardContent className="p-4">
-                <p className="text-gray-600 dark:text-gray-300">{league.description}</p>
+                <p className="text-gray-700 dark:text-gray-300">{league.description}</p>
               </CardContent>
             </Card>
           )}
