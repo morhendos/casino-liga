@@ -12,6 +12,7 @@ import PadeligaLogo from '@/components/PadeligaLogo';
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import Footer from '@/components/ui/Footer';
+import { Trophy } from 'lucide-react';
 
 export default function PublicLayout({
   children,
@@ -22,8 +23,8 @@ export default function PublicLayout({
   const isAuthenticated = status === 'authenticated';
   const pathname = usePathname();
   
-  // Check if current path is a league detail page to hide the back button
-  const isLeagueDetailPage = pathname.includes('/leagues/') && pathname !== '/leagues';
+  // Determine if current page is the leagues page
+  const isLeaguesPage = pathname === '/leagues';
   
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
@@ -34,12 +35,23 @@ export default function PublicLayout({
           </Link>
           
           <div className="flex items-center space-x-4">
-            <Link
-              href="/leagues"
-              className="text-sm font-medium text-gray-200 hover:text-padeliga-teal transition-colors"
+            {/* Enhanced Ligas navigation */}
+            <SkewedButton 
+              buttonVariant={isLeaguesPage ? "teal" : "ghost"}
+              buttonSize="sm"
+              hoverEffectColor="teal"
+              hoverEffectVariant="outline"
+              className={isLeaguesPage ? 
+                "text-white font-medium" : 
+                "border border-white/20 bg-transparent text-white/90 hover:bg-white/10 hover:text-white"
+              }
+              asChild
             >
-              Ligas
-            </Link>
+              <Link href="/leagues" className="flex items-center gap-1.5">
+                <Trophy className="h-4 w-4" />
+                <span>Ligas</span>
+              </Link>
+            </SkewedButton>
             
             <div className="h-4 w-px bg-gray-700"></div>
             
@@ -65,7 +77,7 @@ export default function PublicLayout({
                   buttonSize="sm"
                   hoverEffectColor="teal"
                   hoverEffectVariant="outline"
-                  className="border border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/10"
+                  className="border border-padeliga-teal/70 text-padeliga-teal hover:bg-padeliga-teal/10"
                   asChild
                 >
                   <Link href="/login">
