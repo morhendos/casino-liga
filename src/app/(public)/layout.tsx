@@ -31,7 +31,7 @@ export default function PublicLayout({
       <header className="bg-[#1A1F2C] text-white shadow-md">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center">
-            <PadeligaLogo size="sm" />
+            <PadeligaLogo variant="light" size="sm" showTagline={false} />
           </Link>
           
           <div className="flex items-center space-x-4">
