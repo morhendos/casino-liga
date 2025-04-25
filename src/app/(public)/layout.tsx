@@ -30,30 +30,30 @@ export default function PublicLayout({
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
       <header className="bg-[#1A1F2C] text-white shadow-md">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center">
-            <PadeligaLogo variant="light" size="sm" showTagline={false} />
-          </Link>
+          <div className="flex items-center space-x-2 md:space-x-3">
+            <Link href="/" className="flex items-center">
+              <PadeligaLogo variant="light" size="sm" showTagline={false} />
+            </Link>
+            
+            {/* Will be used by child pages to inject the league name */}
+            <div id="dynamic-title"></div>
+          </div>
           
-          <div className="flex items-center space-x-4">
-            {/* Enhanced Ligas navigation */}
+          <div className="flex items-center space-x-3">
             <SkewedButton 
-              buttonVariant={isLeaguesPage ? "teal" : "ghost"}
+              buttonVariant="ghost"
               buttonSize="sm"
               hoverEffectColor="teal"
               hoverEffectVariant="outline"
-              className={isLeaguesPage ? 
-                "text-white font-medium" : 
-                "border border-white/20 bg-transparent text-white/90 hover:bg-white/10 hover:text-white"
-              }
+              className="border border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
               asChild
+              skewAngle={354}
             >
               <Link href="/leagues" className="flex items-center gap-1.5">
                 <Trophy className="h-4 w-4" />
                 <span>Ligas</span>
               </Link>
             </SkewedButton>
-            
-            <div className="h-4 w-px bg-gray-700"></div>
             
             {isAuthenticated ? (
               /* Show dashboard link for authenticated users */
@@ -63,6 +63,7 @@ export default function PublicLayout({
                 hoverEffectColor="teal"
                 hoverEffectVariant="solid"
                 className="text-white font-medium"
+                skewAngle={354}
                 asChild
               >
                 <Link href="/dashboard">
@@ -77,7 +78,8 @@ export default function PublicLayout({
                   buttonSize="sm"
                   hoverEffectColor="teal"
                   hoverEffectVariant="outline"
-                  className="border border-padeliga-teal/70 text-padeliga-teal hover:bg-padeliga-teal/10"
+                  className="border border-gray-600 text-gray-200 hover:bg-white/10"
+                  skewAngle={354}
                   asChild
                 >
                   <Link href="/login">
@@ -91,6 +93,7 @@ export default function PublicLayout({
                   hoverEffectColor="teal"
                   hoverEffectVariant="solid"
                   className="text-white font-medium"
+                  skewAngle={354}
                   asChild
                 >
                   <Link href="/signup">
