@@ -29,7 +29,7 @@ export default function PadeligaLogo({
   const { width, height } = sizeMap[size];
   
   return (
-    <div className={cn("relative flex flex-col items-start", className)}>
+    <div className={cn("relative", className)}>
       <Image 
         src={logoSource}
         alt="Padeliga" 
@@ -37,9 +37,6 @@ export default function PadeligaLogo({
         height={height}
         className="object-contain"
       />
-      <div className="text-xs text-white/80 mt-[-2px]">
-        Tu liga. Tu juego.
-      </div>
     </div>
   );
 }
