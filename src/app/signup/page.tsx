@@ -6,9 +6,11 @@ import { useState, useCallback } from "react";
 import { validateEmail, validatePassword } from "@/lib/auth/validation";
 import { registerUser } from "@/app/actions";
 import { Section } from "@/components/common/Section";
-import AuthLogo from "@/components/auth/AuthLogo";
+import PadeligaLogo from "@/components/PadeligaLogo";
 import { useToast } from "@/components/ui/use-toast";
-import { UserPlus, AlertCircle, Loader2 } from "lucide-react";
+import { UserPlus, AlertCircle, Loader2, ArrowRight } from "lucide-react";
+import GeometricBackground from "@/components/ui/GeometricBackground";
+import { SkewedButton } from "@/components/ui/SkewedButton";
 
 interface FormErrors {
   email?: string;
@@ -19,13 +21,16 @@ interface FormErrors {
 
 function ErrorAlert({ message }: { message: string }) {
   return (
-    <div className="rounded-lg bg-destructive/10 p-4 border border-destructive/20">
+    <div className="bg-padeliga-red/10 border-l-4 border-padeliga-red p-4 animate-in fade-in-50 duration-200">
       <div className="flex">
         <div className="flex-shrink-0">
-          <AlertCircle className="h-5 w-5 text-destructive" aria-hidden="true" />
+          <AlertCircle 
+            className="h-5 w-5 text-padeliga-red" 
+            aria-hidden="true" 
+          />
         </div>
         <div className="ml-3">
-          <p className="text-sm text-destructive">{message}</p>
+          <p className="text-sm text-padeliga-red">{message}</p>
         </div>
       </div>
     </div>
@@ -117,14 +122,23 @@ export default function SignUpPage() {
   };
 
   const FormError = ({ message }: { message?: string }) =>
-    message ? <p className="text-sm text-destructive mt-1">{message}</p> : null;
+    message ? <p className="text-sm text-padeliga-red mt-1 animate-in fade-in-50 duration-200">{message}</p> : null;
 
   return (
     <div className="relative min-h-screen transition-all duration-500">
-      <main className="container mx-auto h-screen px-3 py-4 sm:px-4 sm:py-12 max-w-6xl relative flex items-center flex-col justify-center">
-        <AuthLogo />
-        <Section title="" className="w-[450px]">
-          <div className="w-full mx-auto">
+      {/* Add GeometricBackground with subtle variant */}
+      <GeometricBackground variant="subtle" animated={true} />
+
+      <main className="container mx-auto h-screen px-3 py-4 sm:px-4 sm:py-12 max-w-6xl relative flex items-center flex-col justify-center z-10">
+        {/* Make the logo clickable and redirect to home page */}
+        <Link href="/" className="mb-8 transition-transform hover:scale-105 duration-300">
+          <PadeligaLogo size="lg" showTagline={true} />
+        </Link>
+
+        <Section title="" className="w-full max-w-[450px] bg-white dark:bg-gray-800 shadow-lg border-l-4 border-padeliga-purple">
+          <div className="w-full mx-auto relative">
+            <h2 className="heading-accent text-2xl font-bold mb-6">Crear Cuenta</h2>
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {errors.general && <ErrorAlert message={errors.general} />}
 
@@ -134,7 +148,7 @@ export default function SignUpPage() {
                     htmlFor="email"
                     className="block text-sm font-medium mb-2"
                   >
-                    Email address
+                    Email
                   </label>
                   <input
                     id="email"
@@ -142,7 +156,7 @@ export default function SignUpPage() {
                     type="email"
                     autoComplete="email"
                     required
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-padeliga-purple focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
                     disabled={isLoading}
                   />
                   <FormError message={errors.email} />
@@ -153,7 +167,7 @@ export default function SignUpPage() {
                     htmlFor="password"
                     className="block text-sm font-medium mb-2"
                   >
-                    Password
+                    Contraseña
                   </label>
                   <input
                     id="password"
@@ -161,7 +175,7 @@ export default function SignUpPage() {
                     type="password"
                     autoComplete="new-password"
                     required
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-padeliga-purple focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
                     disabled={isLoading}
                   />
                   <FormError message={errors.password} />
@@ -172,7 +186,7 @@ export default function SignUpPage() {
                     htmlFor="confirmPassword"
                     className="block text-sm font-medium mb-2"
                   >
-                    Confirm Password
+                    Confirmar Contraseña
                   </label>
                   <input
                     id="confirmPassword"
@@ -180,42 +194,58 @@ export default function SignUpPage() {
                     type="password"
                     autoComplete="new-password"
                     required
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-padeliga-purple focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
                     disabled={isLoading}
                   />
                   <FormError message={errors.confirmPassword} />
                 </div>
               </div>
 
-              <button
+              {/* Register button using SkewedButton */}
+              <SkewedButton
                 type="submit"
+                buttonVariant="ghost"
+                buttonSize="lg"
+                hoverEffectColor="purple"
+                hoverEffectVariant="outline"
+                className="w-full border border-padeliga-purple text-padeliga-purple hover:bg-padeliga-purple/10"
                 disabled={isLoading}
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-[rgb(210,50,170)] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[rgb(180,40,150)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgb(210,50,170)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <UserPlus
-                    size={18}
-                    className="transition-transform"
-                    strokeWidth={1.5}
-                  />
-                )}
-                <span>
-                  {isLoading ? "Creating account..." : "Create account"}
+                <span className="flex items-center justify-center gap-2">
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <UserPlus
+                      size={18}
+                      className="transition-transform"
+                      strokeWidth={1.5}
+                    />
+                  )}
+                  <span>
+                    {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
+                  </span>
                 </span>
-              </button>
+              </SkewedButton>
 
-              <p className="text-sm text-center text-muted-foreground">
-                Already have an account?{" "}
-                <Link
-                  href="/login"
-                  className="text-[rgb(210,50,170)] hover:text-[rgb(180,40,150)] hover:underline font-medium"
-                  tabIndex={isLoading ? -1 : 0}
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2">
+                <p className="text-sm text-muted-foreground">
+                  ¿Ya tienes una cuenta?
+                </p>
+                {/* Login button using SkewedButton */}
+                <SkewedButton
+                  buttonVariant="ghost"
+                  buttonSize="sm"
+                  hoverEffectColor="teal"
+                  hoverEffectVariant="outline"
+                  className="text-padeliga-teal border border-padeliga-teal hover:bg-padeliga-teal/10"
+                  asChild
                 >
-                  Log in
-                </Link>
-              </p>
+                  <Link href="/login" className="flex items-center gap-1">
+                    Iniciar Sesión
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </SkewedButton>
+              </div>
             </form>
           </div>
         </Section>
