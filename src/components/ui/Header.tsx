@@ -3,10 +3,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
+import { SkewedButton } from '@/components/ui/SkewedButton';
 import PadeligaLogo from '@/components/PadeligaLogo';
 import { Menu, X, ChevronDown, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import ButtonHoverEffect from './ButtonHoverEffect';
 
 interface NavLinkProps {
   href: string;
@@ -158,62 +158,47 @@ export default function Header() {
             </button>
           </nav>
 
-          {/* Right side buttons - COMPLETELY REDESIGNED WITH LOGO-INSPIRED EFFECTS */}
+          {/* Right side buttons - Updated to use SkewedButton */}
           <div className="hidden md:flex items-center space-x-4">
             {status === 'authenticated' ? (
-              // Dashboard button with logo-inspired hover effect
-              <div className="relative overflow-hidden group">
-                <Button 
-                  variant="default"
-                  className="bg-padeliga-teal text-white relative z-10 overflow-hidden transition-all duration-300 px-6 py-2"
-                  asChild
-                >
-                  <Link href="/dashboard">Mi Dashboard</Link>
-                </Button>
-                
-                {/* Layered geometric hover effects */}
-                <div className="absolute inset-0 overflow-hidden">
-                  {/* Background geometric shapes */}
-                  <div className="absolute top-0 -left-full w-[200%] h-full bg-padeliga-purple/10 transform skew-x-12 group-hover:animate-slide-right transition-all duration-700"></div>
-                  <div className="absolute -top-full left-0 w-full h-[200%] bg-padeliga-orange/10 transform -skew-y-12 group-hover:animate-slide-down transition-all duration-700"></div>
-                  
-                  {/* Border effect */}
-                  <div className="absolute inset-0 border border-transparent group-hover:border-white/30 transition-colors duration-300"></div>
-                </div>
-              </div>
+              // Dashboard button with SkewedButton
+              <SkewedButton
+                buttonVariant="teal" 
+                buttonSize="default"
+                hoverEffectColor="teal"
+                hoverEffectVariant="solid"
+                className="text-white px-6 py-2"
+                asChild
+              >
+                <Link href="/dashboard">Mi Dashboard</Link>
+              </SkewedButton>
             ) : (
               <div className="flex items-center space-x-4">
-                {/* Login button with outline style and hover effects */}
-                <div className="relative overflow-hidden group">
-                  <Button 
-                    variant="outline" 
-                    className="border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent relative z-10 transition-all duration-300 px-6 py-2"
-                    asChild
-                  >
-                    <Link href="/login">
-                      <span>Iniciar Sesión</span>
-                    </Link>
-                  </Button>
-                  
-                  {/* Using the reusable hover effect component */}
-                  <ButtonHoverEffect variant="outline" color="teal" />
-                </div>
+                {/* Login button with SkewedButton */}
+                <SkewedButton
+                  buttonVariant="outline"
+                  hoverEffectColor="teal"
+                  hoverEffectVariant="outline"
+                  className="border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent px-6 py-2"
+                  asChild
+                >
+                  <Link href="/login">
+                    <span>Iniciar Sesión</span>
+                  </Link>
+                </SkewedButton>
                 
-                {/* Signup button with solid background and same hover effects */}
-                <div className="relative overflow-hidden group">
-                  <Button 
-                    variant="default"
-                    className="bg-padeliga-purple hover:bg-padeliga-purple/90 text-white relative z-10 transition-all duration-300 px-6 py-2"
-                    asChild
-                  >
-                    <Link href="/signup">
-                      <span>Registrarse</span>
-                    </Link>
-                  </Button>
-                  
-                  {/* Using the reusable hover effect component for solid button */}
-                  <ButtonHoverEffect variant="solid" color="purple" />
-                </div>
+                {/* Signup button with SkewedButton */}
+                <SkewedButton
+                  buttonVariant="purple"
+                  hoverEffectColor="purple"
+                  hoverEffectVariant="solid"
+                  className="text-white px-6 py-2"
+                  asChild
+                >
+                  <Link href="/signup">
+                    <span>Registrarse</span>
+                  </Link>
+                </SkewedButton>
               </div>
             )}
           </div>
@@ -275,59 +260,44 @@ export default function Header() {
             
             {status === 'authenticated' ? (
               <div className="px-4 py-3">
-                <div className="relative overflow-hidden group w-full">
-                  <Button 
-                    variant="default"
-                    className="w-full bg-padeliga-teal text-white px-6 py-2 relative z-10"
-                    asChild
-                  >
-                    <Link href="/dashboard">Mi Dashboard</Link>
-                  </Button>
-                  
-                  {/* Logo-inspired geometric layered hover effects */}
-                  <div className="absolute inset-0 overflow-hidden">
-                    {/* Background geometric shapes */}
-                    <div className="absolute top-0 -left-full w-[200%] h-full bg-padeliga-purple/10 transform skew-x-12 group-hover:animate-slide-right transition-all duration-700"></div>
-                    <div className="absolute -top-full left-0 w-full h-[200%] bg-padeliga-orange/10 transform -skew-y-12 group-hover:animate-slide-down transition-all duration-700"></div>
-                    
-                    {/* Border effect */}
-                    <div className="absolute inset-0 border border-transparent group-hover:border-white/30 transition-colors duration-300"></div>
-                  </div>
-                </div>
+                {/* Mobile dashboard button with SkewedButton */}
+                <SkewedButton
+                  buttonVariant="teal"
+                  hoverEffectColor="teal"
+                  hoverEffectVariant="solid"
+                  className="w-full text-white px-6 py-2"
+                  asChild
+                >
+                  <Link href="/dashboard">Mi Dashboard</Link>
+                </SkewedButton>
               </div>
             ) : (
               <div className="px-4 py-3 space-y-3">
-                {/* Mobile signup button with same effects as login */}
-                <div className="relative overflow-hidden group w-full">
-                  <Button 
-                    variant="default"
-                    className="w-full bg-padeliga-purple hover:bg-padeliga-purple/90 text-white px-6 py-2 flex items-center justify-center relative z-10"
-                    asChild
-                  >
-                    <Link href="/signup">
-                      <span>Registrarse</span>
-                    </Link>
-                  </Button>
-                  
-                  {/* Using the reusable hover effect component for solid button */}
-                  <ButtonHoverEffect variant="solid" color="purple" />
-                </div>
+                {/* Mobile signup button with SkewedButton */}
+                <SkewedButton
+                  buttonVariant="purple"
+                  hoverEffectColor="purple"
+                  hoverEffectVariant="solid"
+                  className="w-full text-white px-6 py-2"
+                  asChild
+                >
+                  <Link href="/signup">
+                    <span>Registrarse</span>
+                  </Link>
+                </SkewedButton>
                 
-                {/* Mobile login button with outline hover effects */}
-                <div className="relative overflow-hidden group w-full">
-                  <Button 
-                    variant="outline" 
-                    className="w-full border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent px-6 py-2 flex items-center justify-center relative z-10"
-                    asChild
-                  >
-                    <Link href="/login">
-                      <span>Iniciar Sesión</span>
-                    </Link>
-                  </Button>
-                  
-                  {/* Using the reusable hover effect component */}
-                  <ButtonHoverEffect variant="outline" color="teal" />
-                </div>
+                {/* Mobile login button with SkewedButton */}
+                <SkewedButton
+                  buttonVariant="outline" 
+                  hoverEffectColor="teal"
+                  hoverEffectVariant="outline"
+                  className="w-full border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent px-6 py-2"
+                  asChild
+                >
+                  <Link href="/login">
+                    <span>Iniciar Sesión</span>
+                  </Link>
+                </SkewedButton>
               </div>
             )}
           </nav>
