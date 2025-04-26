@@ -2,18 +2,20 @@
 
 import withAuth from "@/components/auth/withAuth";
 import { useSession } from "next-auth/react";
-import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { 
   User, 
   Users, 
   Trophy, 
   Calendar, 
-  BarChart, 
-  ArrowRight,
   Award,
+  CheckCircle, 
+  Clock, 
+  BadgePlus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DashboardCard, DashboardStats } from "@/components/dashboard";
+import { GeometricBackground } from "@/components/ui/GeometricBackground";
 
 function DashboardPage() {
   const { data: session } = useSession();
@@ -56,9 +58,37 @@ function DashboardPage() {
     }
   ];
   
+  // Mock stats data - in a real app, these would come from an API
+  const statsData = [
+    {
+      title: "Active Leagues",
+      value: "4",
+      icon: Trophy,
+      color: "padeliga-teal"
+    },
+    {
+      title: "Upcoming Matches",
+      value: "2",
+      icon: Clock,
+      color: "padeliga-orange"
+    },
+    {
+      title: "Completed Matches",
+      value: "8",
+      icon: CheckCircle,
+      color: "padeliga-green"
+    },
+    {
+      title: "Current Teams",
+      value: "3",
+      icon: Users,
+      color: "padeliga-purple"
+    }
+  ];
+  
   return (
-    <div className="min-h-screen transition-colors duration-200">
-      <main className="container mx-auto px-3 py-6 sm:px-6 max-w-7xl">
+    <div className="min-h-screen transition-colors duration-200 relative">
+      <main className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="mb-8">
           <h1 className="text-4xl font-bold tracking-tight heading-accent inline-block">
             Welcome to Padeliga!
@@ -74,41 +104,48 @@ function DashboardPage() {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-8">
-          {menuItems.map((item) => (
-            <Card key={item.href} className="overflow-hidden border-0 card-highlight">
-              <div className="h-full p-6 relative group">
-                <div className={`absolute top-0 left-0 w-full h-1 bg-${item.color}`} />
-                
-                <div className={`inline-flex items-center justify-center p-2 rounded-none bg-${item.color}/10 mb-4`}>
-                  <item.icon className={`h-6 w-6 text-${item.color}`} />
-                </div>
-                
-                <h2 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
-                  {item.title}
-                </h2>
-                
-                <p className="text-muted-foreground mb-6">
-                  {item.description}
-                </p>
-                
-                <div className="mt-auto pt-2">
-                  <Button 
-                    variant="ghost" 
-                    asChild 
-                    className={`group-hover:text-${item.color} transition-colors p-0 h-auto font-semibold`}
-                  >
-                    <Link href={item.href} className="flex items-center">
-                      <span>Go to {item.title}</span>
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
+        {/* Stats section */}
+        <div className="my-8">
+          <DashboardStats stats={statsData} />
         </div>
         
+        {/* Quick actions */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+          <div className="flex flex-wrap gap-4">
+            <Button className="bg-padeliga-teal hover:bg-padeliga-teal/90">
+              <BadgePlus className="mr-2 h-4 w-4" />
+              Register for League
+            </Button>
+            <Button className="bg-padeliga-purple hover:bg-padeliga-purple/90">
+              <Users className="mr-2 h-4 w-4" />
+              Create Team
+            </Button>
+            <Button className="bg-padeliga-orange hover:bg-padeliga-orange/90">
+              <Calendar className="mr-2 h-4 w-4" />
+              Schedule Match
+            </Button>
+          </div>
+        </div>
+        
+        {/* Menu cards */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Manage Your Padel Experience</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {menuItems.map((item) => (
+              <DashboardCard 
+                key={item.href}
+                title={item.title}
+                description={item.description}
+                icon={item.icon}
+                href={item.href}
+                color={item.color}
+              />
+            ))}
+          </div>
+        </div>
+        
+        {/* Tips section */}
         <div className="mt-10 bg-paper p-6 border-l-4 border-padeliga-orange">
           <h2 className="text-2xl font-bold mb-2">Quick Tips</h2>
           <ul className="ml-6 list-disc space-y-1">
