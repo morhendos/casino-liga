@@ -636,7 +636,7 @@ export default function HomePage() {
                   <SkewedButton
                     buttonVariant="outline"
                     buttonSize="xl"
-                    hoverEffectColor="orange"
+                    hoverEffectColor="white"
                     hoverEffectVariant="outline"
                     className="border-2 border-white hover:bg-transparent bg-transparent text-white min-w-[200px]"
                     asChild
