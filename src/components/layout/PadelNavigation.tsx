@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { LucideIcon, User, Users, Trophy, Calendar, BarChart, Award, Settings, Medal, Home } from "lucide-react";
+import { LucideIcon, Home, User, Users, Trophy, Calendar, BarChart, Medal, Settings } from "lucide-react";
 import { isAdmin, isPlayer } from "@/lib/auth/role-utils";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +13,6 @@ interface NavItem {
   icon: LucideIcon;
   adminOnly?: boolean;
   playerOnly?: boolean;
-  color?: string;
 }
 
 export function PadelNavigation() {
@@ -22,108 +21,94 @@ export function PadelNavigation() {
   
   const navItems: NavItem[] = [
     {
-      label: "Dashboard",
+      label: "Home",
       href: "/dashboard",
-      icon: Home,
-      color: "padeliga-teal"
+      icon: Home
     },
     {
-      label: "Player Profile",
+      label: "Profile",
       href: "/dashboard/player-profile",
-      icon: User,
-      color: "padeliga-purple"
+      icon: User
     },
     {
       label: "Teams",
       href: "/dashboard/teams",
-      icon: Users,
-      color: "padeliga-green"
+      icon: Users
     },
     {
       label: "Leagues",
       href: "/dashboard/leagues",
-      icon: Trophy,
-      color: "padeliga-orange"
+      icon: Trophy
     },
     {
       label: "Matches",
       href: "/dashboard/matches",
-      icon: Calendar,
-      color: "padeliga-teal"
+      icon: Calendar
     },
     {
       label: "Rankings",
       href: "/dashboard/rankings",
       icon: BarChart,
-      adminOnly: true, // Global rankings for admins
-      color: "padeliga-red"
+      adminOnly: true
     },
     {
       label: "My Rankings",
       href: "/dashboard/my-rankings",
       icon: Medal,
-      playerOnly: true, // Personal rankings for players
-      color: "padeliga-orange"
+      playerOnly: true
     },
     {
       label: "Admin",
       href: "/dashboard/admin",
       icon: Settings,
-      adminOnly: true, // Only show for admin users
-      color: "padeliga-purple"
+      adminOnly: true
     }
   ];
   
   // Filter nav items based on user role
   const filteredNavItems = navItems.filter(item => {
-    // If an item is marked as adminOnly, check if the user is an admin
     if (item.adminOnly) {
       return isAdmin(session);
     }
     
-    // If an item is marked as playerOnly, check if the user is a player (not admin-only)
     if (item.playerOnly) {
       return isPlayer(session);
     }
     
-    // Otherwise show the item to all authenticated users
     return true;
   });
   
   return (
-    <nav className="space-y-2">
+    <nav className="space-y-1">
       {filteredNavItems.map((item) => {
         const isActive = 
           pathname === item.href || 
           (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
-        
-        const colorClass = item.color || "padeliga-teal";
         
         return (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              "flex h-10 items-center text-sm font-medium transition-colors relative group",
-              isActive 
-                ? `text-${colorClass} bg-${colorClass}/10` 
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              "flex items-center group px-3 py-2 text-sm rounded-md transition-colors",
+              isActive
+                ? "bg-padeliga-teal/10 text-padeliga-teal font-medium"
+                : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
             )}
           >
-            {/* Active indicator bar */}
-            {isActive && (
-              <div className={`absolute left-0 top-0 bottom-0 w-1 bg-${colorClass}`} />
-            )}
+            <item.icon 
+              className={cn(
+                "flex-shrink-0 -ml-0.5 mr-3 h-5 w-5",
+                isActive
+                  ? "text-padeliga-teal"
+                  : "text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-400"
+              )} 
+            />
+            {item.label}
             
-            <div className="flex items-center px-4 py-2">
-              <item.icon className={cn(
-                "mr-3 h-5 w-5",
-                isActive 
-                  ? `text-${colorClass}` 
-                  : "text-muted-foreground group-hover:text-foreground"
-              )} />
-              {item.label}
-            </div>
+            {isActive && (
+              <div className="ml-auto w-1 h-5 bg-padeliga-teal rounded-full" />
+            )}
           </Link>
         );
       })}
