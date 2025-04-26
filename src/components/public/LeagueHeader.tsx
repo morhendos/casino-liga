@@ -29,7 +29,7 @@ interface LeagueHeaderProps {
 
 export default function LeagueHeader({ league, stats }: LeagueHeaderProps) {
   return (
-    <div className="bg-[#13151c] text-white">
+    <div className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white">
       <div className="p-5">
         <div className="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center mb-6">
           <div>
@@ -42,13 +42,13 @@ export default function LeagueHeader({ league, stats }: LeagueHeaderProps) {
                 {formatStatus(league.status)}
               </Badge>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">
+            <h1 className="text-2xl md:text-3xl font-bold mb-1">
               {league.name}
             </h1>
             
             {/* Date information in a nice format */}
             {(league.startDate || league.endDate) && (
-              <div className="flex items-center gap-2 text-gray-300 text-sm mt-2">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300 text-sm mt-2">
                 <Clock className="h-4 w-4 text-padeliga-orange" />
                 {league.startDate && (
                   <span>
@@ -70,12 +70,12 @@ export default function LeagueHeader({ league, stats }: LeagueHeaderProps) {
         
         {/* Stats summary integrated into header */}
         {stats && (
-          <div className="grid grid-cols-4 gap-2 md:gap-6 pb-3 pt-2 border-t border-gray-700">
+          <div className="grid grid-cols-4 gap-2 md:gap-6 pb-3 pt-2 border-t border-gray-300 dark:border-gray-700">
             <div className="flex flex-col items-center text-center">
               <div className="mb-1 p-2">
                 <Trophy className="h-5 w-5 text-padeliga-purple" />
               </div>
-              <div className="text-xs text-gray-400">Equipos</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Equipos</div>
               <div className="text-xl font-bold text-padeliga-purple">{stats.teamsCount}</div>
             </div>
             
@@ -83,7 +83,7 @@ export default function LeagueHeader({ league, stats }: LeagueHeaderProps) {
               <div className="mb-1 p-2">
                 <BarChart3 className="h-5 w-5 text-padeliga-teal" />
               </div>
-              <div className="text-xs text-gray-400">Partidos</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Partidos</div>
               <div className="text-xl font-bold text-padeliga-teal">{stats.matchesCount}</div>
             </div>
             
@@ -91,7 +91,7 @@ export default function LeagueHeader({ league, stats }: LeagueHeaderProps) {
               <div className="mb-1 p-2">
                 <CheckCircle className="h-5 w-5 text-padeliga-green" />
               </div>
-              <div className="text-xs text-gray-400">Jugados</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Jugados</div>
               <div className="text-xl font-bold text-padeliga-green">{stats.completedCount}</div>
             </div>
             
@@ -99,7 +99,7 @@ export default function LeagueHeader({ league, stats }: LeagueHeaderProps) {
               <div className="mb-1 p-2">
                 <Calendar className="h-5 w-5 text-padeliga-orange" />
               </div>
-              <div className="text-xs text-gray-400">Próximos</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Próximos</div>
               <div className="text-xl font-bold text-padeliga-orange">{stats.upcomingCount}</div>
             </div>
           </div>
