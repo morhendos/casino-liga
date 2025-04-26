@@ -3,55 +3,26 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import withRoleAuth from "@/components/auth/withRoleAuth";
 import { ROLES } from "@/lib/auth/role-utils";
-import { UserCircle, UsersRound, Trophy, UserCog, Mail, ShieldCheck, Settings, BarChart, Users, Calendar } from "lucide-react";
-import { UserManagement } from "@/components/admin/UserManagement";
-import { RoleManagement } from "@/components/admin/RoleManagement";
-import { LeagueManagement } from "@/components/admin/LeagueManagement";
-import { PlayerManagement } from "@/components/admin/PlayerManagement";
-import PlayerInvitationManagement from "@/components/admin/PlayerInvitationManagement";
+import { UserCircle, UsersRound, Trophy, UserCog, Mail, ShieldCheck, Settings, BarChart } from "lucide-react";
 import { GeometricBackground } from "@/components/ui/GeometricBackground";
-import { DashboardStats, StatItem } from "@/components/dashboard";
+import {
+  AdminCard,
+  AdminDashboardOverview,
+  UserManagement,
+  PlayerManagement,
+  PlayerInvitationManagement,
+  RoleManagement,
+  LeagueManagement
+} from "@/components/admin";
 
 function AdminDashboard() {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [players, setPlayers] = useState([]);
   const [isLoadingPlayers, setIsLoadingPlayers] = useState(false);
-  
-  // Stats data (could be fetched from an API in a real application)
-  const statsData = [
-    {
-      title: "Total Users",
-      value: "42",
-      icon: Users,
-      color: "padeliga-purple",
-      trend: {
-        value: 12,
-        isPositive: true
-      }
-    },
-    {
-      title: "Active Leagues",
-      value: "7",
-      icon: Trophy,
-      color: "padeliga-teal"
-    },
-    {
-      title: "Scheduled Matches",
-      value: "28",
-      icon: Calendar,
-      color: "padeliga-orange"
-    },
-    {
-      title: "Total Players",
-      value: "124",
-      icon: UserCog,
-      color: "padeliga-green"
-    }
-  ];
 
   useEffect(() => {
     // Load players for the invitation tab
@@ -114,6 +85,33 @@ function AdminDashboard() {
     }
   };
 
+  const getTabIcon = (tabId, active = false) => {
+    const icons = {
+      dashboard: BarChart,
+      users: UsersRound,
+      players: UserCog,
+      invitations: Mail,
+      roles: ShieldCheck,
+      leagues: Trophy,
+      settings: Settings,
+    };
+    
+    const colors = {
+      dashboard: "padeliga-teal",
+      users: "padeliga-purple",
+      players: "padeliga-green",
+      invitations: "padeliga-orange",
+      roles: "padeliga-red",
+      leagues: "padeliga-teal",
+      settings: "padeliga-purple",
+    };
+    
+    const Icon = icons[tabId] || BarChart;
+    const color = colors[tabId] || "padeliga-teal";
+    
+    return <Icon className={`h-4 w-4 mr-2 ${active ? `text-${color}` : ''}`} />;
+  };
+
   return (
     <div className="min-h-screen transition-colors duration-200 relative">
       {/* Background with subtle pattern */}
@@ -129,7 +127,7 @@ function AdminDashboard() {
           </p>
         </div>
 
-        {/* Dashboard overview tab with stats */}
+        {/* Dashboard tabs */}
         <Tabs
           defaultValue="dashboard"
           className="space-y-6"
@@ -139,252 +137,99 @@ function AdminDashboard() {
           <div className="bg-paper border-b border-border p-1 sticky top-0 z-20">
             <TabsList className="grid grid-cols-2 md:grid-cols-6 w-full">
               <TabsTrigger value="dashboard" className="px-4 py-2">
-                <BarChart className="h-4 w-4 mr-2 text-padeliga-teal" />
+                {getTabIcon('dashboard', activeTab === 'dashboard')}
                 Dashboard
               </TabsTrigger>
               <TabsTrigger value="users" className="px-4 py-2">
-                <UsersRound className="h-4 w-4 mr-2 text-padeliga-purple" />
+                {getTabIcon('users', activeTab === 'users')}
                 Users
               </TabsTrigger>
               <TabsTrigger value="players" className="px-4 py-2">
-                <UserCog className="h-4 w-4 mr-2 text-padeliga-green" />
+                {getTabIcon('players', activeTab === 'players')}
                 Players
               </TabsTrigger>
               <TabsTrigger value="invitations" className="px-4 py-2">
-                <Mail className="h-4 w-4 mr-2 text-padeliga-orange" />
+                {getTabIcon('invitations', activeTab === 'invitations')}
                 Invitations
               </TabsTrigger>
               <TabsTrigger value="roles" className="px-4 py-2">
-                <ShieldCheck className="h-4 w-4 mr-2 text-padeliga-red" />
+                {getTabIcon('roles', activeTab === 'roles')}
                 Roles
               </TabsTrigger>
               <TabsTrigger value="leagues" className="px-4 py-2">
-                <Trophy className="h-4 w-4 mr-2 text-padeliga-teal" />
+                {getTabIcon('leagues', activeTab === 'leagues')}
                 Leagues
               </TabsTrigger>
             </TabsList>
           </div>
 
           <TabsContent value="dashboard" className="space-y-6">
-            {/* Stats Overview */}
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">Platform Overview</h2>
-              <DashboardStats stats={statsData} />
-            </div>
-            
-            {/* Recent Activity */}
-            <Card>
-              <CardHeader className="bg-muted/20">
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>
-                  Latest actions and events on the platform
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="divide-y">
-                <div className="py-4 flex items-center">
-                  <div className="p-2 bg-padeliga-green/10 mr-4">
-                    <UserCog className="h-5 w-5 text-padeliga-green" />
-                  </div>
-                  <div>
-                    <p className="font-medium">New player registered</p>
-                    <p className="text-sm text-muted-foreground">Juan Martínez created a player profile</p>
-                  </div>
-                  <div className="ml-auto text-sm text-muted-foreground">
-                    2 hours ago
-                  </div>
-                </div>
-                
-                <div className="py-4 flex items-center">
-                  <div className="p-2 bg-padeliga-teal/10 mr-4">
-                    <Trophy className="h-5 w-5 text-padeliga-teal" />
-                  </div>
-                  <div>
-                    <p className="font-medium">League status updated</p>
-                    <p className="text-sm text-muted-foreground">Summer League status changed to Active</p>
-                  </div>
-                  <div className="ml-auto text-sm text-muted-foreground">
-                    5 hours ago
-                  </div>
-                </div>
-                
-                <div className="py-4 flex items-center">
-                  <div className="p-2 bg-padeliga-orange/10 mr-4">
-                    <Calendar className="h-5 w-5 text-padeliga-orange" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Match results submitted</p>
-                    <p className="text-sm text-muted-foreground">Team Aces vs Team Eagles - 6-4, 6-3</p>
-                  </div>
-                  <div className="ml-auto text-sm text-muted-foreground">
-                    Yesterday
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            {/* Quick Access */}
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">Quick Actions</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="border-l-4 border-l-padeliga-purple">
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-lg mb-2 flex items-center">
-                      <UsersRound className="h-5 w-5 mr-2 text-padeliga-purple" />
-                      Manage Users
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Add, edit, or remove platform users and their permissions
-                    </p>
-                    <button 
-                      className="text-sm text-padeliga-purple flex items-center"
-                      onClick={() => setActiveTab("users")}
-                    >
-                      User Management
-                      <svg className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-l-4 border-l-padeliga-teal">
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-lg mb-2 flex items-center">
-                      <Trophy className="h-5 w-5 mr-2 text-padeliga-teal" />
-                      League Management
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Create, configure and monitor leagues and tournaments
-                    </p>
-                    <button 
-                      className="text-sm text-padeliga-teal flex items-center"
-                      onClick={() => setActiveTab("leagues")}
-                    >
-                      Manage Leagues
-                      <svg className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-l-4 border-l-padeliga-green">
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-lg mb-2 flex items-center">
-                      <UserCog className="h-5 w-5 mr-2 text-padeliga-green" />
-                      Player Management
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Manage player profiles, send invitations, and assign teams
-                    </p>
-                    <button 
-                      className="text-sm text-padeliga-green flex items-center"
-                      onClick={() => setActiveTab("players")}
-                    >
-                      Manage Players
-                      <svg className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+            <AdminDashboardOverview onTabChange={setActiveTab} />
           </TabsContent>
 
           <TabsContent value="users">
-            <Card className="border-0 border-t-4 border-t-padeliga-purple shadow-sm">
-              <CardHeader className="bg-muted/20">
-                <CardTitle className="flex items-center">
-                  <UsersRound className="h-5 w-5 mr-2 text-padeliga-purple" />
-                  User Management
-                </CardTitle>
-                <CardDescription>
-                  View and manage all users in the system
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <UserManagement />
-              </CardContent>
-            </Card>
+            <AdminCard
+              title="User Management"
+              description="View and manage all users in the system"
+              icon={UsersRound}
+              color="padeliga-purple"
+            >
+              <UserManagement />
+            </AdminCard>
           </TabsContent>
           
           <TabsContent value="players">
-            <Card className="border-0 border-t-4 border-t-padeliga-green shadow-sm">
-              <CardHeader className="bg-muted/20">
-                <CardTitle className="flex items-center">
-                  <UserCog className="h-5 w-5 mr-2 text-padeliga-green" />
-                  Player Management
-                </CardTitle>
-                <CardDescription>
-                  Create and manage player profiles
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <PlayerManagement />
-              </CardContent>
-            </Card>
+            <AdminCard
+              title="Player Management"
+              description="Create and manage player profiles"
+              icon={UserCog}
+              color="padeliga-green"
+            >
+              <PlayerManagement />
+            </AdminCard>
           </TabsContent>
 
           <TabsContent value="invitations">
-            <Card className="border-0 border-t-4 border-t-padeliga-orange shadow-sm">
-              <CardHeader className="bg-muted/20">
-                <CardTitle className="flex items-center">
-                  <Mail className="h-5 w-5 mr-2 text-padeliga-orange" />
-                  Player Invitations
-                </CardTitle>
-                <CardDescription>
-                  Invite players to join the platform
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoadingPlayers ? (
-                  <div className="flex items-center justify-center py-8">
-                    <p>Loading players...</p>
-                  </div>
-                ) : (
-                  <PlayerInvitationManagement 
-                    players={players} 
-                    onInviteSent={handleInviteSent}
-                    onCreatePlayer={handleCreatePlayer}
-                  />
-                )}
-              </CardContent>
-            </Card>
+            <AdminCard
+              title="Player Invitations"
+              description="Invite players to join the platform"
+              icon={Mail}
+              color="padeliga-orange"
+            >
+              {isLoadingPlayers ? (
+                <div className="flex items-center justify-center py-8">
+                  <p>Loading players...</p>
+                </div>
+              ) : (
+                <PlayerInvitationManagement 
+                  players={players} 
+                  onInviteSent={handleInviteSent}
+                  onCreatePlayer={handleCreatePlayer}
+                />
+              )}
+            </AdminCard>
           </TabsContent>
 
           <TabsContent value="roles">
-            <Card className="border-0 border-t-4 border-t-padeliga-red shadow-sm">
-              <CardHeader className="bg-muted/20">
-                <CardTitle className="flex items-center">
-                  <ShieldCheck className="h-5 w-5 mr-2 text-padeliga-red" />
-                  Role Management
-                </CardTitle>
-                <CardDescription>
-                  Assign and manage user roles and permissions
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RoleManagement />
-              </CardContent>
-            </Card>
+            <AdminCard
+              title="Role Management"
+              description="Assign and manage user roles and permissions"
+              icon={ShieldCheck}
+              color="padeliga-red"
+            >
+              <RoleManagement />
+            </AdminCard>
           </TabsContent>
 
           <TabsContent value="leagues">
-            <Card className="border-0 border-t-4 border-t-padeliga-teal shadow-sm">
-              <CardHeader className="bg-muted/20">
-                <CardTitle className="flex items-center">
-                  <Trophy className="h-5 w-5 mr-2 text-padeliga-teal" />
-                  League Management
-                </CardTitle>
-                <CardDescription>
-                  Manage leagues, tournaments, and team assignments
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <LeagueManagement />
-              </CardContent>
-            </Card>
+            <AdminCard
+              title="League Management"
+              description="Manage leagues, tournaments, and team assignments"
+              icon={Trophy}
+              color="padeliga-teal"
+            >
+              <LeagueManagement />
+            </AdminCard>
           </TabsContent>
         </Tabs>
       </main>
