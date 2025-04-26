@@ -6,8 +6,8 @@
  */
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { SkewedButton } from '@/components/ui/SkewedButton';
-import PadeligaLogo from '@/components/PadeligaLogo';
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import Footer from '@/components/ui/Footer';
@@ -25,13 +25,11 @@ export default function PublicLayout({
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
-        <header className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white shadow-md">
+        <header className="bg-gray-100 dark:bg-[#1A1F2C] shadow-md">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center space-x-2 md:space-x-3">
               <Link href="/" className="flex items-center">
-                <PadeligaLogo variant="dark" className="hidden dark:hidden" size="sm" showTagline={false} />
-                <PadeligaLogo variant="light" className="hidden dark:block" size="sm" showTagline={false} />
-                <PadeligaLogo variant="dark" className="block dark:hidden" size="sm" showTagline={false} />
+                <Image src="/logo.png" alt="Padeliga" width={120} height={40} />
               </Link>
               
               {/* Will be used by child pages to inject the league name */}
@@ -65,7 +63,7 @@ export default function PublicLayout({
                     size="sm"
                     hoverEffectColor="teal"
                     hoverEffectVariant="outline"
-                    className="border border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/10"
+                    className="border border-padeliga-teal text-padeliga-teal dark:text-padeliga-teal hover:bg-padeliga-teal/10"
                     asChild
                   >
                     <Link href="/login">
@@ -79,7 +77,7 @@ export default function PublicLayout({
                     size="sm"
                     hoverEffectColor="orange"
                     hoverEffectVariant="outline"
-                    className="border border-padeliga-orange text-padeliga-orange hover:bg-padeliga-orange/10"
+                    className="border border-padeliga-orange text-padeliga-orange dark:text-padeliga-orange hover:bg-padeliga-orange/10"
                     asChild
                   >
                     <Link href="/signup">
