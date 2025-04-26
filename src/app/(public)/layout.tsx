@@ -25,11 +25,13 @@ export default function PublicLayout({
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
-        <header className="bg-[#1A1F2C] text-white shadow-md">
+        <header className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white shadow-md">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center space-x-2 md:space-x-3">
               <Link href="/" className="flex items-center">
-                <PadeligaLogo variant="light" size="sm" showTagline={false} />
+                <PadeligaLogo variant="dark" className="hidden dark:hidden" size="sm" showTagline={false} />
+                <PadeligaLogo variant="light" className="hidden dark:block" size="sm" showTagline={false} />
+                <PadeligaLogo variant="dark" className="block dark:hidden" size="sm" showTagline={false} />
               </Link>
               
               {/* Will be used by child pages to inject the league name */}
@@ -43,8 +45,8 @@ export default function PublicLayout({
               {isAuthenticated ? (
                 /* Show dashboard link for authenticated users */
                 <SkewedButton 
-                  buttonVariant="teal" 
-                  buttonSize="sm"
+                  variant="teal" 
+                  size="sm"
                   hoverEffectColor="teal"
                   hoverEffectVariant="solid"
                   className="text-white"
@@ -59,8 +61,8 @@ export default function PublicLayout({
                 <>
                   {/* Login button with border styling from login page */}
                   <SkewedButton 
-                    buttonVariant="ghost" 
-                    buttonSize="sm"
+                    variant="ghost" 
+                    size="sm"
                     hoverEffectColor="teal"
                     hoverEffectVariant="outline"
                     className="border border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/10"
@@ -73,8 +75,8 @@ export default function PublicLayout({
                   
                   {/* Register button with border and orange styling from login page */}
                   <SkewedButton 
-                    buttonVariant="ghost" 
-                    buttonSize="sm"
+                    variant="ghost" 
+                    size="sm"
                     hoverEffectColor="orange"
                     hoverEffectVariant="outline"
                     className="border border-padeliga-orange text-padeliga-orange hover:bg-padeliga-orange/10"
