@@ -3,9 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { signIn } from 'next-auth/react';
 import PadeligaLogo from '@/components/PadeligaLogo';
 import { Button } from '@/components/ui/button';
@@ -15,41 +12,62 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { SkewedButton } from '@/components/ui/SkewedButton';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
 
-// Form schema with validation
-const formSchema = z.object({
-  email: z.string().email({ message: 'Por favor, introduce un email válido' }),
-  password: z.string().min(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
-});
-
-type FormData = z.infer<typeof formSchema>;
-
 export default function LoginPage() {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({ email: '', password: '' });
+  const [authError, setAuthError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: zodResolver(formSchema)
-  });
+  const validateForm = () => {
+    const newErrors = { email: '', password: '' };
+    let isValid = true;
+    
+    if (!email) {
+      newErrors.email = 'El email es requerido';
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Por favor, introduce un email válido';
+      isValid = false;
+    }
+    
+    if (!password) {
+      newErrors.password = 'La contraseña es requerida';
+      isValid = false;
+    } else if (password.length < 8) {
+      newErrors.password = 'La contraseña debe tener al menos 8 caracteres';
+      isValid = false;
+    }
+    
+    setErrors(newErrors);
+    return isValid;
+  };
   
-  const onSubmit = async (data: FormData) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsLoading(true);
-    setError(null);
+    setAuthError(null);
     
     try {
       const result = await signIn('credentials', {
         redirect: false,
-        email: data.email,
-        password: data.password
+        email,
+        password
       });
       
       if (result?.error) {
-        setError('Credenciales incorrectas. Por favor, inténtalo de nuevo.');
+        setAuthError('Credenciales incorrectas. Por favor, inténtalo de nuevo.');
       } else {
         router.push('/dashboard');
       }
     } catch (error) {
-      setError('Ocurrió un error durante el inicio de sesión. Por favor, inténtalo de nuevo.');
+      setAuthError('Ocurrió un error durante el inicio de sesión. Por favor, inténtalo de nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -69,14 +87,14 @@ export default function LoginPage() {
         </div>
         
         <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 w-full">
-          {error && (
+          {authError && (
             <Alert variant="destructive" className="mb-6">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>{authError}</AlertDescription>
             </Alert>
           )}
           
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email" className="flex items-center">
                 <Mail className="h-4 w-4 mr-2" />
@@ -84,12 +102,14 @@ export default function LoginPage() {
               </Label>
               <Input
                 id="email"
+                type="email"
                 placeholder="tu@email.com"
-                {...register('email')}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className={errors.email ? 'border-red-500' : ''}
               />
               {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
               )}
             </div>
             
@@ -102,11 +122,12 @@ export default function LoginPage() {
                 id="password"
                 type="password"
                 placeholder="••••••••"
-                {...register('password')}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className={errors.password ? 'border-red-500' : ''}
               />
               {errors.password && (
-                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
               )}
             </div>
             
