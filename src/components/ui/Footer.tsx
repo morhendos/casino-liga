@@ -15,7 +15,7 @@ interface FooterColumnProps {
 
 const FooterColumn = ({ title, links }: FooterColumnProps) => (
   <div>
-    <h3 className="text-lg font-semibold mb-4 text-white">
+    <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
       <span className="border-b-2 border-padeliga-orange pb-1">{title}</span>
     </h3>
     <ul className="space-y-2">
@@ -23,7 +23,7 @@ const FooterColumn = ({ title, links }: FooterColumnProps) => (
         <li key={link.label}>
           <Link 
             href={link.href}
-            className="text-gray-200 hover:text-padeliga-orange transition-colors duration-300"
+            className="text-gray-700 dark:text-gray-200 hover:text-padeliga-orange dark:hover:text-padeliga-orange transition-colors duration-300"
           >
             {link.label}
           </Link>
@@ -42,7 +42,7 @@ interface SocialLinkProps {
 const SocialLink = ({ href, icon, label }: SocialLinkProps) => (
   <a 
     href={href}
-    className="bg-white/10 hover:bg-white/20 p-2 rounded-none text-white hover:text-padeliga-orange transition-colors duration-300"
+    className="bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 p-2 rounded-none text-gray-700 dark:text-white hover:text-padeliga-orange dark:hover:text-padeliga-orange transition-colors duration-300"
     aria-label={label}
   >
     {icon}
@@ -73,24 +73,24 @@ export function Footer() {
   ];
 
   return (
-    <footer className="bg-gradient-to-br from-padeliga-teal to-padeliga-purple text-white border-t border-white/10">
+    <footer className="bg-gradient-to-br from-padeliga-teal/90 to-padeliga-purple/90 dark:from-padeliga-teal dark:to-padeliga-purple text-gray-800 dark:text-white border-t border-black/10 dark:border-white/10">
       {/* Newsletter Sign Up with updated design */}
-      <div className="border-b border-white/10">
+      <div className="border-b border-black/10 dark:border-white/10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-6 md:mb-0 max-w-lg">
               <h3 className="text-xl font-bold mb-2">Mantente Conectado</h3>
-              <p className="text-gray-200">
+              <p className="text-gray-700 dark:text-gray-200">
                 Recibe las últimas novedades y actualizaciones en tu correo.
               </p>
             </div>
             <div className="w-full md:w-auto flex flex-col sm:flex-row gap-3">
               <div className="relative flex-grow max-w-md">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 dark:text-gray-400" />
                 <input
                   type="email"
                   placeholder="Tu correo electrónico"
-                  className="pl-10 pr-3 py-2 w-full bg-white/10 placeholder-gray-300 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-padeliga-orange"
+                  className="pl-10 pr-3 py-2 w-full bg-black/5 dark:bg-white/10 placeholder-gray-500 dark:placeholder-gray-300 text-gray-800 dark:text-white border border-black/20 dark:border-white/20 focus:outline-none focus:ring-2 focus:ring-padeliga-orange"
                 />
               </div>
               <button
@@ -111,9 +111,10 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           <div>
             <div className="mb-4">
-              <PadeligaLogo size="md" variant="light" />
+              <PadeligaLogo size="md" variant="dark" className="block dark:hidden" />
+              <PadeligaLogo size="md" variant="light" className="hidden dark:block" />
             </div>
-            <p className="text-gray-200 mb-6">
+            <p className="text-gray-700 dark:text-gray-200 mb-6">
               La plataforma definitiva para la gestión de ligas de padel.
             </p>
             <div className="flex space-x-4 mb-6">
@@ -134,7 +135,7 @@ export function Footer() {
               />
             </div>
             
-            <div className="space-y-3 text-gray-200">
+            <div className="space-y-3 text-gray-700 dark:text-gray-200">
               <div className="flex items-start">
                 <MapPin className="h-5 w-5 text-padeliga-orange mt-0.5 mr-2 flex-shrink-0" />
                 <span>Calle Padel 123, 28001 Madrid</span>
@@ -156,15 +157,13 @@ export function Footer() {
         </div>
         
         {/* Bottom bar with new styling */}
-        <div className="pt-8 border-t border-white/10 text-center text-gray-300 text-sm">
+        <div className="pt-8 border-t border-black/10 dark:border-white/10 text-center text-gray-600 dark:text-gray-300 text-sm">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p>&copy; {currentYear} Padeliga. Todos los derechos reservados.</p>
             <p className="mt-2 md:mt-0">Desarrollado con pasión para la comunidad de padel.</p>
           </div>
         </div>
       </div>
-      
-      {/* Removed the diagonal decorative element */}
     </footer>
   );
 }
