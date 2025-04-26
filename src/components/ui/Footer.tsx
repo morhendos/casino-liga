@@ -1,7 +1,16 @@
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Facebook, Twitter, Instagram, Mail, MapPin, Phone, Send } from 'lucide-react';
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  Facebook,
+  Twitter,
+  Instagram,
+  Mail,
+  MapPin,
+  Phone,
+  Send,
+} from "lucide-react";
+import { SkewedButton } from "@/components/ui/SkewedButton";
 
 interface FooterLink {
   label: string;
@@ -21,7 +30,7 @@ const FooterColumn = ({ title, links }: FooterColumnProps) => (
     <ul className="space-y-2">
       {links.map((link) => (
         <li key={link.label}>
-          <Link 
+          <Link
             href={link.href}
             className="text-gray-200 hover:text-padeliga-orange transition-colors duration-300"
           >
@@ -40,7 +49,7 @@ interface SocialLinkProps {
 }
 
 const SocialLink = ({ href, icon, label }: SocialLinkProps) => (
-  <a 
+  <a
     href={href}
     className="bg-white/10 hover:bg-white/20 p-2 rounded-none text-white hover:text-padeliga-orange transition-colors duration-300"
     aria-label={label}
@@ -51,25 +60,25 @@ const SocialLink = ({ href, icon, label }: SocialLinkProps) => (
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
-  
+
   const exploreLinks = [
-    { label: 'Ligas Públicas', href: '/leagues' },
-    { label: 'Rankings', href: '/rankings' },
-    { label: 'Partidos', href: '/matches' },
-    { label: 'Equipos', href: '/teams' },
+    { label: "Ligas Públicas", href: "/leagues" },
+    { label: "Rankings", href: "/rankings" },
+    { label: "Partidos", href: "/matches" },
+    { label: "Equipos", href: "/teams" },
   ];
-  
+
   const resourceLinks = [
-    { label: 'Acerca de', href: '/about' },
-    { label: 'Contacto', href: '/contact' },
-    { label: 'FAQ', href: '/faq' },
-    { label: 'Blog', href: '/blog' },
+    { label: "Acerca de", href: "/about" },
+    { label: "Contacto", href: "/contact" },
+    { label: "FAQ", href: "/faq" },
+    { label: "Blog", href: "/blog" },
   ];
-  
+
   const legalLinks = [
-    { label: 'Términos de Servicio', href: '/terms' },
-    { label: 'Política de Privacidad', href: '/privacy' },
-    { label: 'Política de Cookies', href: '/cookies' },
+    { label: "Términos de Servicio", href: "/terms" },
+    { label: "Política de Privacidad", href: "/privacy" },
+    { label: "Política de Cookies", href: "/cookies" },
   ];
 
   return (
@@ -93,19 +102,25 @@ export function Footer() {
                   className="pl-10 pr-3 py-2 w-full bg-white/10 placeholder-gray-300 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-padeliga-orange"
                 />
               </div>
-              <button
-                className="bg-padeliga-orange hover:bg-padeliga-orange/90 text-white py-2 px-4 transition-colors duration-300"
-              >
-                <span className="flex items-center gap-2">
+             
+              <SkewedButton
+                    buttonVariant="outline"
+                    buttonSize="xl"
+                    hoverEffectColor="white"
+                    hoverEffectVariant="outline"
+                    className="border-2 border-white hover:bg-transparent bg-transparent text-white min-w-[200px]"
+                    asChild
+                  >
+                   <span className="flex items-center gap-2">
                   <span>Suscribirse</span>
                   <Send className="h-4 w-4" />
                 </span>
-              </button>
+                  </SkewedButton>
             </div>
           </div>
         </div>
       </div>
-      
+
       {/* Main Footer with improved colors */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
@@ -120,23 +135,23 @@ export function Footer() {
               La plataforma definitiva para la gestión de ligas de padel.
             </p>
             <div className="flex space-x-4 mb-6">
-              <SocialLink 
-                href="#" 
-                icon={<Facebook className="h-5 w-5" />} 
+              <SocialLink
+                href="#"
+                icon={<Facebook className="h-5 w-5" />}
                 label="Facebook"
               />
-              <SocialLink 
-                href="#" 
-                icon={<Twitter className="h-5 w-5" />} 
+              <SocialLink
+                href="#"
+                icon={<Twitter className="h-5 w-5" />}
                 label="Twitter"
               />
-              <SocialLink 
-                href="#" 
-                icon={<Instagram className="h-5 w-5" />} 
+              <SocialLink
+                href="#"
+                icon={<Instagram className="h-5 w-5" />}
                 label="Instagram"
               />
             </div>
-            
+
             <div className="space-y-3 text-gray-200">
               <div className="flex items-start">
                 <MapPin className="h-5 w-5 text-padeliga-orange mt-0.5 mr-2 flex-shrink-0" />
@@ -152,17 +167,19 @@ export function Footer() {
               </div>
             </div>
           </div>
-          
+
           <FooterColumn title="Explorar" links={exploreLinks} />
           <FooterColumn title="Recursos" links={resourceLinks} />
           <FooterColumn title="Legal" links={legalLinks} />
         </div>
-        
+
         {/* Bottom bar with new styling */}
         <div className="pt-8 border-t border-white/10 text-center text-gray-300 text-sm">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p>&copy; {currentYear} Padeliga. Todos los derechos reservados.</p>
-            <p className="mt-2 md:mt-0">Desarrollado con pasión para la comunidad de padel.</p>
+            <p className="mt-2 md:mt-0">
+              Desarrollado con pasión para la comunidad de padel.
+            </p>
           </div>
         </div>
       </div>

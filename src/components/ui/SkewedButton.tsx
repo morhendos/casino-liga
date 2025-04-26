@@ -31,6 +31,7 @@ interface SkewedButtonProps
   skewAngle?: number; // Allow customizing the skew angle if needed
   className?: string;
   asChild?: boolean;
+  fullWidth?: boolean; // Added fullWidth prop for mobile buttons
 }
 
 /**
@@ -45,7 +46,7 @@ interface SkewedButtonProps
  *   buttonSize="xl"
  *   hoverEffectColor="orange"
  *   hoverEffectVariant="solid"
- *   className="text-white font-bold"
+ *   className="font-bold"
  *   asChild
  * >
  *   <Link href="/signup">
@@ -63,17 +64,59 @@ export function SkewedButton({
   skewAngle = 354, // Default to the 354deg skew used in the login page
   className,
   asChild = false,
+  fullWidth = false,
   ...props
 }: SkewedButtonProps) {
+  // Define variant-specific styles to avoid having to add them in the className
+  const variantStyles = {
+    outline:
+      buttonVariant === "outline"
+        ? {
+            teal: "border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent",
+            purple:
+              "border border-padeliga-purple text-padeliga-purple bg-transparent hover:bg-transparent",
+            orange:
+              "border border-padeliga-orange text-padeliga-orange bg-transparent hover:bg-transparent",
+            white:
+              "border border-white text-white bg-transparent hover:bg-transparent",
+          }[hoverEffectColor] ||
+          "border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent"
+        : "",
+    teal: buttonVariant === "teal" ? "text-white" : "",
+    purple: buttonVariant === "purple" ? "text-white" : "",
+    orange: buttonVariant === "orange" ? "text-white" : "",
+    green: buttonVariant === "green" ? "text-white" : "",
+    red: buttonVariant === "red" ? "text-white" : "",
+    cta: buttonVariant === "cta" ? "text-white" : "",
+    destructive: buttonVariant === "destructive" ? "text-white" : "",
+    // Add other variants as needed
+  };
+
+  // Get the appropriate styles based on the button variant
+  const variantStyle =
+    variantStyles[buttonVariant as keyof typeof variantStyles] || "";
+
+  // Default spacing that should be applied to all buttons
+  const defaultSpacing = "px-6 py-2";
+
+  // Apply full width if specified
+  const widthClass = fullWidth ? "w-full" : "";
+
   return (
     <div
-      className="relative overflow-hidden group"
+      className={cn("relative overflow-hidden group", fullWidth && "w-full")}
       style={{ transform: `skewX(${skewAngle}deg)` }}
     >
       <Button
         variant={buttonVariant as any}
         size={buttonSize as any}
-        className={cn("relative z-10", className)}
+        className={cn(
+          "relative z-10",
+          variantStyle,
+          defaultSpacing,
+          widthClass,
+          className
+        )}
         asChild={asChild}
         {...props}
       >

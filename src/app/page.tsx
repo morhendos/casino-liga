@@ -134,7 +134,6 @@ export default function HomePage() {
                   buttonSize="xl"
                   hoverEffectColor="orange"
                   hoverEffectVariant="solid"
-                  className="text-white font-bold min-w-[180px] px-6 py-2"
                   asChild
                 >
                   <Link href="/signup">
@@ -344,9 +343,9 @@ export default function HomePage() {
                 <div className="pl-6 pt-4">
                   <SkewedButton
                     buttonVariant="outline"
-                    hoverEffectColor="teal"
+                    hoverEffectColor="orange"
                     hoverEffectVariant="outline"
-                    className="border-padeliga-teal text-padeliga-teal hover:bg-transparent bg-transparent transition-all duration-300"
+                    fullWidth
                     asChild
                   >
                     <Link href="/features" className="flex items-center">

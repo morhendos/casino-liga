@@ -197,7 +197,6 @@ export default function Header() {
                 buttonSize="default"
                 hoverEffectColor="teal"
                 hoverEffectVariant="solid"
-                className="text-white px-6 py-2"
                 asChild
               >
                 <Link href="/dashboard">Mi Dashboard</Link>
@@ -209,7 +208,6 @@ export default function Header() {
                   buttonVariant="outline"
                   hoverEffectColor="teal"
                   hoverEffectVariant="outline"
-                  className="border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent px-6 py-2"
                   asChild
                 >
                   <Link href="/login">
@@ -219,10 +217,9 @@ export default function Header() {
 
                 {/* Signup button with SkewedButton */}
                 <SkewedButton
-                  buttonVariant="purple"
+                  buttonVariant="outline"
                   hoverEffectColor="purple"
                   hoverEffectVariant="outline"
-                  className="text-white px-6 py-2"
                   asChild
                 >
                   <Link href="/signup">
@@ -297,7 +294,7 @@ export default function Header() {
                   buttonVariant="teal"
                   hoverEffectColor="teal"
                   hoverEffectVariant="solid"
-                  className="w-full text-white px-6 py-2"
+                  fullWidth
                   asChild
                 >
                   <Link href="/dashboard">Mi Dashboard</Link>
@@ -310,7 +307,7 @@ export default function Header() {
                   buttonVariant="purple"
                   hoverEffectColor="purple"
                   hoverEffectVariant="solid"
-                  className="w-full text-white px-6 py-2"
+                  fullWidth
                   asChild
                 >
                   <Link href="/signup">
@@ -323,7 +320,7 @@ export default function Header() {
                   buttonVariant="outline"
                   hoverEffectColor="teal"
                   hoverEffectVariant="outline"
-                  className="w-full border border-padeliga-teal text-padeliga-teal bg-transparent hover:bg-transparent px-6 py-2"
+                  fullWidth
                   asChild
                 >
                   <Link href="/login">
