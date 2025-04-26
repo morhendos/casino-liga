@@ -4,7 +4,7 @@ import { UserAccountNav } from "@/components/auth/UserAccountNav";
 import { PadelNavigation } from "@/components/layout/PadelNavigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import PadeligaLogo from "@/components/PadeligaLogo";
 import { GeometricBackground } from "@/components/ui/GeometricBackground";
 
