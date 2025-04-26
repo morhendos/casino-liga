@@ -29,7 +29,7 @@ interface LeagueHeaderProps {
 
 export default function LeagueHeader({ league, stats }: LeagueHeaderProps) {
   return (
-    <div className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white">
+    <div className="bg-gray-100 dark:bg-[#13151c] text-gray-900 dark:text-white">
       <div className="p-5">
         <div className="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center mb-6">
           <div>
