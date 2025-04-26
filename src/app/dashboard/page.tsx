@@ -8,154 +8,175 @@ import {
   Users, 
   Trophy, 
   Calendar, 
-  Award,
-  CheckCircle, 
+  BarChart, 
   Clock, 
-  BadgePlus
+  CheckCircle 
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { DashboardCard, DashboardStats } from "@/components/dashboard";
-import { GeometricBackground } from "@/components/ui/GeometricBackground";
 
 function DashboardPage() {
   const { data: session } = useSession();
   
-  const menuItems = [
+  // Dashboard sections
+  const dashboardCards = [
     {
       title: "Player Profile",
-      description: "Create or update your player profile with your skill level, preferred position, and other details.",
       icon: User,
       href: "/dashboard/player-profile",
-      color: "padeliga-purple"
+      color: "bg-purple-100 dark:bg-purple-900/20",
+      iconColor: "text-purple-500"
     },
     {
       title: "Teams",
-      description: "Create a new team, join an existing team, or manage your current teams.",
       icon: Users,
       href: "/dashboard/teams",
-      color: "padeliga-green"
+      color: "bg-green-100 dark:bg-green-900/20",
+      iconColor: "text-green-500"
     },
     {
       title: "Leagues",
-      description: "Browse available leagues, register your team, and view league standings.",
       icon: Trophy,
       href: "/dashboard/leagues",
-      color: "padeliga-teal"
+      color: "bg-blue-100 dark:bg-blue-900/20",
+      iconColor: "text-blue-500"
     },
     {
       title: "Matches",
-      description: "View upcoming matches, submit match results, and check your match history.",
       icon: Calendar,
       href: "/dashboard/matches",
-      color: "padeliga-orange"
+      color: "bg-orange-100 dark:bg-orange-900/20",
+      iconColor: "text-orange-500"
     },
     {
       title: "Rankings",
-      description: "Check your current ranking in active leagues and view overall player statistics.",
-      icon: Award,
+      icon: BarChart,
       href: "/dashboard/rankings",
-      color: "padeliga-red"
+      color: "bg-red-100 dark:bg-red-900/20", 
+      iconColor: "text-red-500"
     }
   ];
   
-  // Mock stats data - in a real app, these would come from an API
-  const statsData = [
-    {
-      title: "Active Leagues",
-      value: "4",
-      icon: Trophy,
-      color: "padeliga-teal"
+  // Stats
+  const stats = [
+    { 
+      label: "Active Leagues", 
+      value: "4", 
+      icon: Trophy, 
+      color: "text-blue-500" 
     },
-    {
-      title: "Upcoming Matches",
-      value: "2",
-      icon: Clock,
-      color: "padeliga-orange"
+    { 
+      label: "Upcoming Matches", 
+      value: "2", 
+      icon: Clock, 
+      color: "text-orange-500" 
     },
-    {
-      title: "Completed Matches",
-      value: "8",
-      icon: CheckCircle,
-      color: "padeliga-green"
+    { 
+      label: "Completed Matches", 
+      value: "8", 
+      icon: CheckCircle, 
+      color: "text-green-500" 
     },
-    {
-      title: "Current Teams",
-      value: "3",
-      icon: Users,
-      color: "padeliga-purple"
+    { 
+      label: "My Teams", 
+      value: "2", 
+      icon: Users, 
+      color: "text-purple-500" 
     }
   ];
   
   return (
-    <div className="min-h-screen transition-colors duration-200 relative">
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="min-h-screen px-4 py-8 md:px-8 lg:px-12">
+      <div className="max-w-7xl mx-auto">
+        {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold tracking-tight heading-accent inline-block">
-            Welcome to Padeliga!
+          <h1 className="text-3xl font-bold tracking-tight">
+            Welcome{session?.user?.name ? `, ${session.user.name}` : ''}
           </h1>
-          
-          <p className="text-xl mt-6 text-muted-foreground">
-            Hello{session?.user?.name ? `, ${session.user.name}` : ''}! 👋
-          </p>
-          
-          <p className="mt-2 text-lg max-w-3xl">
-            This is your dashboard where you can create your player profile, join or create teams, 
-            participate in leagues, and track your match results and rankings.
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Manage your padel leagues, teams, and matches
           </p>
         </div>
         
-        {/* Stats section */}
-        <div className="my-8">
-          <DashboardStats stats={statsData} />
+        {/* Stats Overview */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {stats.map((stat, index) => (
+            <div 
+              key={index} 
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4"
+            >
+              <div className="flex items-center">
+                <div className={`p-2 rounded-md ${stat.color.replace('text-', 'bg-').replace('500', '100')} dark:bg-opacity-20`}>
+                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                </div>
+                <div className="ml-4">
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{stat.label}</div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
         
-        {/* Quick actions */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="flex flex-wrap gap-4">
-            <Button className="bg-padeliga-teal hover:bg-padeliga-teal/90">
-              <BadgePlus className="mr-2 h-4 w-4" />
-              Register for League
-            </Button>
-            <Button className="bg-padeliga-purple hover:bg-padeliga-purple/90">
-              <Users className="mr-2 h-4 w-4" />
-              Create Team
-            </Button>
-            <Button className="bg-padeliga-orange hover:bg-padeliga-orange/90">
-              <Calendar className="mr-2 h-4 w-4" />
-              Schedule Match
-            </Button>
-          </div>
-        </div>
-        
-        {/* Menu cards */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Manage Your Padel Experience</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {menuItems.map((item) => (
-              <DashboardCard 
-                key={item.href}
-                title={item.title}
-                description={item.description}
-                icon={item.icon}
-                href={item.href}
-                color={item.color}
-              />
+        {/* Quick Access */}
+        <div className="mb-10">
+          <h2 className="text-xl font-semibold mb-4">Quick Access</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+            {dashboardCards.map((card, index) => (
+              <Link key={index} href={card.href}>
+                <div className={`h-full rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-all hover:shadow-md ${card.color}`}>
+                  <div className="p-6 flex flex-col items-center justify-center text-center h-full">
+                    <div className={`p-3 rounded-md bg-white dark:bg-gray-800 shadow-sm mb-4`}>
+                      <card.icon className={`h-6 w-6 ${card.iconColor}`} />
+                    </div>
+                    <h3 className="text-lg font-medium">{card.title}</h3>
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
         
-        {/* Tips section */}
-        <div className="mt-10 bg-paper p-6 border-l-4 border-padeliga-orange">
-          <h2 className="text-2xl font-bold mb-2">Quick Tips</h2>
-          <ul className="ml-6 list-disc space-y-1">
-            <li>Start by creating or updating your <Link href="/dashboard/player-profile" className="text-padeliga-teal hover:underline">player profile</Link></li>
-            <li>Join a team or create your own in the <Link href="/dashboard/teams" className="text-padeliga-teal hover:underline">teams section</Link></li>
-            <li>Browse available leagues and register your team to participate</li>
-            <li>Check the schedule for your upcoming matches</li>
-          </ul>
+        {/* Recent Activity */}
+        <div className="mb-10">
+          <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="p-6 divide-y divide-gray-200 dark:divide-gray-700">
+              <div className="py-4 flex items-center">
+                <div className="p-2 rounded-md bg-green-100 dark:bg-green-900/20">
+                  <CheckCircle className="h-5 w-5 text-green-500" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium">Match results submitted</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Team Eagles vs Team Falcons - 6-4, 7-5</p>
+                </div>
+                <div className="ml-auto text-xs text-gray-500 dark:text-gray-400">
+                  2 days ago
+                </div>
+              </div>
+              
+              <div className="py-4 flex items-center">
+                <div className="p-2 rounded-md bg-blue-100 dark:bg-blue-900/20">
+                  <Trophy className="h-5 w-5 text-blue-500" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium">Joined Summer League</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Team registration confirmed</p>
+                </div>
+                <div className="ml-auto text-xs text-gray-500 dark:text-gray-400">
+                  Last week
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
+        
+        {/* Quick Tips */}
+        <div className="bg-blue-50 dark:bg-blue-900/10 border-l-4 border-blue-500 p-4 rounded-r-md">
+          <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300">Getting Started</h3>
+          <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
+            Create your player profile, form a team, and join a league to start playing.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
