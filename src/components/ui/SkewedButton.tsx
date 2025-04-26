@@ -57,11 +57,19 @@ export function SkewedButton({
   // Content needs to be counter-skewed to appear normal
   const contentSkewAngle = 360 - skewAngle;
   
+  // Determine if this is a white/light button to set proper effect variant
+  // White buttons should always use white corner accents
+  const isLightButton = buttonVariant === 'outline' || buttonVariant === 'ghost' || 
+                         buttonVariant === 'default' || buttonVariant === 'secondary';
+  
+  const effectColorToUse = isLightButton && !hoverEffectColor ? 'white' : effectColor;
+  
   return (
     <div 
-      className="relative inline-flex overflow-hidden group" 
+      className="relative inline-block overflow-visible group" 
       style={{ transform: `skewX(${skewAngle}deg)` }}
     >
+      {/* Button wrapper to apply the counter-skew */}
       <div className="relative z-10" style={{ transform: `skewX(${contentSkewAngle}deg)` }}>
         <Button
           variant={buttonVariant as any}
@@ -73,10 +81,11 @@ export function SkewedButton({
           {children}
         </Button>
       </div>
+      
+      {/* Hover effect positioned absolutely relative to the container */}
       <ButtonHoverEffect 
-        variant={hoverEffectVariant} 
-        color={effectColor}
-        className="rounded-[inherit]"
+        variant={hoverEffectVariant}
+        color={effectColorToUse}
       />
     </div>
   );
