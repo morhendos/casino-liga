@@ -73,7 +73,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="bg-gradient-to-br from-[#2563eb] to-[#7c3aed] dark:from-[#1e3a8a] dark:to-[#581c87] text-white border-t border-white/10">
+    <footer className="bg-gradient-to-br from-[#1a56db] to-[#6025c0] dark:from-[#1e3a8a] dark:to-[#581c87] text-white border-t border-white/10">
       {/* Newsletter Sign Up with updated design */}
       <div className="border-b border-white/10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -111,7 +111,10 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           <div>
             <div className="mb-4">
-              <Image src="/logo.png" alt="Padeliga" width={150} height={50} />
+              {/* Add a subtle background behind the logo to make it stand out */}
+              <div className="inline-block bg-white/10 p-2 rounded">
+                <Image src="/logo.png" alt="Padeliga" width={150} height={50} />
+              </div>
             </div>
             <p className="text-gray-200 mb-6">
               La plataforma definitiva para la gestión de ligas de padel.
