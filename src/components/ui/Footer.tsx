@@ -73,7 +73,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="bg-gradient-to-br from-padeliga-teal to-padeliga-purple text-white border-t border-white/10">
+    <footer className="bg-gradient-to-br from-[#2563eb] to-[#7c3aed] dark:from-[#1e3a8a] dark:to-[#581c87] text-white border-t border-white/10">
       {/* Newsletter Sign Up with updated design */}
       <div className="border-b border-white/10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
