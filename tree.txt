@@ -242,6 +242,7 @@ root/
 │   │   │   └── MatchResultForm.tsx
 │   │   ├── public
 │   │   │   ├── LeagueHeader.tsx
+│   │   │   ├── LeagueTitleHeader.tsx
 │   │   │   ├── MatchResults.tsx
 │   │   │   ├── RankingsTable.tsx
 │   │   │   ├── UpcomingMatches.tsx
@@ -257,6 +258,7 @@ root/
 │   │   │   ├── GeometricBackground.tsx
 │   │   │   ├── Header.tsx
 │   │   │   ├── IconButton.tsx
+│   │   │   ├── SkewedButton.tsx
 │   │   │   ├── alert-dialog.tsx
 │   │   │   ├── alert.tsx
 │   │   │   ├── badge.tsx
