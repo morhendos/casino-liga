@@ -50,12 +50,12 @@ export default function LeagueTitleHeader({ league }: LeagueTitleHeaderProps) {
     return statusMap[status] || status;
   };
 
-  // The content to be rendered in the portal - with theme support
+  // The content to be rendered in the portal - with proper theme support
   const titleContent = (
     <div className="flex items-center ml-1.5">
       <ChevronRight className="h-4 w-4 text-gray-400" />
       <div className="flex items-center">
-        <h1 className="font-bold text-white text-lg ml-1 mr-2">
+        <h1 className="font-bold text-gray-900 dark:text-white text-lg ml-1 mr-2">
           {league.name}
         </h1>
         <div className={`text-xs px-2 py-0.5 rounded-sm text-white ${getStatusColor(league.status)}`}>
@@ -63,7 +63,7 @@ export default function LeagueTitleHeader({ league }: LeagueTitleHeaderProps) {
         </div>
         
         {(league.startDate || league.endDate) && (
-          <div className="hidden md:flex items-center ml-3 text-xs text-gray-300 dark:text-gray-300">
+          <div className="hidden md:flex items-center ml-3 text-xs text-gray-600 dark:text-gray-300">
             <Clock className="h-3.5 w-3.5 mr-1 text-gray-400" />
             {league.startDate && (
               <span>{formatDate(league.startDate)}</span>
