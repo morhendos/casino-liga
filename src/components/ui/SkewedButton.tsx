@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 type ButtonVariant = 'default' | 'teal' | 'orange' | 'purple' | 'green' | 'red' | 'cta' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
 type ButtonSize = 'default' | 'sm' | 'lg' | 'xl' | 'icon';
-type HoverEffectColor = 'teal' | 'purple' | 'orange';
+type HoverEffectColor = 'teal' | 'purple' | 'orange' | 'white';
 type HoverEffectVariant = 'outline' | 'solid';
 
 interface SkewedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -44,33 +44,64 @@ export function SkewedButton({
   children,
   buttonVariant = 'default',
   buttonSize = 'default',
-  hoverEffectColor = 'teal',
+  hoverEffectColor,
   hoverEffectVariant = 'outline',
   skewAngle = 354, // Default to the 354deg skew used in the login page
   className,
   asChild = false,
   ...props
 }: SkewedButtonProps) {
+  // Determine hover effect color based on button variant if not explicitly provided
+  const effectColor = hoverEffectColor || mapButtonVariantToEffectColor(buttonVariant);
+  
+  // Content needs to be counter-skewed to appear normal
+  const contentSkewAngle = 360 - skewAngle;
+  
   return (
     <div 
-      className="relative overflow-hidden group" 
+      className="relative inline-flex overflow-hidden group" 
       style={{ transform: `skewX(${skewAngle}deg)` }}
     >
-      <Button
-        variant={buttonVariant as any}
-        size={buttonSize as any}
-        className={cn("relative z-10", className)}
-        asChild={asChild}
-        {...props}
-      >
-        {children}
-      </Button>
+      <div className="relative z-10" style={{ transform: `skewX(${contentSkewAngle}deg)` }}>
+        <Button
+          variant={buttonVariant as any}
+          size={buttonSize as any}
+          className={cn("relative", className)}
+          asChild={asChild}
+          {...props}
+        >
+          {children}
+        </Button>
+      </div>
       <ButtonHoverEffect 
         variant={hoverEffectVariant} 
-        color={hoverEffectColor} 
+        color={effectColor}
+        className="rounded-[inherit]"
       />
     </div>
   );
+}
+
+/**
+ * Maps button variants to appropriate hover effect colors
+ */
+function mapButtonVariantToEffectColor(variant: ButtonVariant): HoverEffectColor {
+  switch (variant) {
+    case 'teal':
+      return 'teal';
+    case 'orange':
+    case 'cta':
+      return 'orange';
+    case 'purple':
+      return 'purple';
+    case 'outline':
+    case 'ghost':
+    case 'default':
+    case 'secondary':
+      return 'white';
+    default:
+      return 'teal'; // Default fallback
+  }
 }
 
 export default SkewedButton;
