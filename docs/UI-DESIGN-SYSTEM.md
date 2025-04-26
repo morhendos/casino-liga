@@ -46,6 +46,63 @@ Buttons come in various variants that match the Padeliga color scheme:
 <Button size="xl">Extra Large</Button>
 ```
 
+### SkewedButton
+
+The `SkewedButton` component provides a consistent, distinctive button style with a skew transformation and hover effects that match the angular aesthetic of the Padeliga brand:
+
+```jsx
+// Primary CTA button with solid hover effect
+<SkewedButton
+  buttonVariant="orange"
+  buttonSize="xl"
+  hoverEffectColor="orange"
+  hoverEffectVariant="solid"
+  className="text-white font-bold"
+  asChild
+>
+  <Link href="/signup">
+    Comenzar Ahora
+    <ChevronRight className="ml-1 h-5 w-5" />
+  </Link>
+</SkewedButton>
+
+// Secondary outline button with outline hover effect
+<SkewedButton
+  buttonVariant="outline"
+  buttonSize="lg"
+  hoverEffectColor="teal"
+  hoverEffectVariant="outline"
+  className="border border-padeliga-teal text-padeliga-teal"
+  asChild
+>
+  <Link href="/features">
+    Ver todas las características
+  </Link>
+</SkewedButton>
+
+// Ghost button with outline hover effect
+<SkewedButton
+  buttonVariant="ghost"
+  buttonSize="sm"
+  hoverEffectColor="purple"
+  hoverEffectVariant="outline"
+  className="text-padeliga-purple"
+>
+  Learn More
+</SkewedButton>
+```
+
+The SkewedButton component accepts the following props:
+
+- `buttonVariant`: Any button variant ('default', 'teal', 'orange', 'purple', etc.)
+- `buttonSize`: Button size ('default', 'sm', 'lg', 'xl', 'icon')
+- `hoverEffectColor`: Color for hover effect ('teal', 'purple', 'orange')
+- `hoverEffectVariant`: Type of hover effect ('outline', 'solid')
+- `skewAngle`: Skew transformation angle in degrees (default: 354)
+- `className`: Additional custom classes
+- `asChild`: Whether to render as a child component (e.g., Link)
+- All standard button props (onClick, disabled, type, etc.)
+
 ### Cards
 
 Cards have been enhanced with gradient borders, hover effects, and color-themed variants:
@@ -144,7 +201,7 @@ The heading accent class adds an underline gradient to headings:
 
 ### Landing Page
 
-The landing page uses a combination of the GeometricBackground, gradient buttons, and accent headings to create a vibrant, engaging experience.
+The landing page uses a combination of the GeometricBackground, SkewedButton components for CTAs, and accent headings to create a vibrant, engaging experience.
 
 ### League Pages
 
