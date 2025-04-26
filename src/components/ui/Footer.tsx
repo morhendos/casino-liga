@@ -1,7 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import PadeligaLogo from '@/components/PadeligaLogo';
-import { SkewedButton } from '@/components/ui/SkewedButton';
 import { Facebook, Twitter, Instagram, Mail, MapPin, Phone, Send } from 'lucide-react';
 
 interface FooterLink {
@@ -94,18 +93,14 @@ export function Footer() {
                   className="pl-10 pr-3 py-2 w-full bg-white/10 placeholder-gray-300 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-padeliga-orange"
                 />
               </div>
-              <SkewedButton
-                buttonVariant="orange"
-                buttonSize="default"
-                hoverEffectColor="orange"
-                hoverEffectVariant="solid"
-                className="text-white whitespace-nowrap"
+              <button
+                className="bg-padeliga-orange hover:bg-padeliga-orange/90 text-white py-2 px-4 transition-colors duration-300"
               >
                 <span className="flex items-center gap-2">
                   <span>Suscribirse</span>
                   <Send className="h-4 w-4" />
                 </span>
-              </SkewedButton>
+              </button>
             </div>
           </div>
         </div>
@@ -169,10 +164,7 @@ export function Footer() {
         </div>
       </div>
       
-      {/* Diagonal decorative element */}
-      <div className="relative h-6 overflow-hidden">
-        <div className="absolute -top-5 left-0 right-0 h-10 bg-white transform -skew-y-2"></div>
-      </div>
+      {/* Removed the diagonal decorative element */}
     </footer>
   );
 }
