@@ -1,277 +1,159 @@
-"use client";
+'use client';
 
-import { signIn } from "next-auth/react";
-import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
-import { useState, useCallback, Suspense } from "react";
-import { validateEmail, validatePassword } from "@/lib/auth/validation";
-import { Section } from "@/components/common/Section";
-import { AlertCircle, Loader2, ArrowRight } from "lucide-react";
-import PadeligaLogo from "@/components/PadeligaLogo";
-import GeometricBackground from "@/components/ui/GeometricBackground";
-import { SkewedButton } from "@/components/ui/SkewedButton";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { signIn } from 'next-auth/react';
+import PadeligaLogo from '@/components/PadeligaLogo';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { SkewedButton } from '@/components/ui/SkewedButton';
+import { Mail, Lock, AlertCircle } from 'lucide-react';
 
-interface FormErrors {
-  email?: string;
-  password?: string;
-  general?: string;
-}
+// Form schema with validation
+const formSchema = z.object({
+  email: z.string().email({ message: 'Por favor, introduce un email válido' }),
+  password: z.string().min(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
+});
 
-function ErrorAlert({ message }: { message: string }) {
-  return (
-    <div className="bg-padeliga-red/10 border-l-4 border-padeliga-red p-4 animate-in fade-in-50 duration-200">
-      <div className="flex">
-        <div className="flex-shrink-0">
-          <AlertCircle
-            className="h-5 w-5 text-padeliga-red"
-            aria-hidden="true"
-          />
-        </div>
-        <div className="ml-3">
-          <p className="text-sm text-padeliga-red">{message}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Map technical error codes to user-friendly messages
-const getErrorMessage = (errorCode: string | null | undefined): string => {
-  if (!errorCode) return "An unexpected error occurred. Please try again.";
-  
-  const errorMessages: Record<string, string> = {
-    CredentialsSignin: "Invalid email or password. Please check your credentials and try again.",
-    Default: "An error occurred during authentication. Please try again.",
-    OAuthSignin: "Error starting the sign-in process. Please try again.",
-    OAuthCallback: "Error during the sign-in process. Please try again.",
-    OAuthCreateAccount: "Error creating an account. Please try again.",
-    EmailCreateAccount: "Error creating an account. Please try again.",
-    Callback: "Error during the sign-in process. Please try again.",
-    OAuthAccountNotLinked: "This email is already associated with another account.",
-    EmailSignin: "Error sending the sign-in email. Please try again.",
-    SessionRequired: "Please sign in to access this page.",
-    AccessDenied: "Access denied. You do not have permission to access this resource."
-  };
-
-  return errorMessages[errorCode] || errorMessages.Default;
-};
-
-function LoginPageContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"; // Default to dashboard
-  // Check for error in URL (e.g., redirected from protected page)
-  const urlError = searchParams.get("error");
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>(() => {
-    // Initialize with URL error if present
-    return urlError ? { general: getErrorMessage(urlError) } : {};
-  });
-  const [isRedirecting, setIsRedirecting] = useState(false);
-
-  const validateForm = useCallback(
-    (email: string, password: string): boolean => {
-      const newErrors: FormErrors = {};
-
-      if (!email) {
-        newErrors.email = "Email is required";
-      } else if (!validateEmail(email)) {
-        newErrors.email = "Invalid email format";
-      }
-
-      if (!password) {
-        newErrors.password = "Password is required";
-      } else if (!validatePassword(password)) {
-        newErrors.password = "Password must be at least 6 characters";
-      }
-
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
-    },
-    []
-  );
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setErrors({});
-
-    try {
-      const formData = new FormData(e.currentTarget);
-      const email = formData.get("email") as string;
-      const password = formData.get("password") as string;
-
-      if (!validateForm(email, password)) {
-        setIsLoading(false);
-        return;
-      }
-
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-        callbackUrl,
-      });
-
-      if (!result?.ok) {
-        setErrors({
-          general: getErrorMessage(result?.error),
-        });
-        return;
-      }
-
-      setIsRedirecting(true);
-      await new Promise((resolve) => setTimeout(resolve, 200));
-      router.push(callbackUrl);
-      router.refresh();
-    } catch (error) {
-      console.error("Login error:", error);
-      setErrors({
-        general: "An unexpected error occurred. Please try again.",
-      });
-    } finally {
-      if (!isRedirecting) {
-        setIsLoading(false);
-      }
-    }
-  };
-
-  const FormError = ({ message }: { message?: string }) =>
-    message ? (
-      <p className="text-sm text-padeliga-red mt-1 animate-in fade-in-50 duration-200">
-        {message}
-      </p>
-    ) : null;
-
-  return (
-    <div
-      className={`relative min-h-screen transition-all duration-500 ${
-        isRedirecting ? "opacity-50 blur-sm" : ""
-      }`}
-    >
-      {/* Add GeometricBackground with subtle variant */}
-      <GeometricBackground variant="subtle" animated={true} />
-
-      <main className="container mx-auto h-screen px-3 py-4 sm:px-4 sm:py-12 max-w-6xl relative flex flex-col items-center justify-center z-10">
-        {/* Make the logo clickable and redirect to home page */}
-        <Link href="/" className="mb-8 transition-transform hover:scale-105 duration-300">
-          <PadeligaLogo size="lg" showTagline={true} />
-        </Link>
-
-        <Section title="" className="w-full max-w-[450px] bg-white dark:bg-gray-800 shadow-lg border-l-4 border-padeliga-teal">
-          <div className="w-full mx-auto relative">
-            {isRedirecting && (
-              <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-50">
-                <Loader2 className="h-8 w-8 animate-spin text-padeliga-teal" />
-              </div>
-            )}
-
-            <h2 className="heading-accent text-2xl font-bold mb-6">Iniciar Sesión</h2>
-
-            <form
-              method="POST"
-              onSubmit={handleSubmit}
-              className="space-y-6"
-            >
-              {errors.general && <ErrorAlert message={errors.general} />}
-
-              <div className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium mb-2"
-                  >
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-padeliga-teal focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
-                    disabled={isLoading || isRedirecting}
-                  />
-                  <FormError message={errors.email} />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium mb-2"
-                  >
-                    Contraseña
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-padeliga-teal focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
-                    disabled={isLoading || isRedirecting}
-                  />
-                  <FormError message={errors.password} />
-                </div>
-              </div>
-
-              {/* Login button using the new SkewedButton component */}
-              <SkewedButton
-                type="submit"
-                buttonVariant="ghost"
-                buttonSize="lg"
-                hoverEffectColor="teal"
-                hoverEffectVariant="outline"
-                className="w-full border border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/10"
-                disabled={isLoading || isRedirecting}
-              >
-                <span>
-                  {isRedirecting
-                    ? "Redirigiendo..."
-                    : isLoading
-                    ? "Iniciando sesión..."
-                    : "Iniciar Sesión"}
-                </span>
-              </SkewedButton>
-
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2">
-                <p className="text-sm text-muted-foreground">
-                  ¿No tienes una cuenta?
-                </p>
-                {/* Register button using the new SkewedButton component */}
-                <SkewedButton
-                  buttonVariant="ghost"
-                  buttonSize="sm"
-                  hoverEffectColor="orange"
-                  hoverEffectVariant="outline"
-                  className="text-padeliga-orange border border-padeliga-orange hover:bg-padeliga-orange/10"
-                  asChild
-                >
-                  <Link href="/signup" className="flex items-center gap-1">
-                    Registrarse
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                </SkewedButton>
-              </div>
-            </form>
-          </div>
-        </Section>
-      </main>
-    </div>
-  );
-}
+type FormData = z.infer<typeof formSchema>;
 
 export default function LoginPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-padeliga-teal" />
-        </div>
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+    resolver: zodResolver(formSchema)
+  });
+  
+  const onSubmit = async (data: FormData) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const result = await signIn('credentials', {
+        redirect: false,
+        email: data.email,
+        password: data.password
+      });
+      
+      if (result?.error) {
+        setError('Credenciales incorrectas. Por favor, inténtalo de nuevo.');
+      } else {
+        router.push('/dashboard');
       }
-    >
-      <LoginPageContent />
-    </Suspense>
+    } catch (error) {
+      setError('Ocurrió un error durante el inicio de sesión. Por favor, inténtalo de nuevo.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  return (
+    <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 px-4">
+      <div className="w-full max-w-md mt-20 mb-10">
+        <div className="flex flex-col items-center mb-8">
+          <Link href="/">
+            <PadeligaLogo size="md" />
+          </Link>
+          <h1 className="text-3xl font-bold mt-6 text-center">Iniciar Sesión</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-2 text-center">
+            Bienvenido de nuevo a Padeliga
+          </p>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 w-full">
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="flex items-center">
+                <Mail className="h-4 w-4 mr-2" />
+                Email
+              </Label>
+              <Input
+                id="email"
+                placeholder="tu@email.com"
+                {...register('email')}
+                className={errors.email ? 'border-red-500' : ''}
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="password" className="flex items-center">
+                <Lock className="h-4 w-4 mr-2" />
+                Contraseña
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                {...register('password')}
+                className={errors.password ? 'border-red-500' : ''}
+              />
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+              )}
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <Link
+                href="/auth/forgot-password"
+                className="text-sm text-padeliga-teal hover:underline"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
+            
+            <div className="pt-2">
+              <SkewedButton 
+                buttonVariant="purple" 
+                buttonSize="lg"
+                className="w-full font-semibold"
+                hoverEffectColor="purple"
+                hoverEffectVariant="solid"
+                disabled={isLoading}
+                type="submit"
+              >
+                {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+              </SkewedButton>
+            </div>
+          </form>
+          
+          <div className="mt-8 text-center">
+            <p className="text-gray-600 dark:text-gray-300">
+              ¿No tienes una cuenta?{' '}
+              <Link href="/signup" className="text-padeliga-teal hover:underline font-medium">
+                Regístrate
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      {/* Support section at the bottom */}
+      <div className="w-full max-w-md mb-10 text-center">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          ¿Necesitas ayuda?{' '}
+          <Link href="/support" className="text-padeliga-teal hover:underline">
+            Contacta con soporte
+          </Link>
+        </p>
+      </div>
+    </div>
   );
 }
