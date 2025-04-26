@@ -4,7 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Trophy, Users, Calendar, UserCog, UsersRound, Mail, ShieldCheck } from "lucide-react";
 import { DashboardStats } from "@/components/dashboard";
-import { AdminCard, AdminActionCard, AdminStatCard } from './AdminCard';
+import { AdminCard, AdminActionCard, AdminStatCard } from "@/components/admin";
 
 interface AdminDashboardOverviewProps {
   onTabChange: (tab: string) => void;
