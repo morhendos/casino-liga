@@ -17,19 +17,12 @@ export function ButtonHoverEffect({
   className
 }: ButtonHoverEffectProps) {
   // Define colors based on variant and color prop
-  const cornerBorderColor = variant === 'outline' 
-    ? {
-        teal: 'border-padeliga-teal/60',
-        purple: 'border-padeliga-purple/60',
-        orange: 'border-padeliga-orange/60',
-        white: 'border-white/70'
-      }[color]
-    : {
-        teal: 'border-padeliga-teal/60',
-        purple: 'border-padeliga-purple/60',
-        orange: 'border-padeliga-orange/60',
-        white: 'border-white/70'
-      }[color]; 
+  const cornerBorderColor = {
+    teal: 'border-padeliga-teal/60',
+    purple: 'border-padeliga-purple/60',
+    orange: 'border-padeliga-orange/60',
+    white: 'border-white/70'
+  }[color];
     
   const firstLayerColor = variant === 'outline'
     ? {
@@ -60,7 +53,7 @@ export function ButtonHoverEffect({
       }[color];
   
   return (
-    <div className={cn("absolute inset-0 overflow-hidden rounded-[inherit]", className)}>
+    <div className={cn("absolute inset-0 overflow-visible", className)}>
       {/* First layer - diagonal trapezoid */}
       <div className={cn(
         "absolute -top-full left-0 right-0 h-[200%] transform skew-y-12 group-hover:top-0 transition-all ease-out duration-300",
@@ -75,11 +68,11 @@ export function ButtonHoverEffect({
       
       {/* Animated corner effects */}
       <div className={cn(
-        "absolute top-0 left-0 w-0 h-0 border-t-[8px] border-l-[8px] group-hover:w-8 group-hover:h-8 transition-all duration-300",
+        "absolute -top-[1px] -left-[1px] w-0 h-0 border-t-[8px] border-l-[8px] group-hover:w-8 group-hover:h-8 transition-all duration-300",
         cornerBorderColor
       )}></div>
       <div className={cn(
-        "absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-r-[8px] group-hover:w-8 group-hover:h-8 transition-all duration-300",
+        "absolute -bottom-[1px] -right-[1px] w-0 h-0 border-b-[8px] border-r-[8px] group-hover:w-8 group-hover:h-8 transition-all duration-300",
         cornerBorderColor
       )}></div>
     </div>
