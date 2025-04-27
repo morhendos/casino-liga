@@ -25,18 +25,45 @@ export function SkewedActionButton({
 }: SkewedActionButtonProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [initialTheme, setInitialTheme] = useState<string | null>(null);
   
-  // Handle initial client-side rendering
+  // On first render, immediately check localStorage for theme
   useEffect(() => {
+    // Check localStorage directly to get theme before hydration
+    if (typeof window !== 'undefined') {
+      // First try the next-theme stored value
+      const storedTheme = localStorage.getItem('theme');
+      // If no stored theme, try to detect system preference
+      if (!storedTheme || storedTheme === 'system') {
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setInitialTheme(isDarkMode ? 'dark' : 'light');
+      } else {
+        setInitialTheme(storedTheme);
+      }
+    }
+    
+    // Then mark as mounted to use the theme provider's value going forward
     setMounted(true);
   }, []);
   
-  // Determine theme safely
-  const isDark = mounted ? 
-    resolvedTheme === 'dark' : 
-    typeof window !== 'undefined' ? 
-      document.documentElement.classList.contains('dark') : 
-      false;
+  // Determine the current theme to use
+  const currentTheme = mounted ? resolvedTheme : initialTheme;
+  const isDark = currentTheme === 'dark';
+  
+  // If we have no theme information yet, render a simple placeholder
+  if (!mounted && !initialTheme) {
+    return (
+      <div className={cn(
+        "h-full animate-pulse bg-card border border-border",
+        className
+      )}>
+        <div className="h-full w-full px-4 py-6 flex flex-col items-center justify-center">
+          <div className="h-8 w-8 mb-2 bg-muted rounded-sm" />
+          <div className="h-5 w-20 bg-muted rounded-sm" />
+        </div>
+      </div>
+    );
+  }
   
   // Map color string to actual color values
   const colorMap: Record<string, { 
@@ -84,6 +111,7 @@ export function SkewedActionButton({
         className
       )}
       style={{ transform: 'skew(-4deg)' }}
+      data-theme={currentTheme}
     >
       {/* Corner accent */}
       <div 
