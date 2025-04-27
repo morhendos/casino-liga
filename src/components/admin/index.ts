@@ -1,4 +1,5 @@
-export { AdminCard, AdminActionCard, AdminStatCard } from './AdminCard';
+export { AdminCard, AdminStatCard } from './AdminCard';
+export { default as AdminActionCard } from './AdminActionCard';
 export { default as AdminDashboardOverview } from './AdminDashboardOverview';
 export { default as PlayerInvitationManagement } from './PlayerInvitationManagement';
 export { default as PlayerManagement } from './PlayerManagement';
