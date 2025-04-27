@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GeometricBackground } from "@/components/ui/GeometricBackground";
 import { Badge } from "@/components/ui/badge";
+import { SkewedStatCard } from "@/components/dashboard/SkewedStatCard";
 
 function DashboardPage() {
   const { data: session } = useSession();
@@ -84,20 +85,16 @@ function DashboardPage() {
           </h1>
         </div>
         
-        {/* Stats cards with improved visual hierarchy */}
+        {/* Stats cards with skewed design */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {statsData.map((stat, index) => (
-            <Card key={index} className="bg-card/60 backdrop-blur-sm dark:bg-card/30 border-t-4" style={{borderTopColor: `hsl(var(--${stat.color}))`}}>
-              <CardContent className="p-4 flex flex-col items-center md:items-start">
-                <div className="mt-2 flex items-center md:items-start gap-3 md:flex-col">
-                  <stat.icon className={`h-8 w-8 md:mb-2 text-${stat.color}`} />
-                  <div className="flex flex-col md:items-start">
-                    <p className="text-3xl font-bold">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground">{stat.title}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <SkewedStatCard
+              key={index}
+              title={stat.title}
+              value={stat.value}
+              color={stat.color}
+              icon={stat.icon}
+            />
           ))}
         </div>
         
