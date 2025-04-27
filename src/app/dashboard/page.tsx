@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GeometricBackground } from "@/components/ui/GeometricBackground";
 import { Badge } from "@/components/ui/badge";
 import { SkewedStatCard } from "@/components/dashboard/SkewedStatCard";
+import { SkewedActionButton } from "@/components/dashboard/SkewedActionButton";
 
 function DashboardPage() {
   const { data: session } = useSession();
@@ -48,6 +49,34 @@ function DashboardPage() {
       value: "3",
       color: "padeliga-purple",
       icon: Users
+    }
+  ];
+
+  // Quick actions
+  const quickActions = [
+    {
+      label: "Join League",
+      href: "/dashboard/leagues",
+      icon: Trophy,
+      color: "padeliga-teal"
+    },
+    {
+      label: "Create Team",
+      href: "/dashboard/teams/new",
+      icon: Users,
+      color: "padeliga-purple"
+    },
+    {
+      label: "Schedule Match",
+      href: "/dashboard/matches/schedule",
+      icon: CalendarDays,
+      color: "padeliga-orange"
+    },
+    {
+      label: "View Stats",
+      href: "/dashboard/stats",
+      icon: BarChart,
+      color: "padeliga-green"
     }
   ];
   
@@ -108,25 +137,15 @@ function DashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Button size="lg" className="h-auto py-6 flex flex-col items-center justify-center bg-padeliga-teal hover:bg-padeliga-teal/90">
-                  <Trophy className="h-8 w-8 mb-2" />
-                  <span className="text-base font-medium">Join League</span>
-                </Button>
-                
-                <Button size="lg" className="h-auto py-6 flex flex-col items-center justify-center bg-padeliga-purple hover:bg-padeliga-purple/90">
-                  <Users className="h-8 w-8 mb-2" />
-                  <span className="text-base font-medium">Create Team</span>
-                </Button>
-                
-                <Button size="lg" className="h-auto py-6 flex flex-col items-center justify-center bg-padeliga-orange hover:bg-padeliga-orange/90">
-                  <CalendarDays className="h-8 w-8 mb-2" />
-                  <span className="text-base font-medium">Schedule Match</span>
-                </Button>
-                
-                <Button size="lg" className="h-auto py-6 flex flex-col items-center justify-center bg-padeliga-green hover:bg-padeliga-green/90">
-                  <BarChart className="h-8 w-8 mb-2" />
-                  <span className="text-base font-medium">View Stats</span>
-                </Button>
+                {quickActions.map((action, index) => (
+                  <SkewedActionButton
+                    key={index}
+                    label={action.label}
+                    icon={action.icon}
+                    color={action.color}
+                    href={action.href}
+                  />
+                ))}
               </CardContent>
             </Card>
             
