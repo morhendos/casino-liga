@@ -1,1 +1,9 @@
-export { AdminCard, AdminStatCard } from './AdminCard';\nexport { default as AdminActionCard } from './AdminActionCard';\nexport { default as AdminDashboardOverview } from './AdminDashboardOverview';\nexport { default as AdminTopBar } from './AdminTopBar';\nexport { default as PlayerInvitationManagement } from './PlayerInvitationManagement';\nexport { default as PlayerManagement } from './PlayerManagement';\nexport { default as RoleManagement } from './RoleManagement';\nexport { default as UserManagement } from './UserManagement';\nexport { default as LeagueManagement } from './LeagueManagement';\n
+export { AdminCard, AdminStatCard } from './AdminCard';
+export { default as AdminActionCard } from './AdminActionCard';
+export { default as AdminDashboardOverview } from './AdminDashboardOverview';
+export { default as AdminTopBar } from './AdminTopBar';
+export { default as PlayerInvitationManagement } from './PlayerInvitationManagement';
+export { default as PlayerManagement } from './PlayerManagement';
+export { default as RoleManagement } from './RoleManagement';
+export { default as UserManagement } from './UserManagement';
+export { default as LeagueManagement } from './LeagueManagement';
