@@ -19,8 +19,7 @@ import {
   Activity,
   AlertCircle,
   CheckCircle,
-  CalendarDays,
-  Plus
+  CalendarDays
 } from "lucide-react";
 import { GeometricBackground } from "@/components/ui/GeometricBackground";
 import {
@@ -30,8 +29,8 @@ import {
   RoleManagement,
   LeagueManagement
 } from "@/components/admin";
+import { AdminActionCard } from "@/components/admin/AdminActionCard";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { SkewedStatCard } from "@/components/dashboard/SkewedStatCard";
 
 function AdminDashboard() {
@@ -39,7 +38,6 @@ function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [players, setPlayers] = useState([]);
   const [isLoadingPlayers, setIsLoadingPlayers] = useState(false);
-  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -111,6 +109,52 @@ function AdminDashboard() {
     { title: "Leagues", value: "23", icon: Trophy, color: "padeliga-teal" },
     { title: "Matches", value: "156", icon: Activity, color: "padeliga-orange" },
     { title: "Active Players", value: "142", icon: UserCog, color: "padeliga-green" }
+  ];
+  
+  // Admin quick actions
+  const quickActions = [
+    { 
+      title: "Manage Users", 
+      description: "Add, edit or remove users", 
+      icon: UsersRound, 
+      color: "padeliga-teal",
+      onClick: () => setActiveTab("users")
+    },
+    { 
+      title: "Create League", 
+      description: "Set up a new league", 
+      icon: Trophy, 
+      color: "padeliga-purple",
+      onClick: () => setActiveTab("leagues") 
+    },
+    { 
+      title: "Send Invites", 
+      description: "Invite new players", 
+      icon: Mail, 
+      color: "padeliga-orange",
+      onClick: () => setActiveTab("invitations")
+    },
+    { 
+      title: "Manage Roles", 
+      description: "Update user permissions", 
+      icon: ShieldCheck, 
+      color: "padeliga-green",
+      onClick: () => setActiveTab("roles")
+    },
+    { 
+      title: "View Reports", 
+      description: "Platform analytics", 
+      icon: BarChart, 
+      color: "padeliga-teal",
+      onClick: () => console.log("Reports clicked")
+    },
+    { 
+      title: "Settings", 
+      description: "Configure platform", 
+      icon: Settings, 
+      color: "padeliga-purple",
+      onClick: () => setActiveTab("settings")
+    }
   ];
   
   // Recent alerts - would be fetched from API in real app
@@ -186,59 +230,22 @@ function AdminDashboard() {
               
               {/* Main Dashboard Content */}
               <div className="grid md:grid-cols-3 gap-6">
-                {/* Admin Quick Actions */}
+                {/* Admin Quick Actions - using new AdminActionCard */}
                 <Card className="md:col-span-2 bg-card/60 backdrop-blur-sm dark:bg-gray-800/40">
                   <CardHeader className="pb-2 border-b">
                     <CardTitle>Quick Actions</CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <Card className="bg-transparent border border-padeliga-teal/30 hover:border-padeliga-teal hover:bg-padeliga-teal/5 transition-colors cursor-pointer">
-                      <CardContent className="p-4 flex flex-col items-center text-center">
-                        <UsersRound className="h-8 w-8 mb-2 text-padeliga-teal" />
-                        <h3 className="font-medium">Manage Users</h3>
-                        <p className="text-xs text-muted-foreground mt-1">Add, edit or remove users</p>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="bg-transparent border border-padeliga-purple/30 hover:border-padeliga-purple hover:bg-padeliga-purple/5 transition-colors cursor-pointer">
-                      <CardContent className="p-4 flex flex-col items-center text-center">
-                        <Trophy className="h-8 w-8 mb-2 text-padeliga-purple" />
-                        <h3 className="font-medium">Create League</h3>
-                        <p className="text-xs text-muted-foreground mt-1">Set up a new league</p>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="bg-transparent border border-padeliga-orange/30 hover:border-padeliga-orange hover:bg-padeliga-orange/5 transition-colors cursor-pointer">
-                      <CardContent className="p-4 flex flex-col items-center text-center">
-                        <Mail className="h-8 w-8 mb-2 text-padeliga-orange" />
-                        <h3 className="font-medium">Send Invites</h3>
-                        <p className="text-xs text-muted-foreground mt-1">Invite new players</p>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="bg-transparent border border-padeliga-green/30 hover:border-padeliga-green hover:bg-padeliga-green/5 transition-colors cursor-pointer">
-                      <CardContent className="p-4 flex flex-col items-center text-center">
-                        <ShieldCheck className="h-8 w-8 mb-2 text-padeliga-green" />
-                        <h3 className="font-medium">Manage Roles</h3>
-                        <p className="text-xs text-muted-foreground mt-1">Update user permissions</p>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="bg-transparent border border-padeliga-teal/30 hover:border-padeliga-teal hover:bg-padeliga-teal/5 transition-colors cursor-pointer">
-                      <CardContent className="p-4 flex flex-col items-center text-center">
-                        <BarChart className="h-8 w-8 mb-2 text-padeliga-teal" />
-                        <h3 className="font-medium">View Reports</h3>
-                        <p className="text-xs text-muted-foreground mt-1">Platform analytics</p>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="bg-transparent border border-padeliga-purple/30 hover:border-padeliga-purple hover:bg-padeliga-purple/5 transition-colors cursor-pointer">
-                      <CardContent className="p-4 flex flex-col items-center text-center">
-                        <Settings className="h-8 w-8 mb-2 text-padeliga-purple" />
-                        <h3 className="font-medium">Settings</h3>
-                        <p className="text-xs text-muted-foreground mt-1">Configure platform</p>
-                      </CardContent>
-                    </Card>
+                    {quickActions.map((action, index) => (
+                      <AdminActionCard
+                        key={index}
+                        title={action.title}
+                        description={action.description}
+                        icon={action.icon}
+                        color={action.color}
+                        onClick={action.onClick}
+                      />
+                    ))}
                   </CardContent>
                 </Card>
                 
