@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
@@ -20,8 +20,20 @@ export function SkewedStatCard({
   color, 
   className 
 }: SkewedStatCardProps) {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
+  const { resolvedTheme, theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  // Handle initial client-side rendering
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Determine theme safely
+  const isDark = mounted ? 
+    resolvedTheme === 'dark' : 
+    typeof window !== 'undefined' ? 
+      document.documentElement.classList.contains('dark') : 
+      false;
   
   // Map color string to actual color values for both themes
   const colorMap: Record<string, { 
@@ -71,9 +83,16 @@ export function SkewedStatCard({
   const borderColor = isDark ? colors.borderDark : colors.borderLight;
   const textColor = isDark ? 'text-white' : `text-gray-800`;
   const subTextColor = isDark ? 'text-gray-300' : 'text-gray-600';
+
+  // Use CSS variables for theme-aware styling
+  const cardClass = cn(
+    "relative h-full overflow-hidden border",
+    isDark ? "border-slate-700" : "border-slate-200",
+    className
+  );
   
   return (
-    <div className={cn("relative h-full overflow-hidden border", className)}>
+    <div className={cardClass}>
       {/* Background with theme-aware styling */}
       <div className={cn(
         "absolute inset-0 -z-10",
