@@ -19,7 +19,8 @@ import {
   Activity,
   AlertCircle,
   CheckCircle,
-  CalendarDays
+  CalendarDays,
+  Plus
 } from "lucide-react";
 import { GeometricBackground } from "@/components/ui/GeometricBackground";
 import {
@@ -29,13 +30,16 @@ import {
   RoleManagement,
   LeagueManagement
 } from "@/components/admin";
+import AdminTopBar from "@/components/admin/AdminTopBar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 function AdminDashboard() {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [players, setPlayers] = useState([]);
   const [isLoadingPlayers, setIsLoadingPlayers] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -101,6 +105,15 @@ function AdminDashboard() {
     return icons[tabId] || BarChart;
   };
   
+  // Method to handle the top bar's create button
+  const handleCreateClick = () => {
+    // Open a modal or dropdown for creation options
+    setShowCreateModal(true);
+    // You would implement a modal component or dropdown to show creation options
+    // For now, we'll just log to console
+    console.log("Create button clicked, would show creation options");
+  };
+  
   // Platform stats - would be fetched from API in real app
   const platformStats = [
     { title: "Total Users", value: "185", icon: Users, color: "padeliga-purple" },
@@ -131,18 +144,31 @@ function AdminDashboard() {
     }
   ];
 
+  // Get the correct tab title based on active tab
+  const getTabTitle = () => {
+    const titles: Record<string, string> = {
+      dashboard: "Admin Dashboard",
+      users: "User Management",
+      players: "Player Management",
+      invitations: "Player Invitations",
+      roles: "Role Management",
+      leagues: "League Management",
+      settings: "Platform Settings"
+    };
+    
+    return titles[activeTab] || "Admin Dashboard";
+  };
+
   return (
     <div className="min-h-screen transition-colors duration-200 relative">
-      <main className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold tracking-tight heading-accent inline-block mb-1">
-            Admin Dashboard
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            Manage users, players, leagues, and platform settings
-          </p>
-        </div>
-
+      <div className="sticky top-0 z-30">
+        <AdminTopBar 
+          title={getTabTitle()}
+          onCreateClick={handleCreateClick}
+        />
+      </div>
+      
+      <main className="container mx-auto px-4 py-0 max-w-7xl relative z-10">
         {/* Dashboard tabs with improved styling */}
         <Tabs
           defaultValue="dashboard"
@@ -150,7 +176,7 @@ function AdminDashboard() {
           onValueChange={setActiveTab}
           value={activeTab}
         >
-          <div className="bg-card/60 dark:bg-gray-800/60 backdrop-blur-sm border-b border-border p-1 sticky top-0 z-20">
+          <div className="bg-card/60 dark:bg-gray-800/60 backdrop-blur-sm border-b border-border p-1 sticky top-[72px] z-20">
             <TabsList className="grid grid-cols-2 md:grid-cols-7 w-full">
               {["dashboard", "users", "players", "invitations", "roles", "leagues", "settings"].map((tab) => {
                 const Icon = getTabIcon(tab);
@@ -311,13 +337,6 @@ function AdminDashboard() {
 
           <TabsContent value="users">
             <Card className="bg-card/60 backdrop-blur-sm dark:bg-gray-800/40">
-              <CardHeader className="pb-2 border-b">
-                <CardTitle className="flex items-center">
-                  <UsersRound className="h-5 w-5 mr-2 text-padeliga-purple" />
-                  <span>User Management</span>
-                  <Badge variant="outline" className="ml-auto">Manage Users</Badge>
-                </CardTitle>
-              </CardHeader>
               <CardContent className="p-4 pt-6">
                 <UserManagement />
               </CardContent>
@@ -326,13 +345,6 @@ function AdminDashboard() {
           
           <TabsContent value="players">
             <Card className="bg-card/60 backdrop-blur-sm dark:bg-gray-800/40">
-              <CardHeader className="pb-2 border-b">
-                <CardTitle className="flex items-center">
-                  <UserCog className="h-5 w-5 mr-2 text-padeliga-green" />
-                  <span>Player Management</span>
-                  <Badge variant="outline" className="ml-auto">Manage Players</Badge>
-                </CardTitle>
-              </CardHeader>
               <CardContent className="p-4 pt-6">
                 <PlayerManagement />
               </CardContent>
@@ -341,13 +353,6 @@ function AdminDashboard() {
 
           <TabsContent value="invitations">
             <Card className="bg-card/60 backdrop-blur-sm dark:bg-gray-800/40">
-              <CardHeader className="pb-2 border-b">
-                <CardTitle className="flex items-center">
-                  <Mail className="h-5 w-5 mr-2 text-padeliga-orange" />
-                  <span>Player Invitations</span>
-                  <Badge variant="outline" className="ml-auto">Invite Players</Badge>
-                </CardTitle>
-              </CardHeader>
               <CardContent className="p-4 pt-6">
                 {isLoadingPlayers ? (
                   <div className="flex items-center justify-center py-8">
@@ -365,13 +370,6 @@ function AdminDashboard() {
 
           <TabsContent value="roles">
             <Card className="bg-card/60 backdrop-blur-sm dark:bg-gray-800/40">
-              <CardHeader className="pb-2 border-b">
-                <CardTitle className="flex items-center">
-                  <ShieldCheck className="h-5 w-5 mr-2 text-padeliga-red" />
-                  <span>Role Management</span>
-                  <Badge variant="outline" className="ml-auto">Manage Roles</Badge>
-                </CardTitle>
-              </CardHeader>
               <CardContent className="p-4 pt-6">
                 <RoleManagement />
               </CardContent>
@@ -380,13 +378,6 @@ function AdminDashboard() {
 
           <TabsContent value="leagues">
             <Card className="bg-card/60 backdrop-blur-sm dark:bg-gray-800/40">
-              <CardHeader className="pb-2 border-b">
-                <CardTitle className="flex items-center">
-                  <Trophy className="h-5 w-5 mr-2 text-padeliga-teal" />
-                  <span>League Management</span>
-                  <Badge variant="outline" className="ml-auto">Manage Leagues</Badge>
-                </CardTitle>
-              </CardHeader>
               <CardContent className="p-4 pt-6">
                 <LeagueManagement />
               </CardContent>
@@ -395,13 +386,6 @@ function AdminDashboard() {
           
           <TabsContent value="settings">
             <Card className="bg-card/60 backdrop-blur-sm dark:bg-gray-800/40">
-              <CardHeader className="pb-2 border-b">
-                <CardTitle className="flex items-center">
-                  <Settings className="h-5 w-5 mr-2 text-padeliga-purple" />
-                  <span>Platform Settings</span>
-                  <Badge variant="outline" className="ml-auto">Configure</Badge>
-                </CardTitle>
-              </CardHeader>
               <CardContent className="p-4 pt-6">
                 <p className="text-center py-4 text-muted-foreground">
                   Settings module will be implemented in the next phase.
