@@ -82,10 +82,6 @@ function DashboardPage() {
           <h1 className="text-3xl font-bold tracking-tight heading-accent inline-block mb-1">
             Dashboard
           </h1>
-          
-          <p className="text-lg text-muted-foreground">
-            Hello, {session?.user?.name?.split(' ')[0] || 'Player'}! 👋
-          </p>
         </div>
         
         {/* Stats cards with improved visual hierarchy */}
