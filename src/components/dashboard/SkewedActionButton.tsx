@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -24,7 +24,19 @@ export function SkewedActionButton({
   className 
 }: SkewedActionButtonProps) {
   const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
+  const [mounted, setMounted] = useState(false);
+  
+  // Handle initial client-side rendering
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Determine theme safely
+  const isDark = mounted ? 
+    resolvedTheme === 'dark' : 
+    typeof window !== 'undefined' ? 
+      document.documentElement.classList.contains('dark') : 
+      false;
   
   // Map color string to actual color values
   const colorMap: Record<string, { 
