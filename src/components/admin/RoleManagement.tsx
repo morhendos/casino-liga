@@ -11,7 +11,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { ShieldCheck, UserCog, Info } from "lucide-react";
+import { ShieldCheck, UserCog, Info, AlertCircle } from "lucide-react";
 import { ROLES } from "@/lib/auth/role-utils";
 
 // Define available roles in the system
@@ -46,7 +46,7 @@ function RoleManagement() {
   return (
     <div className="space-y-6">
       {/* Updated info box with dark mode support */}
-      <div className="rounded-md bg-blue-50 dark:bg-blue-950 p-4 border border-blue-200 dark:border-blue-800">
+      <div className="rounded-md bg-blue-50 dark:bg-blue-950/40 p-4 border border-blue-200 dark:border-blue-700/50">
         <div className="flex">
           <div className="flex-shrink-0">
             <Info className="h-5 w-5 text-blue-400 dark:text-blue-300" />
@@ -102,15 +102,15 @@ function RoleManagement() {
         </CardContent>
       </Card>
       
-      {/* Updated warning box with dark mode support */}
-      <div className="rounded-md bg-amber-50 dark:bg-amber-950 p-4 border border-amber-200 dark:border-amber-800">
+      {/* Updated "Custom Roles" section with a nicer dark mode appearance */}
+      <div className="rounded-md bg-amber-50 dark:bg-slate-800/60 p-4 border border-amber-200 dark:border-orange-500/30 shadow-sm dark:shadow-inner dark:shadow-orange-500/5">
         <div className="flex">
           <div className="flex-shrink-0">
-            <Info className="h-5 w-5 text-amber-400 dark:text-amber-300" />
+            <AlertCircle className="h-5 w-5 text-amber-500 dark:text-orange-400" />
           </div>
           <div className="ml-3">
-            <h3 className="text-sm font-medium text-amber-800 dark:text-amber-300">Custom Roles</h3>
-            <div className="mt-2 text-sm text-amber-700 dark:text-amber-400">
+            <h3 className="text-sm font-medium text-amber-800 dark:text-orange-300">Custom Roles</h3>
+            <div className="mt-2 text-sm text-amber-700 dark:text-slate-300">
               <p>
                 Custom roles are not supported in the current version. Contact the system administrator
                 if you need additional role types for your organization.
