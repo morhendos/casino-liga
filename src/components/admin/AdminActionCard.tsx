@@ -3,6 +3,7 @@
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTheme } from 'next-themes';
 
 interface AdminActionCardProps {
   title: string;
@@ -21,47 +22,79 @@ export function AdminActionCard({
   onClick, 
   className 
 }: AdminActionCardProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  
   const handleClick = () => {
     if (onClick) {
       onClick();
     }
   };
 
-  // Map color to border and hover styles
-  const colorStyles: Record<string, { border: string, hover: string, text: string, bg: string }> = {
+  // Map color to border and hover styles for both themes
+  const colorStyles: Record<string, { 
+    darkBorder: string, 
+    darkHover: string, 
+    darkText: string, 
+    darkBg: string,
+    lightBorder: string, 
+    lightHover: string, 
+    lightText: string, 
+    lightBg: string
+  }> = {
     'padeliga-teal': { 
-      border: 'border-padeliga-teal/30', 
-      hover: 'hover:border-padeliga-teal hover:bg-padeliga-teal/5',
-      text: 'text-padeliga-teal',
-      bg: 'bg-padeliga-teal/10'
+      darkBorder: 'border-padeliga-teal/30', 
+      darkHover: 'hover:border-padeliga-teal hover:bg-padeliga-teal/10',
+      darkText: 'text-padeliga-teal',
+      darkBg: 'bg-padeliga-teal/10',
+      lightBorder: 'border-padeliga-teal/40', 
+      lightHover: 'hover:border-padeliga-teal hover:bg-padeliga-teal/5',
+      lightText: 'text-padeliga-teal',
+      lightBg: 'bg-padeliga-teal/5'
     },
     'padeliga-purple': { 
-      border: 'border-padeliga-purple/30', 
-      hover: 'hover:border-padeliga-purple hover:bg-padeliga-purple/5',
-      text: 'text-padeliga-purple',
-      bg: 'bg-padeliga-purple/10'
+      darkBorder: 'border-padeliga-purple/30', 
+      darkHover: 'hover:border-padeliga-purple hover:bg-padeliga-purple/10',
+      darkText: 'text-padeliga-purple',
+      darkBg: 'bg-padeliga-purple/10',
+      lightBorder: 'border-padeliga-purple/40', 
+      lightHover: 'hover:border-padeliga-purple hover:bg-padeliga-purple/5',
+      lightText: 'text-padeliga-purple',
+      lightBg: 'bg-padeliga-purple/5'
     },
     'padeliga-orange': { 
-      border: 'border-padeliga-orange/30', 
-      hover: 'hover:border-padeliga-orange hover:bg-padeliga-orange/5',
-      text: 'text-padeliga-orange',
-      bg: 'bg-padeliga-orange/10'
+      darkBorder: 'border-padeliga-orange/30', 
+      darkHover: 'hover:border-padeliga-orange hover:bg-padeliga-orange/10',
+      darkText: 'text-padeliga-orange',
+      darkBg: 'bg-padeliga-orange/10',
+      lightBorder: 'border-padeliga-orange/40', 
+      lightHover: 'hover:border-padeliga-orange hover:bg-padeliga-orange/5',
+      lightText: 'text-padeliga-orange',
+      lightBg: 'bg-padeliga-orange/5'
     },
     'padeliga-green': { 
-      border: 'border-padeliga-green/30', 
-      hover: 'hover:border-padeliga-green hover:bg-padeliga-green/5',
-      text: 'text-padeliga-green',
-      bg: 'bg-padeliga-green/10'
+      darkBorder: 'border-padeliga-green/30', 
+      darkHover: 'hover:border-padeliga-green hover:bg-padeliga-green/10',
+      darkText: 'text-padeliga-green',
+      darkBg: 'bg-padeliga-green/10',
+      lightBorder: 'border-padeliga-green/40', 
+      lightHover: 'hover:border-padeliga-green hover:bg-padeliga-green/5',
+      lightText: 'text-padeliga-green',
+      lightBg: 'bg-padeliga-green/5'
     }
   };
 
   const styles = colorStyles[color] || colorStyles['padeliga-teal'];
+  const borderStyle = isDark ? styles.darkBorder : styles.lightBorder;
+  const hoverStyle = isDark ? styles.darkHover : styles.lightHover;
+  const textStyle = isDark ? styles.darkText : styles.lightText;
+  const bgStyle = isDark ? styles.darkBg : styles.lightBg;
   
   return (
     <div 
       onClick={handleClick}
       className={cn(
-        `relative overflow-hidden border ${styles.border} ${styles.hover} transition-colors cursor-pointer transform hover:-translate-y-1 duration-200`,
+        `relative overflow-hidden border ${borderStyle} ${hoverStyle} transition-colors cursor-pointer transform hover:-translate-y-1 duration-200`,
         className
       )}
       style={{ transform: 'skew(-2deg)' }}
@@ -76,8 +109,8 @@ export function AdminActionCard({
         className="p-4 flex flex-col items-center text-center"
         style={{ transform: 'skew(2deg)' }} // Counter-skew the content
       >
-        <div className={`h-14 w-14 flex items-center justify-center mb-3 ${styles.bg}`}>
-          <Icon className={`h-8 w-8 ${styles.text}`} />
+        <div className={`h-14 w-14 flex items-center justify-center mb-3 ${bgStyle}`}>
+          <Icon className={`h-8 w-8 ${textStyle}`} />
         </div>
         
         <h3 className="font-medium mb-1">{title}</h3>
