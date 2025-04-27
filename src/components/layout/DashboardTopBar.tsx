@@ -7,8 +7,7 @@ import {
   Bell, 
   Search, 
   Settings, 
-  HelpCircle, 
-  User
+  HelpCircle 
 } from "lucide-react";
 import { cn } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
@@ -26,15 +25,15 @@ export function DashboardTopBar({
   
   return (
     <div className={cn(
-      "flex justify-between items-center py-2 px-4 bg-card/80 backdrop-blur-sm border-b border-border z-30",
+      "flex justify-between items-center h-14 px-4 bg-[#1A1F2C] backdrop-blur-sm border-b border-border z-30",
       className
     )}>
       <div className="hidden md:flex relative flex-1 max-w-xs">
-        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Search className="absolute left-2 top-2.5 h-5 w-5 text-muted-foreground pointer-events-none" />
         <input
           type="text"
           placeholder="Search..."
-          className="h-9 w-full bg-background pl-8 pr-4 py-2 text-sm transition-colors rounded-none focus:outline-none focus:ring-0 border border-input"
+          className="h-9 w-full bg-background/20 pl-9 pr-4 py-2 text-sm transition-colors rounded-none focus:outline-none focus:ring-0 border border-input/50"
         />
       </div>
       
@@ -42,7 +41,7 @@ export function DashboardTopBar({
         <Button 
           variant="ghost" 
           size="icon" 
-          className="relative hover:bg-muted/50"
+          className="relative hover:bg-white/5"
         >
           <Bell className="h-5 w-5" />
           <Badge 
@@ -55,7 +54,7 @@ export function DashboardTopBar({
         <Button 
           variant="ghost" 
           size="icon" 
-          className="hover:bg-muted/50 md:hidden"
+          className="hover:bg-white/5 md:hidden"
         >
           <Search className="h-5 w-5" />
         </Button>
@@ -63,7 +62,7 @@ export function DashboardTopBar({
         <Button 
           variant="ghost" 
           size="icon" 
-          className="hover:bg-muted/50"
+          className="hover:bg-white/5"
         >
           <Settings className="h-5 w-5" />
         </Button>
@@ -71,7 +70,7 @@ export function DashboardTopBar({
         <Button 
           variant="ghost" 
           size="icon" 
-          className="hover:bg-muted/50"
+          className="hover:bg-white/5"
         >
           <HelpCircle className="h-5 w-5" />
         </Button>
