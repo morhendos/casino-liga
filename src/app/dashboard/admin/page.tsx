@@ -30,7 +30,6 @@ import {
   RoleManagement,
   LeagueManagement
 } from "@/components/admin";
-import AdminTopBar from "@/components/admin/AdminTopBar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -105,15 +104,6 @@ function AdminDashboard() {
     return icons[tabId] || BarChart;
   };
   
-  // Method to handle the top bar's create button
-  const handleCreateClick = () => {
-    // Open a modal or dropdown for creation options
-    setShowCreateModal(true);
-    // You would implement a modal component or dropdown to show creation options
-    // For now, we'll just log to console
-    console.log("Create button clicked, would show creation options");
-  };
-  
   // Platform stats - would be fetched from API in real app
   const platformStats = [
     { title: "Total Users", value: "185", icon: Users, color: "padeliga-purple" },
@@ -144,31 +134,13 @@ function AdminDashboard() {
     }
   ];
 
-  // Get the correct tab title based on active tab
-  const getTabTitle = () => {
-    const titles: Record<string, string> = {
-      dashboard: "Admin Dashboard",
-      users: "User Management",
-      players: "Player Management",
-      invitations: "Player Invitations",
-      roles: "Role Management",
-      leagues: "League Management",
-      settings: "Platform Settings"
-    };
-    
-    return titles[activeTab] || "Admin Dashboard";
-  };
-
   return (
     <div className="min-h-screen transition-colors duration-200 relative">
-      <div className="sticky top-0 z-30">
-        <AdminTopBar 
-          title={getTabTitle()}
-          onCreateClick={handleCreateClick}
-        />
-      </div>
-      
-      <main className="container mx-auto px-4 py-0 max-w-7xl relative z-10">
+      <main className="container mx-auto px-4 py-4 max-w-7xl relative z-10">
+        <h1 className="text-3xl font-bold tracking-tight heading-accent inline-block mb-6">
+          Admin Dashboard
+        </h1>
+        
         {/* Dashboard tabs with improved styling */}
         <Tabs
           defaultValue="dashboard"
@@ -176,7 +148,7 @@ function AdminDashboard() {
           onValueChange={setActiveTab}
           value={activeTab}
         >
-          <div className="bg-card/60 dark:bg-gray-800/60 backdrop-blur-sm border-b border-border p-1 sticky top-[72px] z-20">
+          <div className="bg-card/60 dark:bg-gray-800/60 backdrop-blur-sm border-b border-border p-1 sticky top-[56px] z-20">
             <TabsList className="grid grid-cols-2 md:grid-cols-7 w-full">
               {["dashboard", "users", "players", "invitations", "roles", "leagues", "settings"].map((tab) => {
                 const Icon = getTabIcon(tab);
