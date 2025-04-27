@@ -1,6 +1,5 @@
 "use client";
 
-import { UserAccountNav } from "@/components/auth/UserAccountNav";
 import { PadelNavigation } from "@/components/layout/PadelNavigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -8,6 +7,9 @@ import Image from 'next/image';
 import { GeometricBackground } from "@/components/ui/GeometricBackground";
 import { DashboardTopBar } from "@/components/layout/DashboardTopBar";
 import { usePathname } from "next/navigation";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 export default function DashboardLayout({
   children,
@@ -16,6 +18,7 @@ export default function DashboardLayout({
 }) {
   const { data: session } = useSession();
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Function to extract page name from pathname
   const getPageTitle = () => {
@@ -37,7 +40,7 @@ export default function DashboardLayout({
       {/* Background geometric shapes - subtle variant */}
       <GeometricBackground variant="subtle" animated={true} />
       
-      {/* Sidebar */}
+      {/* Desktop Sidebar */}
       <div className="hidden md:flex md:w-64 md:flex-col fixed inset-y-0 z-10">
         <div className="flex flex-col flex-grow bg-card/90 backdrop-blur-sm border-r border-border">
           <div className="flex h-14 flex-shrink-0 items-center px-4 border-b border-border">
@@ -54,17 +57,53 @@ export default function DashboardLayout({
 
       {/* Content area with topbar */}
       <div className="flex flex-col flex-1 md:pl-64">
-        {/* Top Bar - shown on all pages */}
-        <DashboardTopBar />
+        {/* Top Bar - Desktop version */}
+        <div className="hidden md:block">
+          <DashboardTopBar />
+        </div>
 
-        {/* Mobile header */}
-        <div className="md:hidden flex flex-col flex-1">
-          <div className="sticky top-0 z-10 flex h-14 flex-shrink-0 items-center bg-card/90 backdrop-blur-sm px-4 border-b border-border">
-            <Link href="/dashboard" className="flex items-center">
-              <Image src="/logo.png" alt="Padeliga" width={90} height={28} className="max-h-7" />
-            </Link>
+        {/* Mobile top bar */}
+        <div className="md:hidden sticky top-0 z-20 flex items-center bg-card/90 backdrop-blur-sm h-14 border-b border-border">
+          <div className="flex items-center justify-between w-full px-4">
+            <div className="flex items-center">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="mr-2"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+              <Link href="/dashboard">
+                <Image src="/logo.png" alt="Padeliga" width={90} height={28} className="max-h-7" />
+              </Link>
+            </div>
+            
+            <DashboardTopBar className="!bg-transparent !border-0 !p-0 !justify-end" />
           </div>
         </div>
+        
+        {/* Mobile menu overlay */}
+        {mobileMenuOpen && (
+          <div className="md:hidden fixed inset-0 z-30 flex">
+            <div 
+              className="absolute inset-0 bg-black/60" 
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <div className="relative z-40 bg-background w-64 h-full border-r border-border">
+              <div className="flex flex-col h-full">
+                <div className="flex h-14 items-center px-4 border-b border-border">
+                  <Link href="/dashboard" className="flex items-center" onClick={() => setMobileMenuOpen(false)}>
+                    <Image src="/logo.png" alt="Padeliga" width={100} height={32} className="max-h-8" />
+                  </Link>
+                </div>
+                <div className="flex-1 overflow-y-auto py-4 px-4">
+                  <PadelNavigation onSelect={() => setMobileMenuOpen(false)} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Main content */}
         <main className="flex-1 bg-background/60 dark:bg-background/40">
