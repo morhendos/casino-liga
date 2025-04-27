@@ -25,7 +25,7 @@ export function DashboardTopBar({
   
   return (
     <div className={cn(
-      "flex justify-between items-center h-14 px-4 bg-[#1A1F2C] backdrop-blur-sm border-b border-border z-50 sticky top-0",
+      "flex justify-between items-center h-14 px-4 bg-background dark:bg-slate-900 backdrop-blur-sm border-b border-border z-50 sticky top-0",
       className
     )}>
       <div className="hidden md:flex relative flex-1 max-w-xs">
@@ -33,7 +33,7 @@ export function DashboardTopBar({
         <input
           type="text"
           placeholder="Search..."
-          className="h-9 w-full bg-background/20 pl-9 pr-4 py-2 text-sm transition-colors rounded-none focus:outline-none focus:ring-0 border border-input/50"
+          className="h-9 w-full bg-muted/30 pl-9 pr-4 py-2 text-sm transition-colors rounded-none focus:outline-none focus:ring-0 border border-input/50"
         />
       </div>
       
@@ -41,7 +41,7 @@ export function DashboardTopBar({
         <Button 
           variant="ghost" 
           size="icon" 
-          className="relative hover:bg-white/5"
+          className="relative hover:bg-muted/50"
         >
           <Bell className="h-5 w-5" />
           <Badge 
@@ -54,7 +54,7 @@ export function DashboardTopBar({
         <Button 
           variant="ghost" 
           size="icon" 
-          className="hover:bg-white/5 md:hidden"
+          className="hover:bg-muted/50 md:hidden"
         >
           <Search className="h-5 w-5" />
         </Button>
@@ -62,7 +62,7 @@ export function DashboardTopBar({
         <Button 
           variant="ghost" 
           size="icon" 
-          className="hover:bg-white/5"
+          className="hover:bg-muted/50"
         >
           <Settings className="h-5 w-5" />
         </Button>
@@ -70,7 +70,7 @@ export function DashboardTopBar({
         <Button 
           variant="ghost" 
           size="icon" 
-          className="hover:bg-white/5"
+          className="hover:bg-muted/50"
         >
           <HelpCircle className="h-5 w-5" />
         </Button>
