@@ -24,24 +24,54 @@ export function AdminActionCard({
 }: AdminActionCardProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [initialTheme, setInitialTheme] = useState<string | null>(null);
   
-  // Handle initial client-side rendering
+  // On first render, immediately check localStorage for theme
   useEffect(() => {
+    // Check localStorage directly to get theme before hydration
+    if (typeof window !== 'undefined') {
+      // First try the next-theme stored value
+      const storedTheme = localStorage.getItem('theme');
+      // If no stored theme, try to detect system preference
+      if (!storedTheme || storedTheme === 'system') {
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setInitialTheme(isDarkMode ? 'dark' : 'light');
+      } else {
+        setInitialTheme(storedTheme);
+      }
+    }
+    
+    // Then mark as mounted to use the theme provider's value going forward
     setMounted(true);
   }, []);
   
-  // Determine theme safely
-  const isDark = mounted ? 
-    resolvedTheme === 'dark' : 
-    typeof window !== 'undefined' ? 
-      document.documentElement.classList.contains('dark') : 
-      false;
+  // Determine the current theme to use
+  const currentTheme = mounted ? resolvedTheme : initialTheme;
+  const isDark = currentTheme === 'dark';
   
   const handleClick = () => {
     if (onClick) {
       onClick();
     }
   };
+  
+  // If we have no theme information yet, render a simple placeholder
+  if (!mounted && !initialTheme) {
+    return (
+      <div className={cn(
+        "relative overflow-hidden border border-border animate-pulse",
+        className
+      )}
+      style={{ transform: 'skew(-2deg)' }}>
+        <div className="p-4 flex flex-col items-center text-center"
+             style={{ transform: 'skew(2deg)' }}>
+          <div className="h-14 w-14 bg-muted rounded-sm mb-3" />
+          <div className="h-5 w-3/4 bg-muted rounded-sm mb-2" />
+          <div className="h-3 w-full bg-muted rounded-sm" />
+        </div>
+      </div>
+    );
+  }
 
   // Map color to border and hover styles for both themes
   const colorStyles: Record<string, { 
@@ -109,6 +139,7 @@ export function AdminActionCard({
         `relative overflow-hidden border ${borderStyle} ${hoverStyle} transition-colors cursor-pointer transform hover:-translate-y-1 duration-200`,
         className
       )}
+      data-theme={currentTheme}
       style={{ transform: 'skew(-2deg)' }}
     >
       {/* Left border accent */}
