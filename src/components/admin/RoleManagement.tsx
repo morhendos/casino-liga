@@ -45,14 +45,15 @@ const AVAILABLE_ROLES = [
 function RoleManagement() {
   return (
     <div className="space-y-6">
-      <div className="rounded-md bg-blue-50 p-4 border border-blue-200">
+      {/* Updated info box with dark mode support */}
+      <div className="rounded-md bg-blue-50 dark:bg-blue-950 p-4 border border-blue-200 dark:border-blue-800">
         <div className="flex">
           <div className="flex-shrink-0">
-            <Info className="h-5 w-5 text-blue-400" />
+            <Info className="h-5 w-5 text-blue-400 dark:text-blue-300" />
           </div>
           <div className="ml-3">
-            <h3 className="text-sm font-medium text-blue-800">About Role System</h3>
-            <div className="mt-2 text-sm text-blue-700">
+            <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300">About Role System</h3>
+            <div className="mt-2 text-sm text-blue-700 dark:text-blue-400">
               <p>
                 The system uses a role-based access control model where each user can have one or more roles.
                 Each role grants specific permissions in the application.
@@ -101,14 +102,15 @@ function RoleManagement() {
         </CardContent>
       </Card>
       
-      <div className="rounded-md bg-amber-50 p-4 border border-amber-200">
+      {/* Updated warning box with dark mode support */}
+      <div className="rounded-md bg-amber-50 dark:bg-amber-950 p-4 border border-amber-200 dark:border-amber-800">
         <div className="flex">
           <div className="flex-shrink-0">
-            <Info className="h-5 w-5 text-amber-400" />
+            <Info className="h-5 w-5 text-amber-400 dark:text-amber-300" />
           </div>
           <div className="ml-3">
-            <h3 className="text-sm font-medium text-amber-800">Custom Roles</h3>
-            <div className="mt-2 text-sm text-amber-700">
+            <h3 className="text-sm font-medium text-amber-800 dark:text-amber-300">Custom Roles</h3>
+            <div className="mt-2 text-sm text-amber-700 dark:text-amber-400">
               <p>
                 Custom roles are not supported in the current version. Contact the system administrator
                 if you need additional role types for your organization.
