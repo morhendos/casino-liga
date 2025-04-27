@@ -25,7 +25,7 @@ export function DashboardTopBar({
   
   return (
     <div className={cn(
-      "flex justify-between items-center h-14 px-4 bg-[#1A1F2C] backdrop-blur-sm border-b border-border z-30",
+      "flex justify-between items-center h-14 px-4 bg-[#1A1F2C] backdrop-blur-sm border-b border-border z-50 sticky top-0",
       className
     )}>
       <div className="hidden md:flex relative flex-1 max-w-xs">
