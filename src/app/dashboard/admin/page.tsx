@@ -263,11 +263,13 @@ function AdminDashboard() {
                           success: "bg-padeliga-green text-padeliga-green"
                         };
                         const color = alertColors[alert.type] || "bg-padeliga-purple text-padeliga-purple";
+                        // Fix: Create component variable with uppercase name
+                        const AlertIcon = alert.icon;
                         
                         return (
                           <div key={index} className="p-4 flex items-start">
                             <div className={`w-8 h-8 rounded-sm flex items-center justify-center ${color.split(" ")[1]} bg-opacity-10 mr-3`}>
-                              <alert.icon className="h-4 w-4" />
+                              <AlertIcon className="h-4 w-4" />
                             </div>
                             <div>
                               <h3 className="font-medium">{alert.title}</h3>
@@ -293,18 +295,22 @@ function AdminDashboard() {
                       { time: "45 min ago", title: "League created", desc: "Summer League 2025 was created", icon: Trophy, color: "padeliga-teal" },
                       { time: "2 hours ago", title: "Match result submitted", desc: "Team Alpha vs Team Beta: 6-4, 7-5", icon: Activity, color: "padeliga-orange" },
                       { time: "Yesterday", title: "User role updated", desc: "Maria Garcia promoted to admin", icon: ShieldCheck, color: "padeliga-green" }
-                    ].map((item, i) => (
-                      <div key={i} className="mb-6 last:mb-0">
-                        <div className={`absolute left-0 flex h-6 w-6 items-center justify-center rounded-full bg-${item.color}/20 text-${item.color} -translate-x-1/2`}>
-                          <item.icon className="h-3 w-3" />
+                    ].map((item, i) => {
+                      // Fix: Create component variable with uppercase name
+                      const ItemIcon = item.icon;
+                      return (
+                        <div key={i} className="mb-6 last:mb-0">
+                          <div className={`absolute left-0 flex h-6 w-6 items-center justify-center rounded-full bg-${item.color}/20 text-${item.color} -translate-x-1/2`}>
+                            <ItemIcon className="h-3 w-3" />
+                          </div>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-xs text-muted-foreground">{item.time}</span>
+                            <span className="font-medium">{item.title}</span>
+                            <span className="text-sm">{item.desc}</span>
+                          </div>
                         </div>
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-xs text-muted-foreground">{item.time}</span>
-                          <span className="font-medium">{item.title}</span>
-                          <span className="text-sm">{item.desc}</span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
