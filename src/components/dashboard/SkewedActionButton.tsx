@@ -4,6 +4,7 @@ import React from 'react';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useTheme } from 'next-themes';
 
 interface SkewedActionButtonProps {
   label: string;
@@ -22,33 +23,52 @@ export function SkewedActionButton({
   onClick,
   className 
 }: SkewedActionButtonProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  
   // Map color string to actual color values
-  const colorMap: Record<string, { bg: string, hover: string }> = {
+  const colorMap: Record<string, { 
+    darkBg: string, 
+    darkHover: string,
+    lightBg: string,
+    lightHover: string
+  }> = {
     'padeliga-teal': { 
-      bg: 'bg-gradient-to-br from-[#1e4587] to-[#2a5cb8]', 
-      hover: 'hover:from-[#1a3a77] hover:to-[#264fa3]'
+      darkBg: 'bg-gradient-to-br from-[#1e4587] to-[#2a5cb8]', 
+      darkHover: 'hover:from-[#1a3a77] hover:to-[#264fa3]',
+      lightBg: 'bg-gradient-to-br from-[#3a7bd5] to-[#5294e0]',
+      lightHover: 'hover:from-[#2f6aba] hover:to-[#4785d1]'
     },
     'padeliga-orange': { 
-      bg: 'bg-gradient-to-br from-[#8c5615] to-[#b26c1d]', 
-      hover: 'hover:from-[#7a4b12] hover:to-[#9b5f19]'
+      darkBg: 'bg-gradient-to-br from-[#8c5615] to-[#b26c1d]', 
+      darkHover: 'hover:from-[#7a4b12] hover:to-[#9b5f19]',
+      lightBg: 'bg-gradient-to-br from-[#e08a23] to-[#f2a431]',
+      lightHover: 'hover:from-[#cc801e] hover:to-[#dd962b]'
     },
     'padeliga-purple': { 
-      bg: 'bg-gradient-to-br from-[#63289a] to-[#7b32c1]', 
-      hover: 'hover:from-[#572387] hover:to-[#6c2cab]'
+      darkBg: 'bg-gradient-to-br from-[#63289a] to-[#7b32c1]', 
+      darkHover: 'hover:from-[#572387] hover:to-[#6c2cab]',
+      lightBg: 'bg-gradient-to-br from-[#8c3dd8] to-[#9f50e0]',
+      lightHover: 'hover:from-[#7d34c4] hover:to-[#8f46d0]'
     },
     'padeliga-green': { 
-      bg: 'bg-gradient-to-br from-[#4c7420] to-[#619329]', 
-      hover: 'hover:from-[#41651c] hover:to-[#548023]'
+      darkBg: 'bg-gradient-to-br from-[#4c7420] to-[#619329]', 
+      darkHover: 'hover:from-[#41651c] hover:to-[#548023]',
+      lightBg: 'bg-gradient-to-br from-[#6fa32b] to-[#8bce35]',
+      lightHover: 'hover:from-[#5f8c25] hover:to-[#7ab92e]'
     }
   };
   
   const colors = colorMap[color] || colorMap['padeliga-teal'];
+  const bg = isDark ? colors.darkBg : colors.lightBg;
+  const hover = isDark ? colors.darkHover : colors.lightHover;
   
   const ButtonContent = () => (
     <div 
       className={cn(
         "relative h-full overflow-hidden transition-all duration-200",
-        colors.bg,
+        bg,
+        hover,
         className
       )}
       style={{ transform: 'skew(-4deg)' }}
