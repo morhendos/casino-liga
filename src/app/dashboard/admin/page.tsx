@@ -193,7 +193,7 @@ function AdminDashboard() {
           onValueChange={setActiveTab}
           value={activeTab}
         >
-          <div className="bg-card/60 dark:bg-gray-800/60 backdrop-blur-sm border-b border-border p-1 sticky top-[56px] z-20">
+          <div className="bg-card/60 dark:bg-gray-800/60 backdrop-blur-sm border-b border-border p-1 sticky top-14 z-20">
             <TabsList className="grid grid-cols-2 md:grid-cols-7 w-full">
               {["dashboard", "users", "players", "invitations", "roles", "leagues", "settings"].map((tab) => {
                 const Icon = getTabIcon(tab);
