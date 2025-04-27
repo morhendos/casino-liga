@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import PadeligaLogo from "@/components/PadeligaLogo";
 import { GeometricBackground } from "@/components/ui/GeometricBackground";
+import Image from 'next/image';
 
 export default function DashboardLayout({
   children,
@@ -16,16 +17,17 @@ export default function DashboardLayout({
   const { data: session } = useSession();
 
   return (
-    <div className="flex min-h-screen bg-background relative">
+    <div className="flex min-h-screen relative">
       {/* Background geometric shapes - subtle variant */}
       <GeometricBackground variant="subtle" animated={true} />
       
       {/* Sidebar */}
       <div className="hidden md:flex md:w-64 md:flex-col fixed inset-y-0 z-10">
-        <div className="flex flex-col flex-grow bg-paper border-r border-border">
-          <div className="flex h-16 flex-shrink-0 items-center px-4 border-b border-border">
+        <div className="flex flex-col flex-grow bg-card/90 backdrop-blur-sm border-r border-border">
+          <div className="flex h-14 flex-shrink-0 items-center px-4 border-b border-border">
+            {/* Smaller, simplified logo without tagline */}
             <Link href="/dashboard" className="flex items-center">
-              <PadeligaLogo size="md" showTagline={true} sloganPosition="below" />
+              <Image src="/logo.png" alt="Padeliga" width={100} height={32} className="max-h-8" />
             </Link>
           </div>
           <div className="flex flex-col flex-grow overflow-y-auto pt-5 pb-4 px-4">
@@ -50,10 +52,9 @@ export default function DashboardLayout({
 
       {/* Mobile header */}
       <div className="md:hidden flex flex-col flex-1">
-        <div className="sticky top-0 z-10 flex h-16 flex-shrink-0 items-center bg-paper px-4 border-b border-border">
+        <div className="sticky top-0 z-10 flex h-14 flex-shrink-0 items-center bg-card/90 backdrop-blur-sm px-4 border-b border-border">
           <Link href="/dashboard" className="flex items-center">
-            <PadeligaLogo size="sm" showTagline={false} />
-            <span className="text-xs text-muted-foreground italic ml-2">Tu liga. Tu juego.</span>
+            <Image src="/logo.png" alt="Padeliga" width={90} height={28} className="max-h-7" />
           </Link>
           <div className="flex flex-1 justify-end items-center space-x-4">
             <ThemeToggle />
@@ -70,9 +71,9 @@ export default function DashboardLayout({
         </div>
       </div>
 
-      {/* Content */}
+      {/* Content with improved background styling */}
       <div className="flex flex-col flex-1 md:pl-64">
-        <main className="flex-1">
+        <main className="flex-1 bg-background/60 dark:bg-background/40">
           {children}
         </main>
       </div>
