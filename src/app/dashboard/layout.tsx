@@ -20,21 +20,6 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  // Function to extract page name from pathname
-  const getPageTitle = () => {
-    // Get the last segment after the last slash
-    const path = pathname.split('/').filter(Boolean).pop();
-    
-    // If path is undefined (we're at /dashboard), return "Dashboard"
-    if (!path || path === "dashboard") return "Dashboard";
-    
-    // Convert kebab case to title case (e.g., "player-profile" to "Player Profile")
-    return path
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
-
   return (
     <div className="flex min-h-screen relative">
       {/* Background geometric shapes - subtle variant */}
@@ -42,11 +27,11 @@ export default function DashboardLayout({
       
       {/* Desktop Sidebar */}
       <div className="hidden md:flex md:w-64 md:flex-col fixed inset-y-0 z-10">
-        <div className="flex flex-col flex-grow bg-card/90 backdrop-blur-sm border-r border-border">
-          <div className="flex h-14 flex-shrink-0 items-center px-4 border-b border-border">
-            {/* Smaller, simplified logo without tagline */}
+        <div className="flex flex-col flex-grow bg-[#1A1F2C] border-r border-border">
+          <div className="flex h-14 flex-shrink-0 items-center justify-center px-3 border-b border-border">
+            {/* Larger logo */}
             <Link href="/dashboard" className="flex items-center">
-              <Image src="/logo.png" alt="Padeliga" width={100} height={32} className="max-h-8" />
+              <Image src="/logo.png" alt="Padeliga" width={140} height={40} className="max-h-10" />
             </Link>
           </div>
           <div className="flex flex-col flex-grow overflow-y-auto pt-5 pb-4 px-4">
@@ -57,44 +42,33 @@ export default function DashboardLayout({
 
       {/* Content area with topbar */}
       <div className="flex flex-col flex-1 md:pl-64">
-        {/* Top Bar - Desktop version */}
-        <div className="hidden md:block">
-          <DashboardTopBar />
-        </div>
+        {/* Top Bar - Desktop and mobile */}
+        <DashboardTopBar />
 
-        {/* Mobile top bar */}
-        <div className="md:hidden sticky top-0 z-20 flex items-center bg-card/90 backdrop-blur-sm h-14 border-b border-border">
-          <div className="flex items-center justify-between w-full px-4">
-            <div className="flex items-center">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="mr-2"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-              <Link href="/dashboard">
-                <Image src="/logo.png" alt="Padeliga" width={90} height={28} className="max-h-7" />
-              </Link>
-            </div>
-            
-            <DashboardTopBar className="!bg-transparent !border-0 !p-0 !justify-end" />
-          </div>
+        {/* Mobile menu toggle */}
+        <div className="md:hidden fixed top-0 left-0 z-30 h-14 flex items-center">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="ml-3 text-white"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
         </div>
         
         {/* Mobile menu overlay */}
         {mobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 z-30 flex">
+          <div className="md:hidden fixed inset-0 z-40 flex">
             <div 
               className="absolute inset-0 bg-black/60" 
               onClick={() => setMobileMenuOpen(false)}
             />
-            <div className="relative z-40 bg-background w-64 h-full border-r border-border">
+            <div className="relative z-40 bg-[#1A1F2C] w-64 h-full border-r border-border">
               <div className="flex flex-col h-full">
-                <div className="flex h-14 items-center px-4 border-b border-border">
+                <div className="flex h-14 items-center justify-center px-4 border-b border-border">
                   <Link href="/dashboard" className="flex items-center" onClick={() => setMobileMenuOpen(false)}>
-                    <Image src="/logo.png" alt="Padeliga" width={100} height={32} className="max-h-8" />
+                    <Image src="/logo.png" alt="Padeliga" width={140} height={40} className="max-h-10" />
                   </Link>
                 </div>
                 <div className="flex-1 overflow-y-auto py-4 px-4">
