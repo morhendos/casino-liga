@@ -32,6 +32,7 @@ import {
 } from "@/components/admin";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SkewedStatCard } from "@/components/dashboard/SkewedStatCard";
 
 function AdminDashboard() {
   const { data: session } = useSession();
@@ -170,20 +171,16 @@ function AdminDashboard() {
           <TabsContent value="dashboard" className="space-y-6">
             {/* Admin Dashboard Overview */}
             <div className="grid grid-cols-1 gap-6">
-              {/* Platform Stats Cards */}
+              {/* Platform Stats Cards - using SkewedStatCard */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {platformStats.map((stat, index) => (
-                  <Card key={index} className="bg-card/60 backdrop-blur-sm dark:bg-gray-800/40 border-t-4" style={{borderTopColor: `hsl(var(--${stat.color}))`}}>
-                    <CardContent className="p-4 flex flex-col items-center md:items-start">
-                      <div className="mt-2 flex items-center md:items-start gap-3 md:flex-col">
-                        <stat.icon className={`h-8 w-8 md:mb-2 text-${stat.color}`} />
-                        <div className="flex flex-col md:items-start">
-                          <p className="text-3xl font-bold">{stat.value}</p>
-                          <p className="text-sm text-muted-foreground">{stat.title}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <SkewedStatCard
+                    key={index}
+                    title={stat.title}
+                    value={stat.value}
+                    color={stat.color}
+                    icon={stat.icon}
+                  />
                 ))}
               </div>
               
