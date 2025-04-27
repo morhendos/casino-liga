@@ -102,23 +102,26 @@ function RoleManagement() {
         </CardContent>
       </Card>
       
-      {/* Updated "Custom Roles" section with a nicer dark mode appearance */}
-      <div className="rounded-md bg-amber-50 dark:bg-slate-800/60 p-4 border border-amber-200 dark:border-orange-500/30 shadow-sm dark:shadow-inner dark:shadow-orange-500/5">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <AlertCircle className="h-5 w-5 text-amber-500 dark:text-orange-400" />
-          </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-amber-800 dark:text-orange-300">Custom Roles</h3>
-            <div className="mt-2 text-sm text-amber-700 dark:text-slate-300">
-              <p>
+      {/* Completely redesigned "Custom Roles" section with a modern, sophisticated appearance */}
+      <Card className="bg-gradient-to-br from-amber-50/90 to-amber-50/70 dark:from-gray-800/80 dark:to-gray-900/90 backdrop-blur-sm border-amber-200/50 dark:border-gray-700/50 overflow-hidden relative">
+        <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-amber-400 to-orange-500 dark:from-amber-500 dark:to-amber-600"></div>
+        <CardContent className="p-5">
+          <div className="flex">
+            <div className="flex-shrink-0 mr-4">
+              <div className="rounded-full p-2 bg-amber-100/70 dark:bg-amber-500/10 backdrop-blur-sm">
+                <AlertCircle className="h-5 w-5 text-amber-500 dark:text-amber-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2 tracking-wide">Custom Roles</h3>
+              <p className="text-sm text-amber-700 dark:text-gray-300 leading-relaxed">
                 Custom roles are not supported in the current version. Contact the system administrator
                 if you need additional role types for your organization.
               </p>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
