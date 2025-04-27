@@ -27,7 +27,7 @@ export default function DashboardLayout({
       
       {/* Desktop Sidebar */}
       <div className="hidden md:flex md:w-64 md:flex-col fixed inset-y-0 z-10">
-        <div className="flex flex-col flex-grow bg-[#1A1F2C] border-r border-border">
+        <div className="flex flex-col flex-grow bg-background dark:bg-slate-900 border-r border-border">
           <div className="flex h-14 flex-shrink-0 items-center justify-center px-3 border-b border-border">
             {/* Larger logo */}
             <Link href="/dashboard" className="flex items-center">
@@ -50,7 +50,7 @@ export default function DashboardLayout({
           <Button 
             variant="ghost" 
             size="icon" 
-            className="ml-3 text-white"
+            className="ml-3"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
           >
             <Menu className="h-5 w-5" />
@@ -64,7 +64,7 @@ export default function DashboardLayout({
               className="absolute inset-0 bg-black/60" 
               onClick={() => setMobileMenuOpen(false)}
             />
-            <div className="relative z-40 bg-[#1A1F2C] w-64 h-full border-r border-border">
+            <div className="relative z-40 bg-background dark:bg-slate-900 w-64 h-full border-r border-border">
               <div className="flex flex-col h-full">
                 <div className="flex h-14 items-center justify-center px-4 border-b border-border">
                   <Link href="/dashboard" className="flex items-center" onClick={() => setMobileMenuOpen(false)}>
