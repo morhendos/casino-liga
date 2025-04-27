@@ -1,1 +1,207 @@
-"use client";\n\nimport { useState } from \"react\";\nimport { useSession } from \"next-auth/react\";\nimport { Tabs, TabsContent, TabsList, TabsTrigger } from \"@/components/ui/tabs\";\nimport { Card, CardHeader, CardTitle, CardDescription, CardContent } from \"@/components/ui/card\";\nimport withRoleAuth from \"@/components/auth/withRoleAuth\";\nimport { ROLES } from \"@/lib/auth/role-utils\";\nimport { UserCircle, UsersRound, Trophy, UserCog, Mail } from \"lucide-react\";\n// Import the components using default imports\nimport UserManagement from \"@/components/admin/UserManagement\";\nimport RoleManagement from \"@/components/admin/RoleManagement\";\nimport LeagueManagement from \"@/components/admin/LeagueManagement\";\nimport PlayerManagement from \"@/components/admin/PlayerManagement\";\nimport PlayerInvitationManagement from \"@/components/admin/PlayerInvitationManagement\";\nimport { useEffect } from \"react\";\n\nfunction AdminDashboard() {\n  const { data: session } = useSession();\n  const [activeTab, setActiveTab] = useState(\"users\");\n  const [players, setPlayers] = useState([]);\n  const [isLoadingPlayers, setIsLoadingPlayers] = useState(false);\n\n  useEffect(() => {\n    // Load players for the invitation tab\n    if (activeTab === \"invitations\") {\n      fetchPlayers();\n    }\n  }, [activeTab]);\n\n  const fetchPlayers = async () => {\n    try {\n      setIsLoadingPlayers(true);\n      const response = await fetch('/api/admin/players');\n      if (!response.ok) {\n        throw new Error('Failed to fetch players');\n      }\n      const data = await response.json();\n      setPlayers(data.players || []);\n    } catch (error) {\n      console.error('Error fetching players:', error);\n    } finally {\n      setIsLoadingPlayers(false);\n    }\n  };\n\n  const handleInviteSent = async (player) => {\n    // Refresh the player list after invitation\n    await fetchPlayers();\n  };\n\n  const handleCreatePlayer = async (playerData) => {\n    try {\n      const response = await fetch('/api/admin/players', {\n        method: 'POST',\n        headers: {\n          'Content-Type': 'application/json',\n        },\n        body: JSON.stringify({\n          nickname: playerData.nickname,\n          email: playerData.email,\n          skillLevel: 5, // Default value\n          handedness: 'right', // Default value\n          preferredPosition: 'both', // Default value\n        }),\n      });\n\n      if (!response.ok) {\n        const error = await response.json();\n        throw new Error(error.message || 'Failed to create player');\n      }\n\n      const newPlayer = await response.json();\n      \n      // Refresh player list\n      await fetchPlayers();\n      \n      return newPlayer;\n    } catch (error) {\n      console.error('Error creating player:', error);\n      throw error;\n    }\n  };\n\n  return (\n    <div className=\"container mx-auto px-4 py-8\">\n      <div className=\"mb-8\">\n        <h1 className=\"text-3xl font-bold\">Admin Dashboard</h1>\n        <p className=\"text-muted-foreground mt-2\">\n          Manage users, players, roles, and system settings\n        </p>\n      </div>\n\n      <Tabs\n        defaultValue=\"users\"\n        className=\"space-y-4\"\n        onValueChange={setActiveTab}\n        value={activeTab}\n      >\n        <TabsList>\n          <TabsTrigger value=\"users\">\n            <UsersRound className=\"h-4 w-4 mr-2\" />\n            Users\n          </TabsTrigger>\n          <TabsTrigger value=\"players\">\n            <UserCog className=\"h-4 w-4 mr-2\" />\n            Players\n          </TabsTrigger>\n          <TabsTrigger value=\"invitations\">\n            <Mail className=\"h-4 w-4 mr-2\" />\n            Invitations\n          </TabsTrigger>\n          <TabsTrigger value=\"roles\">\n            <UserCircle className=\"h-4 w-4 mr-2\" />\n            Roles\n          </TabsTrigger>\n          <TabsTrigger value=\"leagues\">\n            <Trophy className=\"h-4 w-4 mr-2\" />\n            Leagues\n          </TabsTrigger>\n        </TabsList>\n\n        <TabsContent value=\"users\">\n          <Card>\n            <CardHeader>\n              <CardTitle>User Management</CardTitle>\n              <CardDescription>\n                View and manage all users in the system\n              </CardDescription>\n            </CardHeader>\n            <CardContent>\n              <UserManagement />\n            </CardContent>\n          </Card>\n        </TabsContent>\n        \n        <TabsContent value=\"players\">\n          <Card>\n            <CardHeader>\n              <CardTitle>Player Management</CardTitle>\n              <CardDescription>\n                Create and manage player profiles\n              </CardDescription>\n            </CardHeader>\n            <CardContent>\n              <PlayerManagement />\n            </CardContent>\n          </Card>\n        </TabsContent>\n\n        <TabsContent value=\"invitations\">\n          <Card>\n            <CardHeader>\n              <CardTitle>Player Invitations</CardTitle>\n              <CardDescription>\n                Invite players to join the platform\n              </CardDescription>\n            </CardHeader>\n            <CardContent>\n              {isLoadingPlayers ? (\n                <div className=\"flex items-center justify-center py-8\">\n                  <p>Loading players...</p>\n                </div>\n              ) : (\n                <PlayerInvitationManagement \n                  players={players} \n                  onInviteSent={handleInviteSent}\n                  onCreatePlayer={handleCreatePlayer}\n                />\n              )}\n            </CardContent>\n          </Card>\n        </TabsContent>\n\n        <TabsContent value=\"roles\">\n          <Card>\n            <CardHeader>\n              <CardTitle>Role Management</CardTitle>\n              <CardDescription>\n                Assign and manage user roles\n              </CardDescription>\n            </CardHeader>\n            <CardContent>\n              <RoleManagement />\n            </CardContent>\n          </Card>\n        </TabsContent>\n\n        <TabsContent value=\"leagues\">\n          <Card>\n            <CardHeader>\n              <CardTitle>League Management</CardTitle>\n              <CardDescription>\n                Manage leagues and team assignments\n              </CardDescription>\n            </CardHeader>\n            <CardContent>\n              <LeagueManagement />\n            </CardContent>\n          </Card>\n        </TabsContent>\n      </Tabs>\n    </div>\n  );\n}\n\nexport default withRoleAuth(AdminDashboard, [ROLES.ADMIN]);\n
+"use client";
+
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import withRoleAuth from "@/components/auth/withRoleAuth";
+import { ROLES } from "@/lib/auth/role-utils";
+import { UserCircle, UsersRound, Trophy, UserCog, Mail } from "lucide-react";
+// Import the components using default imports
+import UserManagement from "@/components/admin/UserManagement";
+import RoleManagement from "@/components/admin/RoleManagement";
+import LeagueManagement from "@/components/admin/LeagueManagement";
+import PlayerManagement from "@/components/admin/PlayerManagement";
+import PlayerInvitationManagement from "@/components/admin/PlayerInvitationManagement";
+import { useEffect } from "react";
+
+function AdminDashboard() {
+  const { data: session } = useSession();
+  const [activeTab, setActiveTab] = useState("users");
+  const [players, setPlayers] = useState([]);
+  const [isLoadingPlayers, setIsLoadingPlayers] = useState(false);
+
+  useEffect(() => {
+    // Load players for the invitation tab
+    if (activeTab === "invitations") {
+      fetchPlayers();
+    }
+  }, [activeTab]);
+
+  const fetchPlayers = async () => {
+    try {
+      setIsLoadingPlayers(true);
+      const response = await fetch('/api/admin/players');
+      if (!response.ok) {
+        throw new Error('Failed to fetch players');
+      }
+      const data = await response.json();
+      setPlayers(data.players || []);
+    } catch (error) {
+      console.error('Error fetching players:', error);
+    } finally {
+      setIsLoadingPlayers(false);
+    }
+  };
+
+  const handleInviteSent = async (player) => {
+    // Refresh the player list after invitation
+    await fetchPlayers();
+  };
+
+  const handleCreatePlayer = async (playerData) => {
+    try {
+      const response = await fetch('/api/admin/players', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nickname: playerData.nickname,
+          email: playerData.email,
+          skillLevel: 5, // Default value
+          handedness: 'right', // Default value
+          preferredPosition: 'both', // Default value
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to create player');
+      }
+
+      const newPlayer = await response.json();
+      
+      // Refresh player list
+      await fetchPlayers();
+      
+      return newPlayer;
+    } catch (error) {
+      console.error('Error creating player:', error);
+      throw error;
+    }
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        <p className="text-muted-foreground mt-2">
+          Manage users, players, roles, and system settings
+        </p>
+      </div>
+
+      <Tabs
+        defaultValue="users"
+        className="space-y-4"
+        onValueChange={setActiveTab}
+        value={activeTab}
+      >
+        <TabsList>
+          <TabsTrigger value="users">
+            <UsersRound className="h-4 w-4 mr-2" />
+            Users
+          </TabsTrigger>
+          <TabsTrigger value="players">
+            <UserCog className="h-4 w-4 mr-2" />
+            Players
+          </TabsTrigger>
+          <TabsTrigger value="invitations">
+            <Mail className="h-4 w-4 mr-2" />
+            Invitations
+          </TabsTrigger>
+          <TabsTrigger value="roles">
+            <UserCircle className="h-4 w-4 mr-2" />
+            Roles
+          </TabsTrigger>
+          <TabsTrigger value="leagues">
+            <Trophy className="h-4 w-4 mr-2" />
+            Leagues
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="users">
+          <Card>
+            <CardHeader>
+              <CardTitle>User Management</CardTitle>
+              <CardDescription>
+                View and manage all users in the system
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <UserManagement />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="players">
+          <Card>
+            <CardHeader>
+              <CardTitle>Player Management</CardTitle>
+              <CardDescription>
+                Create and manage player profiles
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PlayerManagement />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="invitations">
+          <Card>
+            <CardHeader>
+              <CardTitle>Player Invitations</CardTitle>
+              <CardDescription>
+                Invite players to join the platform
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoadingPlayers ? (
+                <div className="flex items-center justify-center py-8">
+                  <p>Loading players...</p>
+                </div>
+              ) : (
+                <PlayerInvitationManagement 
+                  players={players} 
+                  onInviteSent={handleInviteSent}
+                  onCreatePlayer={handleCreatePlayer}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="roles">
+          <Card>
+            <CardHeader>
+              <CardTitle>Role Management</CardTitle>
+              <CardDescription>
+                Assign and manage user roles
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RoleManagement />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="leagues">
+          <Card>
+            <CardHeader>
+              <CardTitle>League Management</CardTitle>
+              <CardDescription>
+                Manage leagues and team assignments
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <LeagueManagement />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+export default withRoleAuth(AdminDashboard, [ROLES.ADMIN]);
