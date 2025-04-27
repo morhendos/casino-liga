@@ -16,7 +16,11 @@ interface NavItem {
   color?: string;
 }
 
-export function PadelNavigation() {
+interface PadelNavigationProps {
+  onSelect?: () => void;
+}
+
+export function PadelNavigation({ onSelect }: PadelNavigationProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
   
@@ -90,6 +94,13 @@ export function PadelNavigation() {
     return true;
   });
   
+  // Handle link click
+  const handleClick = () => {
+    if (onSelect) {
+      onSelect();
+    }
+  };
+  
   return (
     <nav className="space-y-2">
       {filteredNavItems.map((item) => {
@@ -103,6 +114,7 @@ export function PadelNavigation() {
           <Link
             key={item.href}
             href={item.href}
+            onClick={handleClick}
             className={cn(
               "flex h-10 items-center text-sm font-medium transition-colors relative group",
               isActive 
