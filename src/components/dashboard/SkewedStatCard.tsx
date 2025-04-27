@@ -22,18 +22,48 @@ export function SkewedStatCard({
 }: SkewedStatCardProps) {
   const { resolvedTheme, theme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [initialTheme, setInitialTheme] = useState<string | null>(null);
   
-  // Handle initial client-side rendering
+  // On first render, immediately check localStorage for theme
   useEffect(() => {
+    // Check localStorage directly to get theme before hydration
+    if (typeof window !== 'undefined') {
+      // First try the next-theme stored value
+      const storedTheme = localStorage.getItem('theme');
+      // If no stored theme, try to detect system preference
+      if (!storedTheme || storedTheme === 'system') {
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setInitialTheme(isDarkMode ? 'dark' : 'light');
+      } else {
+        setInitialTheme(storedTheme);
+      }
+    }
+    
+    // Then mark as mounted to use the theme provider's value going forward
     setMounted(true);
   }, []);
   
-  // Determine theme safely
-  const isDark = mounted ? 
-    resolvedTheme === 'dark' : 
-    typeof window !== 'undefined' ? 
-      document.documentElement.classList.contains('dark') : 
-      false;
+  // Determine the current theme to use
+  const currentTheme = mounted ? resolvedTheme : initialTheme;
+  const isDark = currentTheme === 'dark';
+  
+  // If we have no theme information yet, render a simple placeholder
+  if (!mounted && !initialTheme) {
+    return (
+      <div className={cn(
+        "relative h-full overflow-hidden border border-border bg-card animate-pulse",
+        className
+      )}>
+        <div className="h-full px-5 py-4 flex flex-col items-start">
+          <div className="h-8 w-8 mb-2 mt-1 rounded-sm bg-muted" />
+          <div className="flex flex-col w-full">
+            <div className="h-8 w-3/4 mb-1 bg-muted rounded-sm" />
+            <div className="h-4 w-1/2 bg-muted rounded-sm" />
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   // Map color string to actual color values for both themes
   const colorMap: Record<string, { 
@@ -92,7 +122,7 @@ export function SkewedStatCard({
   );
   
   return (
-    <div className={cardClass}>
+    <div className={cardClass} data-theme={currentTheme}>
       {/* Background with theme-aware styling */}
       <div className={cn(
         "absolute inset-0 -z-10",
