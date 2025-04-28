@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { User, Award, Smartphone, MessageSquare, Save, ArrowLeft, CheckCircle } from "lucide-react";
+import { User, Award, Smartphone, MessageSquare, Save, ArrowLeft, CheckCircle, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { SkewedActionButton } from "@/components/dashboard/SkewedActionButton";
@@ -25,6 +25,14 @@ interface PlayerProfile {
   preferredPosition: string;
   contactPhone?: string;
   bio?: string;
+  league?: string;
+}
+
+// Interface for league data
+interface League {
+  id: string;
+  _id?: string;
+  name: string;
 }
 
 function PlayerProfilePage() {
@@ -33,6 +41,8 @@ function PlayerProfilePage() {
   const [playerData, setPlayerData] = useState<PlayerProfile | null>(null);
   const [hasProfile, setHasProfile] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [leagues, setLeagues] = useState<League[]>([]);
+  const [isLoadingLeagues, setIsLoadingLeagues] = useState(false);
   
   // Form state
   const [nickname, setNickname] = useState("");
@@ -41,6 +51,42 @@ function PlayerProfilePage() {
   const [preferredPosition, setPreferredPosition] = useState("both");
   const [contactPhone, setContactPhone] = useState("");
   const [bio, setBio] = useState("");
+  const [leagueId, setLeagueId] = useState("");
+  
+  // Fetch available leagues
+  useEffect(() => {
+    async function fetchLeagues() {
+      setIsLoadingLeagues(true);
+      try {
+        const response = await fetch("/api/leagues");
+        if (!response.ok) {
+          throw new Error("Failed to fetch leagues");
+        }
+        
+        const data = await response.json();
+        if (data.leagues && data.leagues.length > 0) {
+          setLeagues(data.leagues.map((league: any) => ({
+            id: league._id || league.id,
+            name: league.name
+          })));
+          
+          // Set default league if we have one
+          if (data.leagues.length > 0 && !leagueId) {
+            setLeagueId(data.leagues[0]._id || data.leagues[0].id);
+          }
+        } else {
+          toast.error("No leagues found. Please create a league first.");
+        }
+      } catch (error) {
+        console.error("Error fetching leagues:", error);
+        toast.error("Failed to load leagues");
+      } finally {
+        setIsLoadingLeagues(false);
+      }
+    }
+    
+    fetchLeagues();
+  }, []);
   
   // Fetch player profile data
   useEffect(() => {
@@ -71,6 +117,11 @@ function PlayerProfilePage() {
           setPreferredPosition(player.preferredPosition || "both");
           setContactPhone(player.contactPhone || "");
           setBio(player.bio || "");
+          
+          // Set the league if it exists
+          if (player.league) {
+            setLeagueId(player.league.toString());
+          }
         } else {
           setHasProfile(false);
         }
@@ -89,6 +140,11 @@ function PlayerProfilePage() {
     e.preventDefault();
     setSaveSuccess(false);
     
+    if (!leagueId) {
+      toast.error("Please select a league");
+      return;
+    }
+    
     try {
       setIsLoading(true);
       
@@ -98,7 +154,8 @@ function PlayerProfilePage() {
         handedness,
         preferredPosition,
         contactPhone,
-        bio
+        bio,
+        league: leagueId
       };
       
       // Use either id or _id, whichever is available
@@ -147,6 +204,12 @@ function PlayerProfilePage() {
     if (num < 4) return "Beginner";
     if (num < 7) return "Intermediate";
     return "Advanced";
+  };
+  
+  // Find selected league name
+  const getSelectedLeagueName = () => {
+    const league = leagues.find(l => l.id === leagueId);
+    return league ? league.name : "No league selected";
   };
   
   return (
@@ -204,6 +267,11 @@ function PlayerProfilePage() {
                   
                   {hasProfile && (
                     <>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">League</span>
+                        <span className="text-sm font-medium">{getSelectedLeagueName()}</span>
+                      </div>
+                      
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Skill Level</span>
                         <span className="text-sm font-medium">{getSkillLevelText(skillLevel)}</span>
@@ -265,6 +333,39 @@ function PlayerProfilePage() {
               
               <form onSubmit={handleSubmit}>
                 <CardContent className="space-y-5 pt-6">
+                  {/* League Selection Field - NEW */}
+                  <div className="space-y-2">
+                    <Label htmlFor="league" className="flex items-center">
+                      <Users className="h-4 w-4 mr-2 text-padeliga-teal" />
+                      League *
+                    </Label>
+                    <Select
+                      value={leagueId}
+                      onValueChange={setLeagueId}
+                      disabled={isLoadingLeagues}
+                    >
+                      <SelectTrigger id="league" className="border-input/50 focus:border-padeliga-teal">
+                        <SelectValue placeholder={isLoadingLeagues ? "Loading leagues..." : "Select your league"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {leagues.length > 0 ? (
+                          leagues.map((league) => (
+                            <SelectItem key={league.id} value={league.id}>
+                              {league.name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="none" disabled>
+                            No leagues available
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      Select the league you want to join as a player.
+                    </p>
+                  </div>
+                  
                   <div className="space-y-2">
                     <Label htmlFor="nickname" className="flex items-center">
                       <User className="h-4 w-4 mr-2 text-padeliga-teal" />
@@ -392,7 +493,7 @@ function PlayerProfilePage() {
                   
                   <Button 
                     type="submit" 
-                    disabled={isLoading}
+                    disabled={isLoading || isLoadingLeagues || leagues.length === 0}
                     className="bg-gradient-to-r from-padeliga-teal to-padeliga-teal/80 hover:from-padeliga-teal/90 hover:to-padeliga-teal/70"
                   >
                     {isLoading ? (
