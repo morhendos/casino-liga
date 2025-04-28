@@ -332,7 +332,7 @@ function PlayerProfilePage() {
                 
                 {hasProfile && (
                   <div className="space-y-4 mt-6">
-                    {/* REDESIGNED: Skill Level Card */}
+                    {/* REDESIGNED: Skill Level Card with fixed spacing */}
                     <div className="relative overflow-hidden rounded-lg bg-gray-900">
                       {/* Gradient accent */}
                       <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${getSkillLevelColor(skillLevel)}`}></div>
@@ -346,11 +346,17 @@ function PlayerProfilePage() {
                           <h3 className="font-semibold text-white">Skill Level</h3>
                         </div>
                         
-                        {/* Value display */}
-                        <div className="flex items-center justify-between">
-                          {getSkillLevelStars(skillLevel)}
-                          <div className={`text-lg font-semibold ${getSkillLevelTextColor(skillLevel)}`}>
-                            {getSkillLevelText(skillLevel)}
+                        {/* Value display - FIXED: Added flex-col to ensure vertical stacking and prevent overlap */}
+                        <div className="flex flex-col space-y-2">
+                          {/* Stars row */}
+                          <div className="flex">
+                            {getSkillLevelStars(skillLevel)}
+                          </div>
+                          {/* Text row - separately positioned */}
+                          <div className="flex justify-end">
+                            <div className={`px-3 py-1 rounded-md bg-gray-800 ${getSkillLevelTextColor(skillLevel)} font-semibold`}>
+                              {getSkillLevelText(skillLevel)}
+                            </div>
                           </div>
                         </div>
                       </div>
