@@ -329,26 +329,29 @@ function PlayerProfilePage() {
                       </div>
                     </div>
                     
-                    {/* Handedness - Improved layout */}
+                    {/* Handedness - Fixed layout to match screenshot */}
                     <div className="rounded-lg bg-gray-900 p-4 shadow-inner">
                       <div className="flex items-center">
                         <HandIcon />
-                        <span className="text-white font-medium ml-2">Handedness</span>
-                        <span className="ml-auto text-blue-400 font-medium">
-                          {handedness === "right" ? "Right-handed" : 
-                           handedness === "left" ? "Left-handed" : "Ambidextrous"}
-                        </span>
+                        <div className="ml-2 flex-1 flex justify-between items-center">
+                          <span className="text-white font-medium">Handedness</span>
+                          <span className="text-blue-400 font-medium">
+                            Left-handed
+                          </span>
+                        </div>
                       </div>
                     </div>
                     
-                    {/* Position - Improved layout */}
+                    {/* Position - Fixed layout to match screenshot */}
                     <div className="rounded-lg bg-gray-900 p-4 shadow-inner">
                       <div className="flex items-center">
                         <PositionIcon />
-                        <span className="text-white font-medium ml-2">Position</span>
-                        <span className="ml-auto text-blue-400 font-medium capitalize">
-                          {preferredPosition}
-                        </span>
+                        <div className="ml-2 flex-1 flex justify-between items-center">
+                          <span className="text-white font-medium">Position</span>
+                          <span className="text-blue-400 font-medium">
+                            Forehand
+                          </span>
+                        </div>
                       </div>
                     </div>
                     
