@@ -85,13 +85,6 @@ export async function POST(request: Request) {
     
     const data: CreatePlayerRequest = await request.json();
     
-    if (!data.league) {
-      return NextResponse.json(
-        { error: 'League is required' },
-        { status: 400 }
-      );
-    }
-    
     const newPlayer = await withConnection(async () => {
       // Check if user already has a player profile
       // Convert session.user.id to ObjectId when querying
@@ -110,25 +103,14 @@ export async function POST(request: Request) {
         throw new Error('User already has a player profile');
       }
       
-      // Convert league to ObjectId
-      let leagueIdObj;
-      try {
-        leagueIdObj = new mongoose.Types.ObjectId(data.league);
-      } catch (err) {
-        console.error('Error converting league to ObjectId:', err);
-        throw new Error('Invalid league ID format');
-      }
-      
+      // Create player without requiring a league or bio
       const player = new PlayerModel({
-        userId: userIdObj, // Use the converted ObjectId
+        userId: userIdObj,
         nickname: data.nickname,
         skillLevel: data.skillLevel,
         handedness: data.handedness,
         preferredPosition: data.preferredPosition,
         contactPhone: data.contactPhone,
-        bio: data.bio,
-        profileImage: data.profileImage,
-        league: leagueIdObj, // Add the league field
         isActive: true
       });
       
@@ -144,13 +126,6 @@ export async function POST(request: Request) {
         return NextResponse.json(
           { error: error.message },
           { status: 409 }
-        );
-      }
-      
-      if (error.message === 'Invalid league ID format') {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 400 }
         );
       }
     }
