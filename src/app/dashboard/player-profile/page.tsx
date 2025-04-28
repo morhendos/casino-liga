@@ -291,7 +291,7 @@ function PlayerProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Left column with profile status card */}
           <div className="md:col-span-1">
-            <Card className="relative overflow-hidden border-none shadow-lg">
+            <Card className="relative overflow-hidden border-none shadow-lg h-full">
               <div 
                 className="absolute left-0 top-0 bottom-0 w-1.5"
                 style={{ background: `hsl(var(--purple))` }}
@@ -305,37 +305,33 @@ function PlayerProfilePage() {
                   Profile Status
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center mb-6">
-                  {/* FIX: Properly positioned profile avatar badge */}
-                  <div className="w-20 h-20 rounded-full flex items-center justify-center bg-padeliga-purple/10 mb-3 relative">
-                    <div className="text-padeliga-purple text-4xl font-bold">
-                      {hasProfile ? nickname.charAt(0).toUpperCase() : (session?.user?.name || "P").charAt(0)}
-                    </div>
-                    {hasProfile && (
-                      <div 
-                        className="absolute -bottom-1 -right-1 w-6 h-6 bg-padeliga-green rounded-full flex items-center justify-center border-2 border-gray-900"
-                      >
-                        <CheckCircle2 className="h-3 w-3 text-white" />
+              <CardContent className="pt-6 flex flex-col justify-between h-[calc(100%-72px)]">
+                <div className="space-y-6">
+                  {/* Profile avatar and name with badge repositioned */}
+                  <div className="flex flex-col items-center">
+                    <div className="relative">
+                      <div className="w-20 h-20 rounded-full flex items-center justify-center bg-padeliga-purple/10 relative">
+                        <div className="text-padeliga-purple text-4xl font-bold">
+                          {hasProfile ? nickname.charAt(0).toUpperCase() : (session?.user?.name || "P").charAt(0)}
+                        </div>
                       </div>
-                    )}
+                      {/* Positioned badge that overlaps the bottom of the avatar for better visual connection */}
+                      {hasProfile && (
+                        <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2">
+                          <Badge className="bg-padeliga-purple text-white font-medium px-3 py-1.5 text-sm border border-gray-800 shadow-md">
+                            <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+                            Complete
+                          </Badge>
+                        </div>
+                      )}
+                    </div>
+                    <h3 className="font-medium text-xl mt-5">
+                      {hasProfile ? nickname : session?.user?.name || "Player"}
+                    </h3>
                   </div>
-                  <h3 className="font-medium text-xl">
-                    {hasProfile ? nickname : session?.user?.name || "Player"}
-                  </h3>
-                  {hasProfile ? (
-                    <Badge className="mt-2 bg-padeliga-green rounded-full font-normal">
-                      Profile Complete
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="mt-2 text-padeliga-red border-padeliga-red">
-                      Incomplete
-                    </Badge>
-                  )}
-                </div>
                 
                 {hasProfile && (
-                  <div className="space-y-5 mt-6">
+                  <div className="space-y-4 mt-6">
                     {/* REDESIGNED: Skill Level Card */}
                     <div className="relative overflow-hidden rounded-lg bg-gray-900">
                       {/* Gradient accent */}
@@ -409,25 +405,22 @@ function PlayerProfilePage() {
                         </div>
                       </div>
                     </div>
-                    
-                    {/* REDESIGNED: View Stats Button */}
-                    <button 
+                  </div>
+                )}
+                </div>
+                
+                {/* Moved View Stats to the footer area */}
+                {hasProfile && (
+                  <div className="mt-auto pt-5">
+                    <div 
                       onClick={() => toast.info("Player stats coming soon!")}
-                      className="w-full bg-gradient-to-r from-purple-700 to-purple-600 hover:from-purple-600 hover:to-purple-500 
-                                transition-colors text-white py-3 rounded-lg relative overflow-hidden group"
+                      className="cursor-pointer px-3 py-2 rounded-md bg-gray-800/50 hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2 group"
                     >
-                      {/* Button background pattern */}
-                      <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                        <div className="w-32 h-32 rotate-45 bg-white/20 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500/20 group-hover:bg-purple-500/30 transition-colors">
+                        <AwardBadgeIcon />
                       </div>
-                      
-                      <div className="relative flex items-center justify-center">
-                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 mr-2">
-                          <AwardBadgeIcon />
-                        </div>
-                        <span className="font-medium tracking-wide">View Stats</span>
-                      </div>
-                    </button>
+                      <span className="text-purple-300 text-sm font-medium group-hover:text-purple-200 transition-colors">View detailed stats</span>
+                    </div>
                   </div>
                 )}
               </CardContent>
@@ -471,7 +464,7 @@ function PlayerProfilePage() {
           
           {/* Right column with form */}
           <div className="md:col-span-2">
-            <Card className="relative overflow-hidden border-none shadow-lg">
+            <Card className="relative overflow-hidden border-none shadow-lg h-full">
               {/* Left accent border */}
               <div 
                 className="absolute left-0 top-0 bottom-0 w-1.5"
@@ -486,12 +479,12 @@ function PlayerProfilePage() {
               {/* Success indicator that slides in when save is successful */}
               <div 
                 className={cn(
-                  "absolute right-4 top-4 flex items-center transition-all duration-300 ease-in-out bg-padeliga-green/10 py-1 px-3 rounded-full",
+                  "absolute right-4 top-4 flex items-center transition-all duration-300 ease-in-out bg-padeliga-green/10 py-1.5 px-4 rounded-full",
                   saveSuccess ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10"
                 )}
               >
-                <CheckCircle className="text-padeliga-green mr-2" size={16} />
-                <span className="text-sm text-padeliga-green">Saved successfully</span>
+                <CheckCircle className="text-padeliga-green mr-2" size={18} />
+                <span className="text-sm text-padeliga-green font-medium">Saved successfully</span>
               </div>
               
               <CardHeader className="pb-4 border-b">
@@ -504,8 +497,8 @@ function PlayerProfilePage() {
                 </CardDescription>
               </CardHeader>
               
-              <form onSubmit={handleSubmit}>
-                <CardContent className="space-y-6 pt-6">
+              <form onSubmit={handleSubmit} className="h-[calc(100%-100px)] flex flex-col">
+                <CardContent className="space-y-6 pt-6 flex-grow">
                   <div>
                     <Label htmlFor="nickname" className="flex items-center text-base mb-2">
                       <User className="h-4 w-4 mr-2 text-padeliga-teal" />
@@ -620,7 +613,7 @@ function PlayerProfilePage() {
                   </div>
                 </CardContent>
                 
-                <CardFooter className="flex justify-center py-8 border-t">
+                <CardFooter className="flex justify-center py-8 border-t mt-auto">
                   <SkewedButton
                     type="submit"
                     buttonVariant="outline"
