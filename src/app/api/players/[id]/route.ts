@@ -98,12 +98,10 @@ export async function PATCH(
       if (data.handedness !== undefined) player.handedness = data.handedness;
       if (data.preferredPosition !== undefined) player.preferredPosition = data.preferredPosition;
       if (data.contactPhone !== undefined) player.contactPhone = data.contactPhone;
-      if (data.bio !== undefined) player.bio = data.bio;
-      if (data.profileImage !== undefined) player.profileImage = data.profileImage;
       if (data.isActive !== undefined) player.isActive = data.isActive;
       
-      // NEW: Handle league field
-      if (data.league !== undefined) {
+      // Still handle league field if it's provided, but don't require it
+      if (data.league !== undefined && data.league !== null && data.league !== '') {
         try {
           // Convert league to ObjectId if it's a string
           player.league = new mongoose.Types.ObjectId(data.league);
