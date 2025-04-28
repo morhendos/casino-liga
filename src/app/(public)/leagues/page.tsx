@@ -1,98 +1,154 @@
 /**
- * Public leagues directory page
- * Lists all available public leagues
+ * Public leagues list page
+ * Displays all public leagues
  */
 
-import Link from 'next/link';
 import { Metadata } from 'next';
+import Link from 'next/link';
 import { getPublicLeagues } from '@/lib/db/leagues';
 import { formatDate } from '@/utils/date';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SkewedButton } from '@/components/ui/SkewedButton';
+import GeometricBackground from '@/components/ui/GeometricBackground';
+import { Calendar, Trophy, Users, ExternalLink } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Browse Leagues - Padeliga',
-  description: 'Browse and discover padel leagues on Padeliga',
+  title: 'Ligas Públicas - Padeliga',
+  description: 'Explora todas las ligas públicas de padel disponibles en Padeliga',
 };
 
-export default async function LeaguesDirectoryPage() {
-  // Fetch public leagues
+export default async function LeaguesPage() {
   const leagues = await getPublicLeagues();
   
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">Browse Leagues</h1>
+    <div className="relative min-h-screen">
+      <GeometricBackground variant="subtle" animated={true} />
       
-      {leagues.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
-          <p className="text-gray-500 dark:text-gray-400">No leagues found.</p>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Check back later for upcoming leagues.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {leagues.map(league => (
-            <Link 
-              key={league._id} 
-              href={`/leagues/${league._id}`}
-              className="block bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow"
-            >
-              {league.banner && (
-                <div className="h-40 overflow-hidden">
-                  <img 
-                    src={league.banner} 
-                    alt={league.name} 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-              
-              <div className="p-4">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{league.name}</h2>
-                
-                {league.description && (
-                  <p className="mt-2 text-gray-600 dark:text-gray-300 line-clamp-2">
-                    {league.description}
-                  </p>
-                )}
-                
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(league.status)}`}>
-                    {formatStatus(league.status)}
-                  </span>
+      <div className="relative z-10 py-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
+              Ligas Públicas de Padel
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Explora las ligas públicas y descubre la actividad de padel en tu zona
+            </p>
+          </div>
+          
+          {leagues.length === 0 ? (
+            <div className="text-center py-12">
+              <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-4">
+                No hay ligas públicas disponibles en este momento
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Regresa más tarde o crea tu propia liga
+              </p>
+              <SkewedButton
+                buttonVariant="teal"
+                buttonSize="lg"
+                hoverEffectColor="teal"
+                hoverEffectVariant="solid"
+                className="inline-flex gap-2 text-white font-medium" 
+                asChild
+              >
+                <Link href="/signup">
+                  <span>Crear una Liga</span>
+                  <Trophy className="h-5 w-5" />
+                </Link>
+              </SkewedButton>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {leagues.map((league) => (
+                <Card 
+                  key={league._id.toString()} 
+                  variant="elevated"
+                  hover="highlight"
+                  className="overflow-hidden h-full flex flex-col"
+                >
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-start mb-2">
+                      <Badge variant={getStatusVariant(league.status)}>
+                        {formatStatus(league.status)}
+                      </Badge>
+                    </div>
+                    <CardTitle className="text-xl font-bold line-clamp-2 heading-accent">
+                      {league.name}
+                    </CardTitle>
+                  </CardHeader>
                   
-                  {league.startDate && (
-                    <span className="px-2 py-1 rounded-full text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                      Starts: {formatDate(league.startDate)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </Link>
-          ))}
+                  <CardContent className="pt-2 pb-6 flex-grow">
+                    {league.description && (
+                      <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
+                        {league.description}
+                      </p>
+                    )}
+                    
+                    <div className="space-y-2 mt-auto">
+                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <Calendar className="h-4 w-4 mr-2 text-padeliga-teal" />
+                        <span className="font-medium">Inicio:</span>
+                        <span className="ml-2">{formatDate(league.startDate)}</span>
+                      </div>
+                      
+                      {league.teams && (
+                        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                          <Users className="h-4 w-4 mr-2 text-padeliga-purple" />
+                          <span className="font-medium">Equipos:</span>
+                          <span className="ml-2">{league.teams} en total</span>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                  
+                  <div className="px-6 pb-6 mt-auto">
+                    <SkewedButton
+                      buttonVariant="orange"
+                      buttonSize="default"
+                      hoverEffectColor="orange"
+                      hoverEffectVariant="solid"
+                      className="w-full text-white font-medium"
+                      asChild
+                    >
+                      <Link href={`/leagues/${league._id}`} className="flex items-center justify-center gap-2">
+                        <span>Ver Detalles</span>
+                        <ExternalLink className="h-4 w-4" />
+                      </Link>
+                    </SkewedButton>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
 
-// Helper functions
-function formatStatus(status: string): string {
-  return status.charAt(0).toUpperCase() + status.slice(1);
+// Helper function to get the right variant for status
+function getStatusVariant(status: string): string {
+  const variantMap: Record<string, string> = {
+    'draft': 'purple-subtle',
+    'registration': 'teal',
+    'active': 'orange',
+    'completed': 'green',
+    'canceled': 'red-subtle',
+  };
+  
+  return variantMap[status] || 'default';
 }
 
-function getStatusColor(status: string): string {
-  switch (status) {
-    case 'draft':
-      return 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300';
-    case 'registration':
-      return 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100';
-    case 'active':
-      return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100';
-    case 'completed':
-      return 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100';
-    case 'canceled':
-      return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100';
-    default:
-      return 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300';
-  }
+// Helper function to format status text
+function formatStatus(status: string): string {
+  const statusMap: Record<string, string> = {
+    'draft': 'Borrador',
+    'registration': 'Abierto a Inscripciones',
+    'active': 'Activo',
+    'completed': 'Completado',
+    'canceled': 'Cancelado'
+  };
+  
+  return statusMap[status] || status.charAt(0).toUpperCase() + status.slice(1);
 }

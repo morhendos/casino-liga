@@ -7,6 +7,8 @@ root/
 ├── docs
 │   ├── ADMIN-INVITATION-FLOW.md
 │   ├── ADMIN-WORKFLOW-CHECKLIST.md
+│   ├── AUTHENTICATION-FLOW.md
+│   ├── DESIGN-UPDATES.md
 │   ├── GAME-CREATION-FEATURE.md
 │   ├── LEAGUE-ANALYTICS-FEATURES.md
 │   ├── LEAGUE-DELETION-FEATURE-PLAN.md
@@ -19,14 +21,19 @@ root/
 │   ├── ROLE-BASED-ACCESS-PLAN.md
 │   ├── ROLE-USAGE.md
 │   ├── SCHEDULE-MANAGEMENT-FEATURES.md
-│   └── TESTING.md
+│   ├── TESTING.md
+│   └── UI-DESIGN-SYSTEM.md
 ├── next-env.d.ts
 ├── next.config.js
 ├── package-lock.json
 ├── package.json
 ├── postcss.config.js
 ├── public
-│   └── logo-placeholder-image.png
+│   ├── logo-light.png
+│   ├── logo-padeliga-dark.png
+│   ├── logo-padeliga-light.png
+│   ├── logo-placeholder-image.png
+│   └── logo.png
 ├── scripts
 │   ├── seed-admin-role.js
 │   └── tree.js
@@ -173,6 +180,7 @@ root/
 │   │       └── page.tsx
 │   ├── components
 │   │   ├── GradientBackground.tsx
+│   │   ├── PadeligaLogo.tsx
 │   │   ├── ThemeToggle.tsx
 │   │   ├── admin
 │   │   │   ├── BulkGameGenerationForm.tsx
@@ -234,6 +242,7 @@ root/
 │   │   │   └── MatchResultForm.tsx
 │   │   ├── public
 │   │   │   ├── LeagueHeader.tsx
+│   │   │   ├── LeagueTitleHeader.tsx
 │   │   │   ├── MatchResults.tsx
 │   │   │   ├── RankingsTable.tsx
 │   │   │   ├── UpcomingMatches.tsx
@@ -244,7 +253,12 @@ root/
 │   │   │   ├── TeamsListSection.tsx
 │   │   │   └── index.ts
 │   │   ├── ui
+│   │   │   ├── ButtonHoverEffect.tsx
+│   │   │   ├── Footer.tsx
+│   │   │   ├── GeometricBackground.tsx
+│   │   │   ├── Header.tsx
 │   │   │   ├── IconButton.tsx
+│   │   │   ├── SkewedButton.tsx
 │   │   │   ├── alert-dialog.tsx
 │   │   │   ├── alert.tsx
 │   │   │   ├── badge.tsx

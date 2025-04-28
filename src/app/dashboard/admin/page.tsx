@@ -7,10 +7,11 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import withRoleAuth from "@/components/auth/withRoleAuth";
 import { ROLES } from "@/lib/auth/role-utils";
 import { UserCircle, UsersRound, Trophy, UserCog, Mail } from "lucide-react";
-import { UserManagement } from "@/components/admin/UserManagement";
-import { RoleManagement } from "@/components/admin/RoleManagement";
-import { LeagueManagement } from "@/components/admin/LeagueManagement";
-import { PlayerManagement } from "@/components/admin/PlayerManagement";
+// Import the components using default imports
+import UserManagement from "@/components/admin/UserManagement";
+import RoleManagement from "@/components/admin/RoleManagement";
+import LeagueManagement from "@/components/admin/LeagueManagement";
+import PlayerManagement from "@/components/admin/PlayerManagement";
 import PlayerInvitationManagement from "@/components/admin/PlayerInvitationManagement";
 import { useEffect } from "react";
 
@@ -83,9 +84,11 @@ function AdminDashboard() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Updated header with the dashboard style */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
+        <h1 className="text-4xl font-bold tracking-tight">Admin Dashboard</h1>
+        <div className="w-24 h-1 bg-blue-600 mt-2 mb-4"></div>
+        <p className="text-muted-foreground">
           Manage users, players, roles, and system settings
         </p>
       </div>

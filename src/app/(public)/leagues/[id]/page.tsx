@@ -8,7 +8,11 @@ import { notFound } from 'next/navigation';
 import { getPublicLeagueById } from '@/lib/db/leagues';
 import { getPublicLeagueRankings } from '@/lib/db/rankings';
 import { getPublicLeagueMatches, getCompletedLeagueMatches, getUpcomingLeagueMatches } from '@/lib/db/matches';
-import { LeagueHeader, RankingsTable, MatchResults, UpcomingMatches } from '@/components/public';
+import { LeagueTitleHeader, RankingsTable, MatchResults, UpcomingMatches } from '@/components/public';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import GeometricBackground from '@/components/ui/GeometricBackground';
+import { Trophy, BarChart3, CheckCircle, Calendar } from 'lucide-react';
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -48,47 +52,112 @@ export default async function PublicLeaguePage({ params }: { params: { id: strin
   );
   
   return (
-    <>
-      <LeagueHeader league={league} />
+    <div className="relative min-h-screen flex flex-col">
+      <GeometricBackground variant="subtle" animated={true} />
+      <LeagueTitleHeader league={league} />
       
-      {/* League Stats Summary (optional) */}
-      {rankings.length > 0 && (
-        <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">Teams</div>
-              <div className="text-2xl font-bold text-primary">{rankings.length}</div>
+      <div className="relative z-10 flex-grow">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+          {/* Stats cards in a grid at the top - with theme support */}
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            <Card className="bg-white/50 dark:bg-[#13151c] text-gray-800 dark:text-white shadow-lg backdrop-blur-sm">
+              <CardContent className="p-4 flex flex-col items-center justify-center text-center">
+                <Trophy className="h-6 w-6 text-padeliga-purple mb-1" />
+                <h3 className="text-sm text-gray-600 dark:text-gray-400">Equipos</h3>
+                <p className="text-2xl font-bold text-padeliga-purple">{rankings.length}</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white/50 dark:bg-[#13151c] text-gray-800 dark:text-white shadow-lg backdrop-blur-sm">
+              <CardContent className="p-4 flex flex-col items-center justify-center text-center">
+                <BarChart3 className="h-6 w-6 text-padeliga-teal mb-1" />
+                <h3 className="text-sm text-gray-600 dark:text-gray-400">Partidos</h3>
+                <p className="text-2xl font-bold text-padeliga-teal">{matches.length}</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white/50 dark:bg-[#13151c] text-gray-800 dark:text-white shadow-lg backdrop-blur-sm">
+              <CardContent className="p-4 flex flex-col items-center justify-center text-center">
+                <CheckCircle className="h-6 w-6 text-padeliga-green mb-1" />
+                <h3 className="text-sm text-gray-600 dark:text-gray-400">Jugados</h3>
+                <p className="text-2xl font-bold text-padeliga-green">{completedMatches.length}</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white/50 dark:bg-[#13151c] text-gray-800 dark:text-white shadow-lg backdrop-blur-sm">
+              <CardContent className="p-4 flex flex-col items-center justify-center text-center">
+                <Calendar className="h-6 w-6 text-padeliga-orange mb-1" />
+                <h3 className="text-sm text-gray-600 dark:text-gray-400">Próximos</h3>
+                <p className="text-2xl font-bold text-padeliga-orange">{upcomingMatches.length}</p>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* League description if available - with theme support */}
+          {league.description && (
+            <Card className="mb-6 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+              <CardContent className="p-4">
+                <p className="text-gray-700 dark:text-gray-300">{league.description}</p>
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Grid layout for rankings and matches */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-16">
+            <div className="lg:col-span-2 flex flex-col gap-6">
+              <Card variant="elevated" className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <span className="heading-accent text-xl font-bold text-gray-900 dark:text-white">
+                      Clasificación Actual
+                    </span>
+                    <Badge variant="purple-subtle" className="ml-auto">
+                      {rankings.length} Equipos
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RankingsTable rankings={rankings} />
+                </CardContent>
+              </Card>
+              
+              <Card variant="elevated" className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <span className="heading-accent text-xl font-bold text-gray-900 dark:text-white">
+                      Próximos Partidos
+                    </span>
+                    <Badge variant="orange-subtle" className="ml-auto">
+                      {upcomingMatches.length} Partidos
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <UpcomingMatches matches={upcomingMatches} />
+                </CardContent>
+              </Card>
             </div>
+            
             <div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">Matches</div>
-              <div className="text-2xl font-bold text-primary">{matches.length}</div>
-            </div>
-            <div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">Played</div>
-              <div className="text-2xl font-bold text-primary">{completedMatches.length}</div>
-            </div>
-            <div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">Upcoming</div>
-              <div className="text-2xl font-bold text-primary">{upcomingMatches.length}</div>
+              <Card variant="elevated" className="shadow-lg h-full">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <span className="heading-accent text-xl font-bold text-gray-900 dark:text-white">
+                      Resultados Recientes
+                    </span>
+                    <Badge variant="green-subtle" className="ml-auto">
+                      {completedMatches.length} Jugados
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <MatchResults matches={completedMatches} />
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
-      )}
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-        <div className="lg:col-span-2">
-          <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Current Rankings</h2>
-          <RankingsTable rankings={rankings} />
-          
-          <h2 className="text-2xl font-bold mt-8 mb-4 text-gray-900 dark:text-white">Upcoming Matches</h2>
-          <UpcomingMatches matches={upcomingMatches} />
-        </div>
-        
-        <div>
-          <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Recent Results</h2>
-          <MatchResults matches={completedMatches} />
-        </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -4,7 +4,7 @@
  
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 210 40% 98%; /* Slightly blue-tinted white background */
     --foreground: 222.2 84% 4.9%;
  
     --card: 0 0% 100%;
@@ -13,16 +13,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
  
-    --primary: 43 74% 49%;
+    --primary: 210 79% 46%; /* Teal color from logo */
     --primary-foreground: 0 0% 100%;
  
-    --secondary: 222.2 84% 4.9%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 278 65% 56%; /* Purple color from logo */
+    --secondary-foreground: 0 0% 100%;
  
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
  
-    --accent: 43 84% 85%;
+    --accent: 37 91% 55%; /* Orange color from logo */
     --accent-foreground: 222.2 47.4% 11.2%;
  
     --destructive: 0 84.2% 60.2%;
@@ -30,34 +30,41 @@
 
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
+    
+    /* Logo-inspired colors */
+    --orange: 37 91% 55%;
+    --teal: 210 79% 46%;
+    --purple: 278 65% 56%;
+    --green: 84 67% 58%;
+    --red: 350 73% 65%;
  
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 43 74% 49%;
+    --ring: 210 79% 46%; /* Updated to match primary */
  
-    --radius: 0.5rem;
+    --radius: 0; /* Removed border radius to match logo */
   }
  
   .dark {
-    --background: 240 23% 9%;
-    --foreground: 0 0% 100%;
+    --background: 224 25% 14%; /* Lighter and more blue-tinted dark background */
+    --foreground: 210 40% 98%;
  
-    --card: 240 23% 12%;
-    --card-foreground: 0 0% 98%;
+    --card: 225 25% 18%; /* Lighter card background for dark theme */
+    --card-foreground: 210 40% 98%;
  
-    --popover: 240 23% 9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 224 25% 14%;
+    --popover-foreground: 210 40% 98%;
  
-    --primary: 43 74% 49%;
+    --primary: 210 79% 46%; /* Teal color from logo */
     --primary-foreground: 0 0% 100%;
  
-    --secondary: 240 21% 12%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 278 65% 56%; /* Purple color from logo */
+    --secondary-foreground: 0 0% 100%;
  
-    --muted: 240 21% 12%;
+    --muted: 225 25% 26%; /* Lighter muted color */
     --muted-foreground: 210 40% 80%;
  
-    --accent: 43 74% 49%;
+    --accent: 37 91% 55%; /* Orange color from logo */
     --accent-foreground: 0 0% 100%;
  
     --destructive: 0 62.8% 30.6%;
@@ -65,10 +72,17 @@
 
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
+    
+    /* Logo-inspired colors */
+    --orange: 37 91% 55%;
+    --teal: 210 79% 46%;
+    --purple: 278 65% 56%;
+    --green: 84 67% 58%;
+    --red: 350 73% 65%;
  
-    --border: 240 21% 15%;
-    --input: 240 21% 15%;
-    --ring: 43 74% 49%;
+    --border: 225 25% 24%;
+    --input: 225 25% 24%;
+    --ring: 210 79% 46%; /* Updated to match primary */
   }
 }
  
@@ -87,26 +101,75 @@
 
 /* Light mode section backgrounds */
 .bg-paper {
-  background-color: rgba(255, 250, 245, 0.7);
+  background-color: rgba(250, 252, 255, 0.75);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 /* Dark mode section backgrounds */
 .dark .bg-paper {
-  background-color: rgba(15, 15, 25, 0.6);
+  background-color: rgba(30, 35, 50, 0.6);
   backdrop-filter: blur(8px);
 }
 
 .dark .bg-card {
-  background-color: rgba(15, 15, 25, 0.6);
+  background-color: rgba(30, 35, 50, 0.6);
   backdrop-filter: blur(8px);
 }
 
 .dark .Section {
-  background-color: rgba(15, 15, 25, 0.6);
+  background-color: rgba(30, 35, 50, 0.6);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Geometric decorative elements */
+.geometric-shape {
+  position: absolute;
+  z-index: -1;
+  opacity: 0.1;
+  transition: transform 0.3s ease;
+}
+
+.geometric-shape-1 {
+  background-color: hsl(var(--orange));
+  width: 150px;
+  height: 150px;
+  transform: rotate(15deg);
+}
+
+.geometric-shape-2 {
+  background-color: hsl(var(--teal));
+  width: 120px;
+  height: 120px;
+  transform: rotate(45deg);
+}
+
+.geometric-shape-3 {
+  background-color: hsl(var(--purple));
+  width: 100px;
+  height: 100px;
+  transform: rotate(-15deg);
+}
+
+.geometric-shape-4 {
+  background-color: hsl(var(--green));
+  width: 80px;
+  height: 80px;
+  transform: rotate(30deg);
+}
+
+/* Card style enhancements */
+.card-highlight {
+  position: relative;
+  padding: 1px;
+  background: hsl(var(--teal));
+  overflow: hidden;
+}
+
+.card-highlight > div {
+  background: hsl(var(--card));
+  height: 100%;
 }
 
 /* Input styles */
@@ -128,7 +191,7 @@ textarea:focus {
 .dark input,
 .dark select,
 .dark textarea {
-  background-color: rgba(15, 15, 25, 0.6) !important;
+  background-color: rgba(30, 35, 50, 0.8) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: rgba(255, 255, 255, 0.9) !important;
 }
@@ -139,6 +202,50 @@ textarea:focus {
   border-color: hsl(var(--ring)) !important;
   outline: none;
   box-shadow: 0 0 0 1px hsl(var(--ring));
+}
+
+/* Heading accents */
+.heading-accent {
+  position: relative;
+  display: inline-block;
+}
+
+.heading-accent::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  height: 3px;
+  width: 40%;
+  background: hsl(var(--teal));
+  border-radius: 0; /* No rounded corners */
+}
+
+/* Better card styling for light/dark modes */
+.card {
+  background-color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.dark .card {
+  background-color: rgba(30, 35, 50, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+/* Dashboard card styles */
+.dashboard-card {
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+}
+
+.dark .dashboard-card:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
 }
 
 /* Fix for popover components */
@@ -153,14 +260,13 @@ textarea:focus {
   position: relative;
   z-index: 50;
   background-color: white;
-  border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   color: #000;
 }
 
 .dark .rdp {
-  background-color: #1e1e2a;
+  background-color: rgb(30, 35, 50);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: white;
 }
@@ -174,7 +280,6 @@ textarea:focus {
 .dialog-content {
   z-index: 50 !important;
   background-color: white !important;
-  border-radius: 8px !important;
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
   color: #000 !important;
@@ -186,7 +291,7 @@ textarea:focus {
 .dark .dropdown-content,
 .dark .popover-content,
 .dark .dialog-content {
-  background-color: #1e1e2a !important;
+  background-color: rgb(30, 35, 50) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: white !important;
 }
@@ -194,14 +299,13 @@ textarea:focus {
 /* Fix for radix select content */
 [data-radix-select-content] {
   background-color: white !important;
-  border-radius: 8px !important;
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
   color: #000 !important;
 }
 
 .dark [data-radix-select-content] {
-  background-color: #1e1e2a !important;
+  background-color: rgb(30, 35, 50) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: white !important;
 }
@@ -209,13 +313,12 @@ textarea:focus {
 /* Fix for radix popover content */
 [data-radix-popper-content-wrapper] > div {
   background-color: white !important;
-  border-radius: 8px !important;
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
 .dark [data-radix-popper-content-wrapper] > div {
-  background-color: #1e1e2a !important;
+  background-color: rgb(30, 35, 50) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: white !important;
 }
@@ -227,14 +330,13 @@ textarea:focus {
   z-index: 50 !important;
   position: relative !important;
   background-color: white !important;
-  border-radius: 8px !important;
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
 .dark .calendar-root,
 .dark .calendar-content {
-  background-color: #1e1e2a !important;
+  background-color: rgb(30, 35, 50) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: white !important;
 }
@@ -245,7 +347,7 @@ textarea:focus {
 }
 
 .dark .rdp-months {
-  background-color: #1e1e2a !important;
+  background-color: rgb(30, 35, 50) !important;
 }
 
 /* Target all popover content with a stronger selector */
@@ -253,7 +355,6 @@ div[data-radix-popper-content-wrapper] [role="dialog"],
 div[data-radix-popper-content-wrapper] [role="menu"],
 div[data-radix-popper-content-wrapper] [role="listbox"] {
   background-color: white !important;
-  border-radius: 8px !important;
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
@@ -261,7 +362,42 @@ div[data-radix-popper-content-wrapper] [role="listbox"] {
 .dark div[data-radix-popper-content-wrapper] [role="dialog"],
 .dark div[data-radix-popper-content-wrapper] [role="menu"],
 .dark div[data-radix-popper-content-wrapper] [role="listbox"] {
-  background-color: #1e1e2a !important;
+  background-color: rgb(30, 35, 50) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: white !important;
+}
+
+/* Better hover states for interactive elements */
+button:hover, 
+a:hover,
+.interactive:hover {
+  transition: all 0.2s ease;
+}
+
+/* Tab styles */
+.tabs-list {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.dark .tabs-list {
+  background-color: rgba(30, 35, 50, 0.7);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Active tab indicator */
+.tab[data-state="active"] {
+  position: relative;
+}
+
+.tab[data-state="active"]::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: hsl(var(--teal));
 }

@@ -6,8 +6,10 @@ import Link from "next/link";
 import { useState, useCallback, Suspense } from "react";
 import { validateEmail, validatePassword } from "@/lib/auth/validation";
 import { Section } from "@/components/common/Section";
-import { LogIn, AlertCircle, Loader2 } from "lucide-react";
-import AuthLogo from "@/components/auth/AuthLogo";
+import { AlertCircle, Loader2, ArrowRight } from "lucide-react";
+import PadeligaLogo from "@/components/PadeligaLogo";
+import GeometricBackground from "@/components/ui/GeometricBackground";
+import { SkewedButton } from "@/components/ui/SkewedButton";
 
 interface FormErrors {
   email?: string;
@@ -17,16 +19,16 @@ interface FormErrors {
 
 function ErrorAlert({ message }: { message: string }) {
   return (
-    <div className="rounded-lg bg-destructive/10 p-4 border border-destructive/20 animate-in fade-in-50 duration-200">
+    <div className="bg-padeliga-red/10 border-l-4 border-padeliga-red p-4 animate-in fade-in-50 duration-200">
       <div className="flex">
         <div className="flex-shrink-0">
           <AlertCircle
-            className="h-5 w-5 text-destructive"
+            className="h-5 w-5 text-padeliga-red"
             aria-hidden="true"
           />
         </div>
         <div className="ml-3">
-          <p className="text-sm text-destructive">{message}</p>
+          <p className="text-sm text-padeliga-red">{message}</p>
         </div>
       </div>
     </div>
@@ -57,7 +59,7 @@ const getErrorMessage = (errorCode: string | null | undefined): string => {
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"; // Default to dashboard
   // Check for error in URL (e.g., redirected from protected page)
   const urlError = searchParams.get("error");
 
@@ -137,7 +139,7 @@ function LoginPageContent() {
 
   const FormError = ({ message }: { message?: string }) =>
     message ? (
-      <p className="text-sm text-destructive mt-1 animate-in fade-in-50 duration-200">
+      <p className="text-sm text-padeliga-red mt-1 animate-in fade-in-50 duration-200">
         {message}
       </p>
     ) : null;
@@ -148,21 +150,29 @@ function LoginPageContent() {
         isRedirecting ? "opacity-50 blur-sm" : ""
       }`}
     >
-      <main className="container mx-auto h-screen px-3 py-4 sm:px-4 sm:py-12 max-w-6xl relative flex flex-col items-center justify-center">
-        <AuthLogo />
+      {/* Add GeometricBackground with subtle variant */}
+      <GeometricBackground variant="subtle" animated={true} />
 
-        <Section title="" className="w-[450px]">
+      <main className="container mx-auto h-screen px-3 py-4 sm:px-4 sm:py-12 max-w-6xl relative flex flex-col items-center justify-center z-10">
+        {/* Make the logo clickable and redirect to home page */}
+        <Link href="/" className="mb-8 transition-transform hover:scale-105 duration-300">
+          <PadeligaLogo size="lg" showTagline={true} />
+        </Link>
+
+        <Section title="" className="w-full max-w-[450px] bg-white dark:bg-gray-800 shadow-lg border-l-4 border-padeliga-teal">
           <div className="w-full mx-auto relative">
             {isRedirecting && (
-              <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-50 rounded-lg">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-50">
+                <Loader2 className="h-8 w-8 animate-spin text-padeliga-teal" />
               </div>
             )}
+
+            <h2 className="heading-accent text-2xl font-bold mb-6">Iniciar Sesión</h2>
 
             <form
               method="POST"
               onSubmit={handleSubmit}
-              className="space-y-6 mt-6"
+              className="space-y-6"
             >
               {errors.general && <ErrorAlert message={errors.general} />}
 
@@ -172,7 +182,7 @@ function LoginPageContent() {
                     htmlFor="email"
                     className="block text-sm font-medium mb-2"
                   >
-                    Email address
+                    Email
                   </label>
                   <input
                     id="email"
@@ -180,7 +190,7 @@ function LoginPageContent() {
                     type="email"
                     autoComplete="email"
                     required
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
+                    className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-padeliga-teal focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
                     disabled={isLoading || isRedirecting}
                   />
                   <FormError message={errors.email} />
@@ -191,7 +201,7 @@ function LoginPageContent() {
                     htmlFor="password"
                     className="block text-sm font-medium mb-2"
                   >
-                    Password
+                    Contraseña
                   </label>
                   <input
                     id="password"
@@ -199,46 +209,51 @@ function LoginPageContent() {
                     type="password"
                     autoComplete="current-password"
                     required
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
+                    className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-padeliga-teal focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
                     disabled={isLoading || isRedirecting}
                   />
                   <FormError message={errors.password} />
                 </div>
               </div>
 
-              <button
+              {/* Login button using the new SkewedButton component */}
+              <SkewedButton
                 type="submit"
+                buttonVariant="ghost"
+                buttonSize="lg"
+                hoverEffectColor="teal"
+                hoverEffectVariant="outline"
+                className="w-full border border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/10"
                 disabled={isLoading || isRedirecting}
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-[rgb(210,50,170)] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[rgb(180,40,150)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgb(210,50,170)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <LogIn
-                    size={18}
-                    className="transition-transform"
-                    strokeWidth={1.5}
-                  />
-                )}
                 <span>
                   {isRedirecting
-                    ? "Redirecting..."
+                    ? "Redirigiendo..."
                     : isLoading
-                    ? "Logging in..."
-                    : "Log in"}
+                    ? "Iniciando sesión..."
+                    : "Iniciar Sesión"}
                 </span>
-              </button>
+              </SkewedButton>
 
-              <p className="text-sm text-center text-muted-foreground">
-                Don&apos;t have an account?{" "}
-                <Link
-                  href="/signup"
-                  className="text-[rgb(210,50,170)] hover:text-[rgb(180,40,150)] hover:underline font-medium"
-                  tabIndex={isLoading || isRedirecting ? -1 : 0}
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2">
+                <p className="text-sm text-muted-foreground">
+                  ¿No tienes una cuenta?
+                </p>
+                {/* Register button using the new SkewedButton component */}
+                <SkewedButton
+                  buttonVariant="ghost"
+                  buttonSize="sm"
+                  hoverEffectColor="orange"
+                  hoverEffectVariant="outline"
+                  className="text-padeliga-orange border border-padeliga-orange hover:bg-padeliga-orange/10"
+                  asChild
                 >
-                  Create one
-                </Link>
-              </p>
+                  <Link href="/signup" className="flex items-center gap-1">
+                    Registrarse
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </SkewedButton>
+              </div>
             </form>
           </div>
         </Section>
@@ -252,7 +267,7 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Loader2 className="h-8 w-8 animate-spin text-padeliga-teal" />
         </div>
       }
     >

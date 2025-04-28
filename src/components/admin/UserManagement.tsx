@@ -43,7 +43,7 @@ interface UserManagementProps {
   onUpdate?: () => void;
 }
 
-export function UserManagement({ onUpdate }: UserManagementProps) {
+function UserManagement({ onUpdate }: UserManagementProps) {
   const { data: session } = useSession();
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -283,3 +283,6 @@ export function UserManagement({ onUpdate }: UserManagementProps) {
     </div>
   );
 }
+
+// Change from named export to default export
+export default UserManagement;

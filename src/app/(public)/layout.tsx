@@ -1,81 +1,101 @@
+'use client';
+
 /**
  * Public layout component
  * Provides consistent layout for all public pages
  */
 
 import Link from 'next/link';
+import Image from 'next/image';
+import { SkewedButton } from '@/components/ui/SkewedButton';
+import { useSession } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
+import Footer from '@/components/ui/Footer';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
+import { ThemeProvider } from '@/components/layout/ThemeProvider';
 
 export default function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === 'authenticated';
+  
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <header className="bg-white dark:bg-gray-800 shadow">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-primary">
-            Padeliga
-            <span className="text-sm ml-2 text-gray-500 dark:text-gray-400 font-normal italic">
-              Tu liga. Tu juego.
-            </span>
-          </Link>
-          
-          <div className="flex items-center space-x-4">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors"
-            >
-              Sign In
-            </Link>
-            
-            <Link
-              href="/signup"
-              className="text-sm font-medium bg-primary hover:bg-primary/90 text-white rounded-md px-3 py-2 transition-colors"
-            >
-              Sign Up
-            </Link>
-          </div>
-        </div>
-      </header>
-      
-      <main className="container mx-auto px-4 py-8">
-        {children}
-      </main>
-      
-      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8 mt-12">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <Link href="/" className="text-xl font-bold text-primary">
-                Padeliga
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+        <header className="bg-gray-100 dark:bg-[#1A1F2C] shadow-md">
+          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div className="flex items-center space-x-2 md:space-x-3">
+              <Link href="/" className="flex items-center">
+                <Image src="/logo.png" alt="Padeliga" width={120} height={40} />
               </Link>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Tu liga. Tu juego.
-              </p>
+              
+              {/* Will be used by child pages to inject the league name */}
+              <div id="dynamic-title"></div>
             </div>
             
-            <div className="flex flex-col md:flex-row gap-4 md:gap-8">
-              <Link href="/" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">
-                Home
-              </Link>
-              <Link href="/leagues" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">
-                Leagues
-              </Link>
-              <Link href="/login" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">
-                Sign In
-              </Link>
-              <Link href="/signup" className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">
-                Sign Up
-              </Link>
+            <div className="flex items-center space-x-3">
+              {/* Theme Toggle */}
+              <ThemeToggle />
+              
+              {isAuthenticated ? (
+                /* Show dashboard link for authenticated users */
+                <SkewedButton 
+                  variant="teal" 
+                  size="sm"
+                  hoverEffectColor="teal"
+                  hoverEffectVariant="solid"
+                  className="text-white"
+                  asChild
+                >
+                  <Link href="/dashboard">
+                    Dashboard
+                  </Link>
+                </SkewedButton>
+              ) : (
+                /* Show login/signup for non-authenticated users - with login page styling */
+                <>
+                  {/* Login button with border styling from login page */}
+                  <SkewedButton 
+                    variant="ghost" 
+                    size="sm"
+                    hoverEffectColor="teal"
+                    hoverEffectVariant="outline"
+                    className="border border-padeliga-teal text-padeliga-teal dark:text-padeliga-teal hover:bg-padeliga-teal/10"
+                    asChild
+                  >
+                    <Link href="/login">
+                      Iniciar Sesión
+                    </Link>
+                  </SkewedButton>
+                  
+                  {/* Register button with border and orange styling from login page */}
+                  <SkewedButton 
+                    variant="ghost" 
+                    size="sm"
+                    hoverEffectColor="orange"
+                    hoverEffectVariant="outline"
+                    className="border border-padeliga-orange text-padeliga-orange dark:text-padeliga-orange hover:bg-padeliga-orange/10"
+                    asChild
+                  >
+                    <Link href="/signup">
+                      Registrarse
+                    </Link>
+                  </SkewedButton>
+                </>
+              )}
             </div>
           </div>
-          
-          <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-            © {new Date().getFullYear()} Padeliga. All rights reserved.
-          </div>
-        </div>
-      </footer>
-    </div>
+        </header>
+        
+        <main className="flex-grow">
+          {children}
+        </main>
+        
+        <Footer />
+      </div>
+    </ThemeProvider>
   );
 }

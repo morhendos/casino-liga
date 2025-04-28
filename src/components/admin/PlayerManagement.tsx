@@ -48,7 +48,7 @@ interface Player {
   createdAt: string;
 }
 
-export function PlayerManagement() {
+function PlayerManagement() {
   const { data: session } = useSession();
   const [players, setPlayers] = useState<Player[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -295,9 +295,9 @@ export function PlayerManagement() {
                       </SelectTrigger>
                       <SelectContent>
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => (
-                          <SelectItem key={level} value={level.toString()}>
-                            {level}
-                          </SelectItem>
+                            <SelectItem key={level} value={level.toString()}>
+                              {level}
+                            </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -416,3 +416,6 @@ export function PlayerManagement() {
     </div>
   );
 }
+
+// Change from named export to default export
+export default PlayerManagement;
