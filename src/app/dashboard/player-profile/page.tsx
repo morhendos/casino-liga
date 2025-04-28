@@ -13,6 +13,7 @@ import { User, Award, Smartphone, Save, ArrowLeft, CheckCircle } from "lucide-re
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { SkewedActionButton } from "@/components/dashboard/SkewedActionButton";
+import { SkewedButton } from "@/components/ui/SkewedButton";
 
 // Define interface for player data
 interface PlayerProfile {
@@ -370,10 +371,15 @@ function PlayerProfilePage() {
                     Back
                   </Button>
                   
-                  <Button 
-                    type="submit" 
+                  {/* Replace the standard button with SkewedButton */}
+                  <SkewedButton
+                    type="submit"
+                    buttonVariant="teal"
+                    buttonSize="lg"
+                    hoverEffectColor="teal"
+                    hoverEffectVariant="solid"
+                    className="bg-padeliga-teal text-white"
                     disabled={isLoading}
-                    className="bg-gradient-to-r from-padeliga-teal to-padeliga-teal/80 hover:from-padeliga-teal/90 hover:to-padeliga-teal/70"
                   >
                     {isLoading ? (
                       <span className="flex items-center">
@@ -386,7 +392,7 @@ function PlayerProfilePage() {
                         {hasProfile ? "Update Profile" : "Create Profile"}
                       </span>
                     )}
-                  </Button>
+                  </SkewedButton>
                 </CardFooter>
               </form>
             </Card>
