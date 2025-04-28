@@ -68,6 +68,25 @@ const PositionIcon = () => (
   </svg>
 );
 
+// Award badge icon
+const AwardBadgeIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="text-white"
+  >
+    <circle cx="12" cy="8" r="6" />
+    <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+  </svg>
+);
+
 function PlayerProfilePage() {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
@@ -289,31 +308,33 @@ function PlayerProfilePage() {
                 </div>
                 
                 {hasProfile && (
-                  <div className="space-y-6 mt-6">
+                  <div className="space-y-4 mt-6">
                     {/* Skill Level - Improved layout */}
                     <div className="rounded-lg bg-gray-900 p-4 shadow-inner">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center">
-                          <Star className="h-5 w-5 mr-2 text-amber-400" />
-                          <span className="text-white font-medium">Skill Level</span>
+                      <div className="flex flex-col">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-1.5">
+                            <Star className="h-5 w-5 text-amber-400" />
+                            <span className="text-white font-medium">Skill Level</span>
+                          </div>
                         </div>
-                        <span className={`text-lg font-medium text-purple-400`}>
-                          {getSkillLevelText(skillLevel)}
-                        </span>
-                      </div>
-                      <div className="pt-1">
-                        {getSkillLevelStars(skillLevel)}
+                        <div className="flex justify-between items-center">
+                          <div className="pt-1.5">
+                            {getSkillLevelStars(skillLevel)}
+                          </div>
+                          <span className={`text-lg font-medium text-purple-400`}>
+                            {getSkillLevelText(skillLevel)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                     
                     {/* Handedness - Improved layout */}
                     <div className="rounded-lg bg-gray-900 p-4 shadow-inner">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <HandIcon />
-                          <span className="text-white font-medium ml-2">Handedness</span>
-                        </div>
-                        <span className="text-blue-400 font-medium">
+                      <div className="flex items-center">
+                        <HandIcon />
+                        <span className="text-white font-medium ml-2">Handedness</span>
+                        <span className="ml-auto text-blue-400 font-medium">
                           {handedness === "right" ? "Right-handed" : 
                            handedness === "left" ? "Left-handed" : "Ambidextrous"}
                         </span>
@@ -322,30 +343,29 @@ function PlayerProfilePage() {
                     
                     {/* Position - Improved layout */}
                     <div className="rounded-lg bg-gray-900 p-4 shadow-inner">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <PositionIcon />
-                          <span className="text-white font-medium ml-2">Position</span>
-                        </div>
-                        <span className="text-blue-400 font-medium capitalize">
+                      <div className="flex items-center">
+                        <PositionIcon />
+                        <span className="text-white font-medium ml-2">Position</span>
+                        <span className="ml-auto text-blue-400 font-medium capitalize">
                           {preferredPosition}
                         </span>
                       </div>
                     </div>
+                    
+                    {/* View Stats Button - Integrated into the profile section */}
+                    <button 
+                      onClick={() => toast.info("Player stats coming soon!")}
+                      className="w-full bg-purple-700 hover:bg-purple-600 transition-colors text-white py-3 rounded-lg relative overflow-hidden"
+                      style={{ transform: 'skew(-2deg)' }}
+                    >
+                      <div className="flex items-center justify-center">
+                        <AwardBadgeIcon />
+                        <span className="ml-2 font-medium">View Stats</span>
+                      </div>
+                    </button>
                   </div>
                 )}
               </CardContent>
-              
-              {hasProfile && (
-                <div className="px-6 pb-6">
-                  <SkewedActionButton
-                    label="View Stats"
-                    icon={Award}
-                    color="padeliga-purple"
-                    onClick={() => toast.info("Player stats coming soon!")}
-                  />
-                </div>
-              )}
             </Card>
             
             {/* Player benefits card */}
