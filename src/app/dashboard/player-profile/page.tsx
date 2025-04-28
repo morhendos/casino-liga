@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { User, Award, Smartphone, Save, CheckCircle } from "lucide-react";
+import { User, Award, Smartphone, Save, CheckCircle, Racquet, CheckCircle2, Star, HandMetal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { SkewedActionButton } from "@/components/dashboard/SkewedActionButton";
@@ -24,6 +24,48 @@ interface PlayerProfile {
   preferredPosition: string;
   contactPhone?: string;
 }
+
+// Custom racquet icon since Lucide doesn't have one
+const RacquetIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-4 w-4 mr-2 text-padeliga-teal"
+  >
+    <path d="M9 4c-2.8 0-5 2.2-5 5 0 1.8.7 3.4 2 4.5a4.6 4.6 0 0 1 1.5 7.5" />
+    <path d="M6.5 9.5C7.3 5.7 10.2 3 13.8 3c4.3 0 7.8 3.5 7.8 7.8 0 3.6-2.7 6.5-6.5 7.3" />
+    <path d="M16 19a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3z" />
+    <path d="M12 12v9" />
+  </svg>
+);
+
+// Custom hand position icon
+const HandPositionIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-4 w-4 mr-2 text-padeliga-teal"
+  >
+    <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+    <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2" />
+    <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
+    <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.5-5.5-1.5L3 17.5" />
+  </svg>
+);
 
 function PlayerProfilePage() {
   const { data: session } = useSession();
@@ -143,19 +185,58 @@ function PlayerProfilePage() {
     if (num < 7) return "Intermediate";
     return "Advanced";
   };
+
+  // Get skill level color
+  const getSkillLevelColor = (level: string) => {
+    const num = parseInt(level);
+    if (num < 4) return "text-padeliga-orange";
+    if (num < 7) return "text-padeliga-teal";
+    return "text-padeliga-purple";
+  };
+  
+  // Get skill level stars
+  const getSkillLevelStars = (level: string) => {
+    const num = parseInt(level);
+    const maxStars = 5;
+    const filledStars = Math.round((num / 10) * maxStars);
+    
+    return (
+      <div className="flex items-center gap-0.5">
+        {Array(maxStars).fill(0).map((_, i) => (
+          <Star 
+            key={i} 
+            size={12} 
+            className={i < filledStars ? "fill-current text-padeliga-orange" : "text-gray-300"} 
+          />
+        ))}
+      </div>
+    );
+  };
   
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
+        {/* Geometric background elements */}
+        <div className="fixed inset-0 -z-10 opacity-5 overflow-hidden pointer-events-none">
+          <div className="absolute -top-10 -right-10 w-64 h-64 bg-padeliga-purple rounded-full blur-3xl"></div>
+          <div className="absolute top-1/3 -left-12 w-72 h-72 bg-padeliga-teal rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-padeliga-orange rounded-full blur-3xl"></div>
+        </div>
+        
         {/* Header with skewed background */}
-        <div className="relative mb-8 overflow-hidden">
+        <div className="relative mb-8 overflow-hidden rounded-md">
           <div 
-            className="absolute inset-0 -z-10 bg-gradient-to-r from-padeliga-purple to-padeliga-teal opacity-10"
+            className="absolute inset-0 -z-10 bg-gradient-to-r from-padeliga-purple to-padeliga-teal opacity-20"
             style={{ transform: 'skew(-4deg) scale(1.1)' }}
           />
-          <div className="py-6 px-8">
-            <h1 className="text-3xl font-bold mb-2 heading-accent">Player Profile</h1>
-            <p className="text-muted-foreground">
+          <div className="py-8 px-8">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded bg-padeliga-purple/20 flex items-center justify-center">
+                <User className="h-5 w-5 text-padeliga-purple" />
+              </div>
+              <h1 className="text-3xl font-bold heading-accent">Player Profile</h1>
+            </div>
+            <p className="text-muted-foreground ml-14">
               Complete your profile to improve matchmaking and help others know your playing style.
             </p>
           </div>
@@ -164,58 +245,85 @@ function PlayerProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Left column with profile status card */}
           <div className="md:col-span-1">
-            <Card className="relative overflow-hidden">
+            <Card className="relative overflow-hidden border-none shadow-lg">
               <div 
                 className="absolute left-0 top-0 bottom-0 w-1.5"
                 style={{ background: `hsl(var(--purple))` }}
               />
-              <CardHeader className="bg-card/60 dark:bg-card/30 backdrop-blur-sm pb-4 border-b">
-                <CardTitle>Profile Status</CardTitle>
+              <div 
+                className="absolute inset-0 -z-10 bg-card/95 backdrop-blur-sm dark:bg-card/90"
+              />
+              <CardHeader className="pb-4 border-b">
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5 text-padeliga-purple" />
+                  Profile Status
+                </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 rounded-sm flex items-center justify-center bg-padeliga-purple/10 mr-3">
-                    <User className="h-6 w-6 text-padeliga-purple" />
-                  </div>
-                  <div>
-                    {/* Changed to show nickname instead of email */}
-                    <h3 className="font-medium">{hasProfile ? nickname : session?.user?.name || "Player"}</h3>
-                  </div>
-                </div>
-                
-                <div className="space-y-4 mt-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Profile Status</span>
-                    {hasProfile ? (
-                      <Badge variant="outline" className="text-padeliga-green border-padeliga-green">
-                        Complete
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="text-padeliga-red border-padeliga-red">
-                        Incomplete
-                      </Badge>
+                <div className="flex flex-col items-center mb-6">
+                  <div className="w-20 h-20 rounded-full flex items-center justify-center bg-padeliga-purple/10 mb-3 relative overflow-hidden">
+                    <div className="text-padeliga-purple text-4xl font-bold">
+                      {hasProfile ? nickname.charAt(0).toUpperCase() : (session?.user?.name || "P").charAt(0)}
+                    </div>
+                    {hasProfile && (
+                      <div 
+                        className="absolute bottom-0 right-0 w-6 h-6 bg-padeliga-green rounded-full flex items-center justify-center border-2 border-white"
+                      >
+                        <CheckCircle2 className="h-3 w-3 text-white" />
+                      </div>
                     )}
                   </div>
-                  
-                  {hasProfile && (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Skill Level</span>
-                        <span className="text-sm font-medium">{getSkillLevelText(skillLevel)}</span>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Handedness</span>
-                        <span className="text-sm font-medium capitalize">{handedness}-handed</span>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Position</span>
-                        <span className="text-sm font-medium capitalize">{preferredPosition}</span>
-                      </div>
-                    </>
+                  <h3 className="font-medium text-xl">
+                    {hasProfile ? nickname : session?.user?.name || "Player"}
+                  </h3>
+                  {hasProfile ? (
+                    <Badge className="mt-2 bg-padeliga-green rounded-full font-normal">
+                      Profile Complete
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="mt-2 text-padeliga-red border-padeliga-red">
+                      Incomplete
+                    </Badge>
                   )}
                 </div>
+                
+                {hasProfile && (
+                  <div className="space-y-4 mt-6 bg-black/5 p-4 rounded-md dark:bg-white/5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Star className="h-4 w-4 mr-2 text-padeliga-orange" />
+                        <span className="text-sm">Skill Level</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-medium ${getSkillLevelColor(skillLevel)}`}>
+                          {getSkillLevelText(skillLevel)}
+                        </span>
+                        {getSkillLevelStars(skillLevel)}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <HandMetal className="h-4 w-4 mr-2 text-padeliga-teal" />
+                        <span className="text-sm">Handedness</span>
+                      </div>
+                      <span className="text-sm font-medium capitalize">
+                        {handedness === "right" ? "Right-handed" : 
+                         handedness === "left" ? "Left-handed" : "Ambidextrous"}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <RacquetIcon />
+                        <span className="text-sm">Position</span>
+                      </div>
+                      <span className="text-sm font-medium capitalize">
+                        {preferredPosition}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </CardContent>
               
               {hasProfile && (
@@ -229,21 +337,61 @@ function PlayerProfilePage() {
                 </div>
               )}
             </Card>
+            
+            {/* Player benefits card */}
+            {!hasProfile && (
+              <Card className="mt-4 border-none shadow-lg relative overflow-hidden">
+                <div 
+                  className="absolute inset-0 -z-10 bg-card/95 backdrop-blur-sm dark:bg-card/90"
+                />
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center">
+                    <Award className="h-4 w-4 mr-2 text-padeliga-orange" />
+                    Why Create a Profile?
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="py-0">
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 mr-2 text-padeliga-green mt-0.5 shrink-0" />
+                      <span>Join leagues and tournaments</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 mr-2 text-padeliga-green mt-0.5 shrink-0" />
+                      <span>Find compatible teammates</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 mr-2 text-padeliga-green mt-0.5 shrink-0" />
+                      <span>Track your match history and statistics</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 mr-2 text-padeliga-green mt-0.5 shrink-0" />
+                      <span>Improve your game with performance insights</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
           </div>
           
           {/* Right column with form */}
           <div className="md:col-span-2">
-            <Card className="relative overflow-hidden">
+            <Card className="relative overflow-hidden border-none shadow-lg">
               {/* Left accent border */}
               <div 
                 className="absolute left-0 top-0 bottom-0 w-1.5"
                 style={{ background: `hsl(var(--teal))` }}
               />
               
+              {/* Background with blur */}
+              <div 
+                className="absolute inset-0 -z-10 bg-card/95 backdrop-blur-sm dark:bg-card/90"
+              />
+              
               {/* Success indicator that slides in when save is successful */}
               <div 
                 className={cn(
-                  "absolute right-4 top-4 flex items-center transition-all duration-300 ease-in-out",
+                  "absolute right-4 top-4 flex items-center transition-all duration-300 ease-in-out bg-padeliga-green/10 py-1 px-3 rounded-full",
                   saveSuccess ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10"
                 )}
               >
@@ -251,38 +399,50 @@ function PlayerProfilePage() {
                 <span className="text-sm text-padeliga-green">Saved successfully</span>
               </div>
               
-              <CardHeader className="bg-card/60 dark:bg-card/30 backdrop-blur-sm pb-4 border-b">
-                <CardTitle>{hasProfile ? "Edit Your Profile" : "Create Your Player Profile"}</CardTitle>
+              <CardHeader className="pb-4 border-b">
+                <div className="flex items-center gap-2 mb-1">
+                  <Award className="h-5 w-5 text-padeliga-teal" />
+                  <CardTitle>{hasProfile ? "Edit Your Profile" : "Create Your Player Profile"}</CardTitle>
+                </div>
                 <CardDescription>
                   Fill in your padel player details to help teammates and opponents know more about you.
                 </CardDescription>
               </CardHeader>
               
               <form onSubmit={handleSubmit}>
-                <CardContent className="space-y-5 pt-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="nickname" className="flex items-center">
+                <CardContent className="space-y-6 pt-6">
+                  <div>
+                    <Label htmlFor="nickname" className="flex items-center text-base mb-2">
                       <User className="h-4 w-4 mr-2 text-padeliga-teal" />
-                      Nickname *
+                      Nickname
+                      <span className="text-padeliga-red ml-1">*</span>
                     </Label>
-                    <Input
-                      id="nickname"
-                      placeholder="Your padel nickname"
-                      value={nickname}
-                      onChange={(e) => setNickname(e.target.value)}
-                      required
-                      className="border-input/50 focus:border-padeliga-teal"
-                    />
-                    <p className="text-xs text-muted-foreground">
+                    <div className="relative">
+                      <Input
+                        id="nickname"
+                        placeholder="Your padel nickname"
+                        value={nickname}
+                        onChange={(e) => setNickname(e.target.value)}
+                        required
+                        className="border-input/50 focus:border-padeliga-teal pl-4"
+                      />
+                      {nickname && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <CheckCircle className="h-4 w-4 text-padeliga-green" />
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
                       This is how you'll be known to other players in the league.
                     </p>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div className="space-y-2">
-                      <Label htmlFor="skillLevel" className="flex items-center">
-                        <Award className="h-4 w-4 mr-2 text-padeliga-teal" />
-                        Skill Level *
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label htmlFor="skillLevel" className="flex items-center text-base mb-2">
+                        <Star className="h-4 w-4 mr-2 text-padeliga-teal" />
+                        Skill Level
+                        <span className="text-padeliga-red ml-1">*</span>
                       </Label>
                       <Select
                         value={skillLevel}
@@ -299,12 +459,17 @@ function PlayerProfilePage() {
                           ))}
                         </SelectContent>
                       </Select>
+                      <div className="mt-1 flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Beginner</span>
+                        <span className="text-xs text-muted-foreground">Advanced</span>
+                      </div>
                     </div>
                     
-                    <div className="space-y-2">
-                      <Label htmlFor="handedness" className="flex items-center">
-                        <span className="flex items-center justify-center w-4 h-4 mr-2 text-padeliga-teal">✋</span>
-                        Handedness *
+                    <div>
+                      <Label htmlFor="handedness" className="flex items-center text-base mb-2">
+                        <HandMetal className="h-4 w-4 mr-2 text-padeliga-teal" />
+                        Handedness
+                        <span className="text-padeliga-red ml-1">*</span>
                       </Label>
                       <Select
                         value={handedness}
@@ -322,11 +487,12 @@ function PlayerProfilePage() {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div className="space-y-2">
-                      <Label htmlFor="preferredPosition" className="flex items-center">
-                        <span className="flex items-center justify-center w-4 h-4 mr-2 text-padeliga-teal">🎾</span>
-                        Preferred Position *
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label htmlFor="preferredPosition" className="flex items-center text-base mb-2">
+                        <RacquetIcon />
+                        Preferred Position
+                        <span className="text-padeliga-red ml-1">*</span>
                       </Label>
                       <Select
                         value={preferredPosition}
@@ -343,8 +509,8 @@ function PlayerProfilePage() {
                       </Select>
                     </div>
                     
-                    <div className="space-y-2">
-                      <Label htmlFor="contactPhone" className="flex items-center">
+                    <div>
+                      <Label htmlFor="contactPhone" className="flex items-center text-base mb-2">
                         <Smartphone className="h-4 w-4 mr-2 text-padeliga-teal" />
                         Contact Phone
                       </Label>
@@ -359,24 +525,23 @@ function PlayerProfilePage() {
                   </div>
                 </CardContent>
                 
-                <CardFooter className="flex justify-center py-6 border-t">
-                  {/* Changed to centered, outline style button */}
+                <CardFooter className="flex justify-center py-8 border-t">
                   <SkewedButton
                     type="submit"
                     buttonVariant="outline"
                     buttonSize="lg"
                     hoverEffectColor="teal"
                     hoverEffectVariant="outline"
-                    className="border border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/10 min-w-[200px]"
+                    className="border-2 border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/10 min-w-[200px] relative"
                     disabled={isLoading}
                   >
                     {isLoading ? (
-                      <span className="flex items-center">
+                      <span className="flex items-center justify-center">
                         <span className="animate-spin mr-2">⟳</span> 
                         Saving...
                       </span>
                     ) : (
-                      <span className="flex items-center">
+                      <span className="flex items-center justify-center font-medium tracking-wide">
                         <Save className="h-4 w-4 mr-2" />
                         {hasProfile ? "Update Profile" : "Create Profile"}
                       </span>
