@@ -178,8 +178,8 @@ function PlayerProfilePage() {
                     <User className="h-6 w-6 text-padeliga-purple" />
                   </div>
                   <div>
-                    <h3 className="font-medium">{session?.user?.name || "Player"}</h3>
-                    <p className="text-sm text-muted-foreground">{session?.user?.email}</p>
+                    {/* Changed to show nickname instead of email */}
+                    <h3 className="font-medium">{hasProfile ? nickname : session?.user?.name || "Player"}</h3>
                   </div>
                 </div>
                 
