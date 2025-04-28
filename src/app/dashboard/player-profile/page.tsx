@@ -4,12 +4,11 @@ import { useState, useEffect } from "react";
 import withAuth from "@/components/auth/withAuth";
 import { useSession } from "next-auth/react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { User, Award, Smartphone, Save, ArrowLeft, CheckCircle } from "lucide-react";
+import { User, Award, Smartphone, Save, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { SkewedActionButton } from "@/components/dashboard/SkewedActionButton";
@@ -360,25 +359,15 @@ function PlayerProfilePage() {
                   </div>
                 </CardContent>
                 
-                <CardFooter className="flex justify-between py-6 border-t">
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={() => window.history.back()}
-                    className="border-padeliga-purple/50 text-padeliga-purple hover:bg-padeliga-purple/10"
-                  >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
-                  </Button>
-                  
-                  {/* Replace the standard button with SkewedButton */}
+                <CardFooter className="flex justify-center py-6 border-t">
+                  {/* Changed to centered, outline style button */}
                   <SkewedButton
                     type="submit"
-                    buttonVariant="teal"
+                    buttonVariant="outline"
                     buttonSize="lg"
                     hoverEffectColor="teal"
-                    hoverEffectVariant="solid"
-                    className="bg-padeliga-teal text-white"
+                    hoverEffectVariant="outline"
+                    className="border border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/10 min-w-[200px]"
                     disabled={isLoading}
                   >
                     {isLoading ? (
