@@ -42,7 +42,7 @@ interface League {
   };
 }
 
-export function LeagueManagement() {
+function LeagueManagement() {
   const { data: session } = useSession();
   const [leagues, setLeagues] = useState<League[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -377,3 +377,6 @@ export function LeagueManagement() {
     </div>
   );
 }
+
+// Change from named export to default export
+export default LeagueManagement;

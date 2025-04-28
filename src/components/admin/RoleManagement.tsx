@@ -11,7 +11,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { ShieldCheck, UserCog, Info } from "lucide-react";
+import { ShieldCheck, UserCog, Info, AlertCircle } from "lucide-react";
 import { ROLES } from "@/lib/auth/role-utils";
 
 // Define available roles in the system
@@ -42,28 +42,34 @@ const AVAILABLE_ROLES = [
   }
 ];
 
-export function RoleManagement() {
+function RoleManagement() {
   return (
     <div className="space-y-6">
-      <div className="rounded-md bg-blue-50 p-4 border border-blue-200">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <Info className="h-5 w-5 text-blue-400" />
-          </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-blue-800">About Role System</h3>
-            <div className="mt-2 text-sm text-blue-700">
-              <p>
-                The system uses a role-based access control model where each user can have one or more roles.
-                Each role grants specific permissions in the application.
-              </p>
-              <p className="mt-2">
-                To assign roles to users, use the User Management tab.
-              </p>
+      {/* Updated "About Role System" info box with modern styling */}
+      <Card className="bg-gradient-to-br from-blue-50/90 to-blue-50/70 dark:from-blue-900/20 dark:to-blue-950/30 backdrop-blur-sm border-blue-200/50 dark:border-blue-700/30 overflow-hidden relative">
+        <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-400 to-blue-500 dark:from-blue-400 dark:to-blue-600"></div>
+        <CardContent className="p-5">
+          <div className="flex">
+            <div className="flex-shrink-0 mr-4">
+              <div className="rounded-full p-2 bg-blue-100/70 dark:bg-blue-500/10 backdrop-blur-sm">
+                <Info className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2 tracking-wide">About Role System</h3>
+              <div className="text-sm text-blue-700 dark:text-blue-300/90 leading-relaxed space-y-2">
+                <p>
+                  The system uses a role-based access control model where each user can have one or more roles.
+                  Each role grants specific permissions in the application.
+                </p>
+                <p>
+                  To assign roles to users, use the User Management tab.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent className="p-0">
@@ -101,22 +107,29 @@ export function RoleManagement() {
         </CardContent>
       </Card>
       
-      <div className="rounded-md bg-amber-50 p-4 border border-amber-200">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <Info className="h-5 w-5 text-amber-400" />
-          </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-amber-800">Custom Roles</h3>
-            <div className="mt-2 text-sm text-amber-700">
-              <p>
+      {/* "Custom Roles" section with modern appearance */}
+      <Card className="bg-gradient-to-br from-amber-50/90 to-amber-50/70 dark:from-gray-800/80 dark:to-gray-900/90 backdrop-blur-sm border-amber-200/50 dark:border-gray-700/50 overflow-hidden relative">
+        <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-amber-400 to-orange-500 dark:from-amber-500 dark:to-amber-600"></div>
+        <CardContent className="p-5">
+          <div className="flex">
+            <div className="flex-shrink-0 mr-4">
+              <div className="rounded-full p-2 bg-amber-100/70 dark:bg-amber-500/10 backdrop-blur-sm">
+                <AlertCircle className="h-5 w-5 text-amber-500 dark:text-amber-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2 tracking-wide">Custom Roles</h3>
+              <p className="text-sm text-amber-700 dark:text-gray-300 leading-relaxed">
                 Custom roles are not supported in the current version. Contact the system administrator
                 if you need additional role types for your organization.
               </p>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
+
+// Change from named export to default export
+export default RoleManagement;

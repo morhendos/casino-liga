@@ -3,8 +3,9 @@
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { LucideIcon, User, Users, Trophy, Calendar, BarChart, Award, Settings, Medal } from "lucide-react";
+import { LucideIcon, User, Users, Trophy, Calendar, BarChart, Award, Settings, Medal, Home } from "lucide-react";
 import { isAdmin, isPlayer } from "@/lib/auth/role-utils";
+import { cn } from "@/lib/utils";
 
 interface NavItem {
   label: string;
@@ -12,50 +13,68 @@ interface NavItem {
   icon: LucideIcon;
   adminOnly?: boolean;
   playerOnly?: boolean;
+  color?: string;
 }
 
-export function PadelNavigation() {
+interface PadelNavigationProps {
+  onSelect?: () => void;
+}
+
+export function PadelNavigation({ onSelect }: PadelNavigationProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
   
   const navItems: NavItem[] = [
     {
+      label: "Dashboard",
+      href: "/dashboard",
+      icon: Home,
+      color: "padeliga-teal"
+    },
+    {
       label: "Player Profile",
       href: "/dashboard/player-profile",
-      icon: User
+      icon: User,
+      color: "padeliga-purple"
     },
     {
       label: "Teams",
       href: "/dashboard/teams",
-      icon: Users
+      icon: Users,
+      color: "padeliga-green"
     },
     {
       label: "Leagues",
       href: "/dashboard/leagues",
-      icon: Trophy
+      icon: Trophy,
+      color: "padeliga-orange"
     },
     {
       label: "Matches",
       href: "/dashboard/matches",
-      icon: Calendar
+      icon: Calendar,
+      color: "padeliga-teal"
     },
     {
       label: "Rankings",
       href: "/dashboard/rankings",
       icon: BarChart,
-      adminOnly: true // Global rankings for admins
+      adminOnly: true, // Global rankings for admins
+      color: "padeliga-red"
     },
     {
       label: "My Rankings",
       href: "/dashboard/my-rankings",
       icon: Medal,
-      playerOnly: true // Personal rankings for players
+      playerOnly: true, // Personal rankings for players
+      color: "padeliga-orange"
     },
     {
       label: "Admin",
       href: "/dashboard/admin",
       icon: Settings,
-      adminOnly: true // Only show for admin users
+      adminOnly: true, // Only show for admin users
+      color: "padeliga-purple"
     }
   ];
   
@@ -75,25 +94,48 @@ export function PadelNavigation() {
     return true;
   });
   
+  // Handle link click
+  const handleClick = () => {
+    if (onSelect) {
+      onSelect();
+    }
+  };
+  
   return (
-    <nav className="space-y-1">
+    <nav className="space-y-2">
       {filteredNavItems.map((item) => {
-        const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const isActive = 
+          pathname === item.href || 
+          (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
+        
+        const colorClass = item.color || "padeliga-teal";
         
         return (
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center px-2 py-2 text-sm font-medium rounded-md group transition-colors ${
-              isActive
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}
+            onClick={handleClick}
+            className={cn(
+              "flex h-10 items-center text-sm font-medium transition-colors relative group",
+              isActive 
+                ? `text-${colorClass} bg-${colorClass}/10` 
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            )}
           >
-            <item.icon className={`mr-3 h-4 w-4 flex-shrink-0 ${
-              isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"
-            }`} />
-            {item.label}
+            {/* Active indicator bar */}
+            {isActive && (
+              <div className={`absolute left-0 top-0 bottom-0 w-1 bg-${colorClass}`} />
+            )}
+            
+            <div className="flex items-center px-4 py-2">
+              <item.icon className={cn(
+                "mr-3 h-5 w-5",
+                isActive 
+                  ? `text-${colorClass}` 
+                  : "text-muted-foreground group-hover:text-foreground"
+              )} />
+              {item.label}
+            </div>
           </Link>
         );
       })}
