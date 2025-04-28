@@ -1,6 +1,8 @@
 root/
 ├── ANALYTICS-IMPROVEMENTS.md
+├── DASHBOARD-REDESIGN-IMPROVEMENTS.md
 ├── IMPLEMENTATION-STATUS.md
+├── PR-DESCRIPTION.md
 ├── README.md
 ├── REBRANDING.md
 ├── SETUP.md
@@ -183,6 +185,10 @@ root/
 │   │   ├── PadeligaLogo.tsx
 │   │   ├── ThemeToggle.tsx
 │   │   ├── admin
+│   │   │   ├── AdminActionCard.tsx
+│   │   │   ├── AdminCard.tsx
+│   │   │   ├── AdminDashboardOverview.tsx
+│   │   │   ├── AdminTopBar.tsx
 │   │   │   ├── BulkGameGenerationForm.tsx
 │   │   │   ├── DeleteLeagueButton.tsx
 │   │   │   ├── DeleteTeamButton.tsx
@@ -206,7 +212,8 @@ root/
 │   │   │   ├── ScheduleManagementTable.tsx
 │   │   │   ├── ScheduleVisualization.tsx
 │   │   │   ├── TeamCreationForm.tsx
-│   │   │   └── UserManagement.tsx
+│   │   │   ├── UserManagement.tsx
+│   │   │   └── index.ts
 │   │   ├── analytics
 │   │   │   ├── AdminReportsPanel.tsx
 │   │   │   ├── LeagueStatsDashboard.tsx
@@ -223,10 +230,17 @@ root/
 │   │   │   └── withRoleAuth.tsx
 │   │   ├── common
 │   │   │   └── Section.tsx
+│   │   ├── dashboard
+│   │   │   ├── DashboardCard.tsx
+│   │   │   ├── DashboardStats.tsx
+│   │   │   ├── SkewedActionButton.tsx
+│   │   │   ├── SkewedStatCard.tsx
+│   │   │   └── index.ts
 │   │   ├── error
 │   │   │   └── DatabaseErrorBoundary.tsx
 │   │   ├── error-boundary.tsx
 │   │   ├── layout
+│   │   │   ├── DashboardTopBar.tsx
 │   │   │   ├── PadelNavigation.tsx
 │   │   │   ├── PageHeader.tsx
 │   │   │   ├── ThemeProvider.tsx
