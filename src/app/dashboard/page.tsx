@@ -4,14 +4,106 @@ import withAuth from "@/components/auth/withAuth";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { 
+  User, 
+  Trophy, 
+  CalendarDays, 
+  Users, 
+  CheckCircle, 
+  Clock,
+  Plus,
   ArrowRight,
-  Plus
+  BarChart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GeometricBackground } from "@/components/ui/GeometricBackground";
+import { Badge } from "@/components/ui/badge";
+import { SkewedStatCard } from "@/components/dashboard/SkewedStatCard";
+import { SkewedActionButton } from "@/components/dashboard/SkewedActionButton";
 
 function DashboardPage() {
   const { data: session } = useSession();
+  
+  // Mock stats data - in a real app, these would come from an API
+  const statsData = [
+    {
+      title: "Active Leagues",
+      value: "4",
+      color: "padeliga-teal",
+      icon: Trophy
+    },
+    {
+      title: "Upcoming Matches",
+      value: "2",
+      color: "padeliga-orange",
+      icon: Clock
+    },
+    {
+      title: "Completed Matches",
+      value: "8",
+      color: "padeliga-green",
+      icon: CheckCircle
+    },
+    {
+      title: "Teams",
+      value: "3",
+      color: "padeliga-purple",
+      icon: Users
+    }
+  ];
+
+  // Quick actions
+  const quickActions = [
+    {
+      label: "Join League",
+      href: "/dashboard/leagues",
+      icon: Trophy,
+      color: "padeliga-teal"
+    },
+    {
+      label: "Create Team",
+      href: "/dashboard/teams/new",
+      icon: Users,
+      color: "padeliga-purple"
+    },
+    {
+      label: "Schedule Match",
+      href: "/dashboard/matches/schedule",
+      icon: CalendarDays,
+      color: "padeliga-orange"
+    },
+    {
+      label: "View Stats",
+      href: "/dashboard/stats",
+      icon: BarChart,
+      color: "padeliga-green"
+    }
+  ];
+  
+  // Recent activity items
+  const recentActivity = [
+    {
+      type: "match",
+      title: "Match Result Recorded",
+      description: "Win against Team Eagles (6-3, 7-5)",
+      date: "Today",
+      color: "padeliga-green"
+    },
+    {
+      type: "league",
+      title: "New League Started",
+      description: "Summer Championship 2025",
+      date: "Yesterday",
+      color: "padeliga-teal"
+    },
+    {
+      type: "match",
+      title: "Upcoming Match",
+      description: "vs Team Titans - Monday, 16:00",
+      date: "In 2 days",
+      color: "padeliga-orange"
+    }
+  ];
   
   return (
     <div className="min-h-screen transition-colors duration-200">
@@ -22,34 +114,38 @@ function DashboardPage() {
           </h1>
         </div>
         
+        {/* Stats cards with skewed design */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {statsData.map((stat, index) => (
+            <SkewedStatCard
+              key={index}
+              title={stat.title}
+              value={stat.value}
+              color={stat.color}
+              icon={stat.icon}
+            />
+          ))}
+        </div>
+        
         <div className="grid md:grid-cols-12 gap-6">
           {/* Main features column */}
           <div className="md:col-span-7">
             <Card className="mb-6 overflow-hidden">
               <CardHeader className="bg-card/60 dark:bg-card/30 backdrop-blur-sm pb-2 border-b">
                 <CardTitle className="flex items-center justify-between">
-                  <span className="text-xl">Welcome to Padeliga</span>
+                  <span className="text-xl">Quick Actions</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
-                <p className="text-muted-foreground mb-4">
-                  This is your dashboard for managing padel leagues, teams and matches. 
-                  Use the navigation to access different sections of the application.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <Button asChild className="gap-1">
-                    <Link href="/dashboard/leagues">
-                      View Leagues
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <Button asChild variant="outline" className="gap-1">
-                    <Link href="/dashboard/teams">
-                      Manage Teams
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                </div>
+              <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {quickActions.map((action, index) => (
+                  <SkewedActionButton
+                    key={index}
+                    label={action.label}
+                    icon={action.icon}
+                    color={action.color}
+                    href={action.href}
+                  />
+                ))}
               </CardContent>
             </Card>
             
@@ -67,16 +163,37 @@ function DashboardPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-center py-8">
-                    <div className="text-center">
-                      <p className="text-muted-foreground mb-4">No teams yet. Create or join a team to get started.</p>
-                      <Button asChild variant="outline" size="sm" className="flex items-center justify-center gap-1">
-                        <Link href="/dashboard/teams/create">
-                          <Plus className="h-4 w-4" />
-                          <span>Create New Team</span>
-                        </Link>
-                      </Button>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between border-b pb-3 pt-1">
+                      <div className="flex items-center">
+                        <div className="w-10 h-10 rounded-sm flex items-center justify-center bg-padeliga-purple/10 mr-3">
+                          <Users className="h-5 w-5 text-padeliga-purple" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium">Padel Masters</h3>
+                          <p className="text-sm text-muted-foreground">With Carlos Sanchez</p>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="text-padeliga-teal border-padeliga-teal">Active</Badge>
                     </div>
+                    
+                    <div className="flex items-center justify-between border-b pb-3 pt-1">
+                      <div className="flex items-center">
+                        <div className="w-10 h-10 rounded-sm flex items-center justify-center bg-padeliga-teal/10 mr-3">
+                          <Users className="h-5 w-5 text-padeliga-teal" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium">Smash Brothers</h3>
+                          <p className="text-sm text-muted-foreground">With Miguel Fernandez</p>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="text-padeliga-orange border-padeliga-orange">Stand-by</Badge>
+                    </div>
+                    
+                    <Button variant="outline" size="sm" className="w-full mt-2 flex items-center justify-center gap-1">
+                      <Plus className="h-4 w-4" />
+                      <span>Create New Team</span>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -85,6 +202,30 @@ function DashboardPage() {
           
           {/* Side column */}
           <div className="md:col-span-5 space-y-6">
+            <Card>
+              <CardHeader className="bg-card/60 dark:bg-card/30 backdrop-blur-sm pb-2 border-b">
+                <CardTitle className="flex items-center justify-between">
+                  <span className="text-xl">Recent Activity</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="divide-y">
+                  {recentActivity.map((activity, index) => (
+                    <div key={index} className="p-4 flex">
+                      <div className={`w-2 self-stretch mr-4 bg-${activity.color} rounded-sm`}></div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="font-medium">{activity.title}</h3>
+                          <span className="text-xs text-muted-foreground">{activity.date}</span>
+                        </div>
+                        <p className="text-sm">{activity.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            
             <Card>
               <CardHeader className="bg-card/60 dark:bg-card/30 backdrop-blur-sm pb-2 border-b">
                 <CardTitle className="flex items-center justify-between">
@@ -98,8 +239,28 @@ function DashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4">
-                <div className="flex items-center justify-center py-8">
-                  <p className="text-muted-foreground">No upcoming matches scheduled.</p>
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <div className="w-12 text-center mr-4">
+                      <span className="text-xl font-bold block">28</span>
+                      <span className="text-xs text-muted-foreground block">APR</span>
+                    </div>
+                    <div className="flex-1 border-l pl-4">
+                      <p className="font-medium">vs Team Titans</p>
+                      <p className="text-sm text-muted-foreground">16:00 - Club Padel Center</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <div className="w-12 text-center mr-4">
+                      <span className="text-xl font-bold block">03</span>
+                      <span className="text-xs text-muted-foreground block">MAY</span>
+                    </div>
+                    <div className="flex-1 border-l pl-4">
+                      <p className="font-medium">vs Padel Stars</p>
+                      <p className="text-sm text-muted-foreground">18:30 - Urban Padel</p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -110,11 +271,19 @@ function DashboardPage() {
               </CardHeader>
               <CardContent className="p-4">
                 <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <User className="h-5 w-5 mr-2 text-padeliga-purple" />
+                      <span>Player Profile</span>
+                    </div>
+                    <Badge variant="outline" className="text-padeliga-red border-padeliga-red">Incomplete</Badge>
+                  </div>
+                  
                   <p className="text-sm text-muted-foreground">
                     Add your playing experience, preferred position, and skill level to find better matches.
                   </p>
                   
-                  <Button size="sm" asChild className="mt-1">
+                  <Button size="sm" asChild className="mt-1 bg-padeliga-purple hover:bg-padeliga-purple/90">
                     <Link href="/dashboard/player-profile">
                       Complete Profile
                     </Link>
