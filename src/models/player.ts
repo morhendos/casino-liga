@@ -19,7 +19,7 @@ export interface PlayerDocument extends mongoose.Document {
   profileImage?: string;
   isActive: boolean;
   createdBy?: ObjectId;     // Reference to admin user who created this player
-  league: ObjectId;         // Reference to the league this player belongs to
+  league?: ObjectId;         // Reference to the league this player belongs to (OPTIONAL)
   // Invitation fields
   status: 'invited' | 'active' | 'inactive';
   invitationSent: boolean;
@@ -104,7 +104,7 @@ const playerSchema = new mongoose.Schema({
   league: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'League',
-    required: true, // Players must belong to a league
+    required: false, // Changed to false - players don't need to belong to a league at creation
     index: true
   },
   // Invitation fields

@@ -103,15 +103,14 @@ export async function POST(request: Request) {
         throw new Error('User already has a player profile');
       }
       
+      // Create player without requiring a league or bio
       const player = new PlayerModel({
-        userId: userIdObj, // Use the converted ObjectId
+        userId: userIdObj,
         nickname: data.nickname,
         skillLevel: data.skillLevel,
         handedness: data.handedness,
         preferredPosition: data.preferredPosition,
         contactPhone: data.contactPhone,
-        bio: data.bio,
-        profileImage: data.profileImage,
         isActive: true
       });
       
