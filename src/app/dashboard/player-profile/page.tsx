@@ -209,9 +209,17 @@ function PlayerProfilePage() {
   // Get skill level color
   const getSkillLevelColor = (level: string) => {
     const num = parseInt(level);
-    if (num < 4) return "text-padeliga-orange";
-    if (num < 7) return "text-padeliga-teal";
-    return "text-purple-500";
+    if (num < 4) return "from-orange-600 to-amber-500";
+    if (num < 7) return "from-teal-600 to-blue-500";
+    return "from-purple-600 to-fuchsia-500";
+  };
+  
+  // Get skill level color for text
+  const getSkillLevelTextColor = (level: string) => {
+    const num = parseInt(level);
+    if (num < 4) return "text-amber-400";
+    if (num < 7) return "text-teal-400";
+    return "text-purple-400";
   };
   
   // Get skill level stars
@@ -225,12 +233,30 @@ function PlayerProfilePage() {
         {Array(maxStars).fill(0).map((_, i) => (
           <Star 
             key={i} 
-            size={16} 
-            className={i < filledStars ? "fill-orange-400 text-orange-400" : "text-gray-300"} 
+            size={18} 
+            className={i < filledStars ? "fill-amber-400 text-amber-400" : "text-gray-700"} 
           />
         ))}
       </div>
     );
+  };
+
+  // Map handedness to display text
+  const getHandednessDisplay = (hand: string) => {
+    switch (hand) {
+      case 'right': return 'Right-handed';
+      case 'left': return 'Left-handed';
+      default: return 'Ambidextrous';
+    }
+  };
+
+  // Map position to display text
+  const getPositionDisplay = (position: string) => {
+    switch (position) {
+      case 'forehand': return 'Forehand';
+      case 'backhand': return 'Backhand';
+      default: return 'Both Positions';
+    }
   };
   
   return (
@@ -309,64 +335,97 @@ function PlayerProfilePage() {
                 </div>
                 
                 {hasProfile && (
-                  <div className="space-y-4 mt-6">
-                    {/* Skill Level - Improved layout */}
-                    <div className="rounded-lg bg-gray-900 p-4 shadow-inner">
-                      <div className="flex flex-col">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-1.5">
+                  <div className="space-y-5 mt-6">
+                    {/* REDESIGNED: Skill Level Card */}
+                    <div className="relative overflow-hidden rounded-lg bg-gray-900">
+                      {/* Gradient accent */}
+                      <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${getSkillLevelColor(skillLevel)}`}></div>
+                      
+                      <div className="p-4">
+                        {/* Header with icon and title */}
+                        <div className="flex items-center mb-3">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-500/10 mr-3">
                             <Star className="h-5 w-5 text-amber-400" />
-                            <span className="text-white font-medium">Skill Level</span>
                           </div>
+                          <h3 className="font-semibold text-white">Skill Level</h3>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <div className="pt-1.5">
-                            {getSkillLevelStars(skillLevel)}
-                          </div>
-                          <span className={`text-lg font-medium text-purple-400`}>
+                        
+                        {/* Value display */}
+                        <div className="flex items-center justify-between">
+                          {getSkillLevelStars(skillLevel)}
+                          <div className={`text-lg font-semibold ${getSkillLevelTextColor(skillLevel)}`}>
                             {getSkillLevelText(skillLevel)}
-                          </span>
+                          </div>
                         </div>
                       </div>
                     </div>
                     
-                    {/* FIX: Handedness with better spacing and alignment */}
-                    <div className="rounded-lg bg-gray-900 p-4 shadow-inner">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <HandIcon />
-                          <span className="ml-2 text-white font-medium">Handedness</span>
+                    {/* REDESIGNED: Handedness Card */}
+                    <div className="relative overflow-hidden rounded-lg bg-gray-900">
+                      {/* Accent line */}
+                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-blue-400"></div>
+                      
+                      <div className="p-4">
+                        {/* Header with icon and title */}
+                        <div className="flex items-center mb-3">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-500/10 mr-3">
+                            <HandIcon />
+                          </div>
+                          <h3 className="font-semibold text-white">Handedness</h3>
                         </div>
-                        <span className="text-blue-400 font-medium whitespace-nowrap">
-                          {handedness === 'right' ? 'Right-handed' : 
-                           handedness === 'left' ? 'Left-handed' : 'Ambidextrous'}
-                        </span>
+                        
+                        {/* Value display */}
+                        <div className="flex justify-end">
+                          <div className="px-3 py-1 bg-blue-500/10 rounded-md">
+                            <span className="text-blue-400 font-medium">
+                              {getHandednessDisplay(handedness)}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
-                    {/* Position - Updated to match handedness layout */}
-                    <div className="rounded-lg bg-gray-900 p-4 shadow-inner">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <PositionIcon />
-                          <span className="ml-2 text-white font-medium">Position</span>
+                    {/* REDESIGNED: Position Card */}
+                    <div className="relative overflow-hidden rounded-lg bg-gray-900">
+                      {/* Accent line */}
+                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-blue-400"></div>
+                      
+                      <div className="p-4">
+                        {/* Header with icon and title */}
+                        <div className="flex items-center mb-3">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-500/10 mr-3">
+                            <PositionIcon />
+                          </div>
+                          <h3 className="font-semibold text-white">Position</h3>
                         </div>
-                        <span className="text-blue-400 font-medium whitespace-nowrap">
-                          {preferredPosition === 'forehand' ? 'Forehand' : 
-                           preferredPosition === 'backhand' ? 'Backhand' : 'Both Positions'}
-                        </span>
+                        
+                        {/* Value display */}
+                        <div className="flex justify-end">
+                          <div className="px-3 py-1 bg-blue-500/10 rounded-md">
+                            <span className="text-blue-400 font-medium">
+                              {getPositionDisplay(preferredPosition)}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
-                    {/* View Stats Button */}
+                    {/* REDESIGNED: View Stats Button */}
                     <button 
                       onClick={() => toast.info("Player stats coming soon!")}
-                      className="w-full bg-purple-700 hover:bg-purple-600 transition-colors text-white py-3 rounded-lg relative overflow-hidden"
-                      style={{ transform: 'skew(-2deg)' }}
+                      className="w-full bg-gradient-to-r from-purple-700 to-purple-600 hover:from-purple-600 hover:to-purple-500 
+                                transition-colors text-white py-3 rounded-lg relative overflow-hidden group"
                     >
-                      <div className="flex items-center justify-center">
-                        <AwardBadgeIcon />
-                        <span className="ml-2 font-medium">View Stats</span>
+                      {/* Button background pattern */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-10">
+                        <div className="w-32 h-32 rotate-45 bg-white/20 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                      </div>
+                      
+                      <div className="relative flex items-center justify-center">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 mr-2">
+                          <AwardBadgeIcon />
+                        </div>
+                        <span className="font-medium tracking-wide">View Stats</span>
                       </div>
                     </button>
                   </div>
