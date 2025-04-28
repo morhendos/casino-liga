@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { User, Award, Smartphone, Save, CheckCircle, Racquet, CheckCircle2, Star, HandMetal } from "lucide-react";
+import { User, Award, Smartphone, Save, CheckCircle, CheckCircle2, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { SkewedActionButton } from "@/components/dashboard/SkewedActionButton";
@@ -25,45 +25,46 @@ interface PlayerProfile {
   contactPhone?: string;
 }
 
-// Custom racquet icon since Lucide doesn't have one
-const RacquetIcon = () => (
+// Custom icon for handedness
+const HandIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
+    width="20"
+    height="20"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="h-4 w-4 mr-2 text-padeliga-teal"
-  >
-    <path d="M9 4c-2.8 0-5 2.2-5 5 0 1.8.7 3.4 2 4.5a4.6 4.6 0 0 1 1.5 7.5" />
-    <path d="M6.5 9.5C7.3 5.7 10.2 3 13.8 3c4.3 0 7.8 3.5 7.8 7.8 0 3.6-2.7 6.5-6.5 7.3" />
-    <path d="M16 19a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3z" />
-    <path d="M12 12v9" />
-  </svg>
-);
-
-// Custom hand position icon
-const HandPositionIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="h-4 w-4 mr-2 text-padeliga-teal"
+    className="text-blue-400"
   >
     <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
     <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2" />
     <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
     <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.5-5.5-1.5L3 17.5" />
+  </svg>
+);
+
+// Custom icon for position
+const PositionIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="text-blue-400"
+  >
+    <circle cx="12" cy="5" r="3" />
+    <path d="M12 8v3" />
+    <path d="m9 11 1.5 1.5" />
+    <path d="M12 11c-1.7 1-3 3.4-3 5.5 0 1.7.9 2.5 2 2.5s2 .8 2 2.5c0 2.1-1.3 4.5-3 5.5" />
+    <path d="m15 11-1.5 1.5" />
   </svg>
 );
 
@@ -191,7 +192,7 @@ function PlayerProfilePage() {
     const num = parseInt(level);
     if (num < 4) return "text-padeliga-orange";
     if (num < 7) return "text-padeliga-teal";
-    return "text-padeliga-purple";
+    return "text-purple-500";
   };
   
   // Get skill level stars
@@ -201,12 +202,12 @@ function PlayerProfilePage() {
     const filledStars = Math.round((num / 10) * maxStars);
     
     return (
-      <div className="flex items-center gap-0.5">
+      <div className="flex items-center gap-1">
         {Array(maxStars).fill(0).map((_, i) => (
           <Star 
             key={i} 
-            size={12} 
-            className={i < filledStars ? "fill-current text-padeliga-orange" : "text-gray-300"} 
+            size={16} 
+            className={i < filledStars ? "fill-orange-400 text-orange-400" : "text-gray-300"} 
           />
         ))}
       </div>
@@ -288,39 +289,48 @@ function PlayerProfilePage() {
                 </div>
                 
                 {hasProfile && (
-                  <div className="space-y-4 mt-6 bg-black/5 p-4 rounded-md dark:bg-white/5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <Star className="h-4 w-4 mr-2 text-padeliga-orange" />
-                        <span className="text-sm">Skill Level</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-sm font-medium ${getSkillLevelColor(skillLevel)}`}>
+                  <div className="space-y-6 mt-6">
+                    {/* Skill Level - Improved layout */}
+                    <div className="rounded-lg bg-gray-900 p-4 shadow-inner">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center">
+                          <Star className="h-5 w-5 mr-2 text-amber-400" />
+                          <span className="text-white font-medium">Skill Level</span>
+                        </div>
+                        <span className={`text-lg font-medium text-purple-400`}>
                           {getSkillLevelText(skillLevel)}
                         </span>
+                      </div>
+                      <div className="pt-1">
                         {getSkillLevelStars(skillLevel)}
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <HandMetal className="h-4 w-4 mr-2 text-padeliga-teal" />
-                        <span className="text-sm">Handedness</span>
+                    {/* Handedness - Improved layout */}
+                    <div className="rounded-lg bg-gray-900 p-4 shadow-inner">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <HandIcon />
+                          <span className="text-white font-medium ml-2">Handedness</span>
+                        </div>
+                        <span className="text-blue-400 font-medium">
+                          {handedness === "right" ? "Right-handed" : 
+                           handedness === "left" ? "Left-handed" : "Ambidextrous"}
+                        </span>
                       </div>
-                      <span className="text-sm font-medium capitalize">
-                        {handedness === "right" ? "Right-handed" : 
-                         handedness === "left" ? "Left-handed" : "Ambidextrous"}
-                      </span>
                     </div>
                     
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <RacquetIcon />
-                        <span className="text-sm">Position</span>
+                    {/* Position - Improved layout */}
+                    <div className="rounded-lg bg-gray-900 p-4 shadow-inner">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <PositionIcon />
+                          <span className="text-white font-medium ml-2">Position</span>
+                        </div>
+                        <span className="text-blue-400 font-medium capitalize">
+                          {preferredPosition}
+                        </span>
                       </div>
-                      <span className="text-sm font-medium capitalize">
-                        {preferredPosition}
-                      </span>
                     </div>
                   </div>
                 )}
@@ -467,8 +477,8 @@ function PlayerProfilePage() {
                     
                     <div>
                       <Label htmlFor="handedness" className="flex items-center text-base mb-2">
-                        <HandMetal className="h-4 w-4 mr-2 text-padeliga-teal" />
-                        Handedness
+                        <HandIcon />
+                        <span className="ml-2">Handedness</span>
                         <span className="text-padeliga-red ml-1">*</span>
                       </Label>
                       <Select
@@ -490,8 +500,8 @@ function PlayerProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="preferredPosition" className="flex items-center text-base mb-2">
-                        <RacquetIcon />
-                        Preferred Position
+                        <PositionIcon />
+                        <span className="ml-2">Preferred Position</span>
                         <span className="text-padeliga-red ml-1">*</span>
                       </Label>
                       <Select
