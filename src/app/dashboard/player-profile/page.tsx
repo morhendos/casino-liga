@@ -281,13 +281,14 @@ function PlayerProfilePage() {
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center mb-6">
-                  <div className="w-20 h-20 rounded-full flex items-center justify-center bg-padeliga-purple/10 mb-3 relative overflow-hidden">
+                  {/* FIX: Properly positioned profile avatar badge */}
+                  <div className="w-20 h-20 rounded-full flex items-center justify-center bg-padeliga-purple/10 mb-3 relative">
                     <div className="text-padeliga-purple text-4xl font-bold">
                       {hasProfile ? nickname.charAt(0).toUpperCase() : (session?.user?.name || "P").charAt(0)}
                     </div>
                     {hasProfile && (
                       <div 
-                        className="absolute bottom-0 right-0 w-6 h-6 bg-padeliga-green rounded-full flex items-center justify-center border-2 border-white"
+                        className="absolute -bottom-1 -right-1 w-6 h-6 bg-padeliga-green rounded-full flex items-center justify-center border-2 border-gray-900"
                       >
                         <CheckCircle2 className="h-3 w-3 text-white" />
                       </div>
@@ -329,33 +330,35 @@ function PlayerProfilePage() {
                       </div>
                     </div>
                     
-                    {/* Handedness - Fixed layout to match screenshot */}
+                    {/* FIX: Handedness with better spacing and alignment */}
                     <div className="rounded-lg bg-gray-900 p-4 shadow-inner">
-                      <div className="flex items-center">
-                        <HandIcon />
-                        <div className="ml-2 flex-1 flex justify-between items-center">
-                          <span className="text-white font-medium">Handedness</span>
-                          <span className="text-blue-400 font-medium">
-                            Left-handed
-                          </span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <HandIcon />
+                          <span className="ml-2 text-white font-medium">Handedness</span>
                         </div>
+                        <span className="text-blue-400 font-medium whitespace-nowrap">
+                          {handedness === 'right' ? 'Right-handed' : 
+                           handedness === 'left' ? 'Left-handed' : 'Ambidextrous'}
+                        </span>
                       </div>
                     </div>
                     
-                    {/* Position - Fixed layout to match screenshot */}
+                    {/* Position - Updated to match handedness layout */}
                     <div className="rounded-lg bg-gray-900 p-4 shadow-inner">
-                      <div className="flex items-center">
-                        <PositionIcon />
-                        <div className="ml-2 flex-1 flex justify-between items-center">
-                          <span className="text-white font-medium">Position</span>
-                          <span className="text-blue-400 font-medium">
-                            Forehand
-                          </span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <PositionIcon />
+                          <span className="ml-2 text-white font-medium">Position</span>
                         </div>
+                        <span className="text-blue-400 font-medium whitespace-nowrap">
+                          {preferredPosition === 'forehand' ? 'Forehand' : 
+                           preferredPosition === 'backhand' ? 'Backhand' : 'Both Positions'}
+                        </span>
                       </div>
                     </div>
                     
-                    {/* View Stats Button - Integrated into the profile section */}
+                    {/* View Stats Button */}
                     <button 
                       onClick={() => toast.info("Player stats coming soon!")}
                       className="w-full bg-purple-700 hover:bg-purple-600 transition-colors text-white py-3 rounded-lg relative overflow-hidden"
