@@ -65,7 +65,7 @@ export async function PATCH(
       
       // Convert session.user.id and player.userId to strings for comparison
       const sessionUserId = session.user.id;
-      const playerUserId = player.userId.toString();
+      const playerUserId = player.userId ? player.userId.toString() : null;
       
       console.log('Session user ID:', sessionUserId);
       console.log('Player user ID:', playerUserId);
@@ -75,7 +75,7 @@ export async function PATCH(
       let isAuthorized = playerUserId === sessionUserId;
       
       // If direct comparison fails, try converting both to same format
-      if (!isAuthorized) {
+      if (!isAuthorized && playerUserId) {
         try {
           // Try comparing normalized ObjectId strings
           const sessionUserObjectId = new mongoose.Types.ObjectId(sessionUserId).toString();
@@ -102,6 +102,17 @@ export async function PATCH(
       if (data.profileImage !== undefined) player.profileImage = data.profileImage;
       if (data.isActive !== undefined) player.isActive = data.isActive;
       
+      // NEW: Handle league field
+      if (data.league !== undefined) {
+        try {
+          // Convert league to ObjectId if it's a string
+          player.league = new mongoose.Types.ObjectId(data.league);
+        } catch (error) {
+          console.error('Error converting league to ObjectId:', error);
+          throw new Error('Invalid league ID format');
+        }
+      }
+      
       console.log('Saving updated player:', player);
       return await player.save();
     });
@@ -122,6 +133,13 @@ export async function PATCH(
         return NextResponse.json(
           { error: error.message },
           { status: 403 }
+        );
+      }
+      
+      if (error.message === 'Invalid league ID format') {
+        return NextResponse.json(
+          { error: error.message },
+          { status: 400 }
         );
       }
     }
@@ -159,11 +177,11 @@ export async function DELETE(
       
       // Similar flexible authorization check as in PATCH
       const sessionUserId = session.user.id;
-      const playerUserId = player.userId.toString();
+      const playerUserId = player.userId ? player.userId.toString() : null;
       
       let isAuthorized = playerUserId === sessionUserId;
       
-      if (!isAuthorized) {
+      if (!isAuthorized && playerUserId) {
         try {
           const sessionUserObjectId = new mongoose.Types.ObjectId(sessionUserId).toString();
           const playerUserObjectId = new mongoose.Types.ObjectId(playerUserId).toString();
