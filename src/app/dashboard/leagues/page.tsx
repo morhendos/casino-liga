@@ -5,14 +5,15 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Trophy, Calendar, Users } from "lucide-react";
+import { Plus, Trophy, Calendar, Users, Share2, Clock, MapPin, Medal, Tag, AlertCircle, ChevronRight, Info } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistance } from "date-fns";
 import withAuth from "@/components/auth/withAuth";
 import { isAdmin as isAdminHelper } from "@/lib/auth/role-utils";
-import { ShareLeagueButton } from "@/components/leagues"; // Add this import
+import { ShareLeagueButton } from "@/components/leagues";
+import { cn } from "@/lib/utils";
+import { SkewedButton } from "@/components/ui/SkewedButton";
 
 interface League {
   id: string;
@@ -33,7 +34,7 @@ interface League {
   pointsPerWin: number;
   pointsPerLoss: number;
   organizer: any;
-  isPublic?: boolean; // Add this field
+  isPublic?: boolean;
 }
 
 interface Team {
@@ -52,7 +53,7 @@ function LeaguesPage() {
   const [myLeagues, setMyLeagues] = useState<League[]>([]);
   const [myTeams, setMyTeams] = useState<Team[]>([]);
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("my"); // Control active tab with state
+  const [activeTab, setActiveTab] = useState("my");
   
   // Initialize selectedTeamId from URL if present
   useEffect(() => {
@@ -72,7 +73,7 @@ function LeaguesPage() {
     
     // Check if user is admin
     const userIsAdmin = session.user.roles && Array.isArray(session.user.roles) && 
-                        session.user.roles.some(role => role.id === '2');
+                      session.user.roles.some(role => role.id === '2');
     
     // Set admin status
     setIsAdmin(userIsAdmin);
@@ -242,6 +243,66 @@ function LeaguesPage() {
     }
   };
   
+  // Get appropriate color for league status
+  const getStatusColor = (status: string, isPublic: boolean = true) => {
+    switch (status) {
+      case 'active':
+        return "from-green-600 to-emerald-500";
+      case 'registration':
+        return "from-blue-600 to-indigo-500";
+      case 'completed':
+        return "from-purple-600 to-violet-500";
+      default:
+        return "from-gray-600 to-gray-500";
+    }
+  };
+
+  // Get status badge content
+  const getStatusBadge = (status: string, isPublic: boolean = true) => {
+    let statusText, statusColor, statusIcon;
+    
+    switch (status) {
+      case 'active':
+        statusText = "Active";
+        statusColor = "bg-gradient-to-r from-green-600 to-emerald-500";
+        statusIcon = <Trophy className="h-3 w-3 mr-1" />;
+        break;
+      case 'registration':
+        statusText = "Registration Open";
+        statusColor = "bg-gradient-to-r from-blue-600 to-indigo-500";
+        statusIcon = <Users className="h-3 w-3 mr-1" />;
+        break;
+      case 'completed':
+        statusText = "Completed";
+        statusColor = "bg-gradient-to-r from-purple-600 to-violet-500";
+        statusIcon = <Medal className="h-3 w-3 mr-1" />;
+        break;
+      default:
+        statusText = "Unknown";
+        statusColor = "bg-gradient-to-r from-gray-600 to-gray-500";
+        statusIcon = <Info className="h-3 w-3 mr-1" />;
+    }
+    
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white ${statusColor} shadow-sm`}>
+        {statusIcon}
+        {statusText}
+      </span>
+    );
+  };
+
+  // Get public badge
+  const getPublicBadge = (isPublic: boolean = false) => {
+    if (!isPublic) return null;
+    
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white bg-gradient-to-r from-fuchsia-600 to-pink-500 shadow-sm">
+        <Share2 className="h-3 w-3 mr-1" />
+        Public
+      </span>
+    );
+  };
+  
   function LeagueCard({ league }: { league: League }) {
     const isRegistrationOpen = 
       league.status === 'registration' && 
@@ -278,121 +339,184 @@ function LeaguesPage() {
         return "Invalid date";
       }
     })();
+
+    // Calculate percentage of teams registered
+    const teamsPercentage = Math.min(100, Math.round((league.teams.length / league.maxTeams) * 100));
     
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            {league.name}
-            {league.status === 'active' && 
-              <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">Active</span>
-            }
-            {league.status === 'registration' && 
-              <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">Registration Open</span>
-            }
-            {league.status === 'completed' && 
-              <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Completed</span>
-            }
-            {league.isPublic !== false && (
-              <span className="bg-purple-500 text-white text-xs px-2 py-1 rounded-full">Public</span>
-            )}
-          </CardTitle>
-          <CardDescription>
-            {league.description || "No description provided"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Format:</span>
-              <span>{formatMatchType(league.matchFormat)}</span>
+      <div className="relative overflow-hidden rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-800/60 shadow-xl group hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
+        {/* Gradient accent line at top */}
+        <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${getStatusColor(league.status, league.isPublic)}`}></div>
+        
+        {/* Decorative background elements */}
+        <div className="absolute -right-16 -top-16 w-32 h-32 rounded-full bg-blue-500/5 blur-xl"></div>
+        <div className="absolute -left-16 -bottom-16 w-32 h-32 rounded-full bg-purple-500/5 blur-xl"></div>
+        
+        {/* Header Section */}
+        <div className="p-5 border-b border-gray-800/60">
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              {league.name}
+            </h3>
+            <div className="flex gap-1.5">
+              {getStatusBadge(league.status)}
+              {league.isPublic && getPublicBadge(true)}
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Teams:</span>
-              <span>{league.teams.length} / {league.maxTeams}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Dates:</span>
-              <span>{new Date(league.startDate).toLocaleDateString()} - {new Date(league.endDate).toLocaleDateString()}</span>
-            </div>
-            {league.status === 'registration' && league.registrationDeadline && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Registration Deadline:</span>
-                <span className="font-medium">
-                  {formattedDeadline}
-                </span>
-              </div>
-            )}
-            {league.venue && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Venue:</span>
-                <span>{league.venue}</span>
-              </div>
-            )}
-            {userTeam && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Your Team:</span>
-                <span className="font-medium">{userTeam.name}</span>
-              </div>
-            )}
           </div>
-        </CardContent>
-        <CardFooter className="flex justify-between gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            asChild
-          >
-            <Link href={`/dashboard/leagues/${leagueId}`}>
-              View Details
-            </Link>
-          </Button>
           
-          {isRegistrationOpen && selectedTeamId && !userTeamInLeague && !isLeagueFull && (
-            <Button 
-              size="sm"
-              asChild
-            >
-              <Link href={`/dashboard/leagues/${leagueId}/join?teamId=${selectedTeamId}`}>
+          <p className="text-gray-400 text-sm line-clamp-2">
+            {league.description || "No description provided"}
+          </p>
+        </div>
+        
+        {/* Content Section */}
+        <div className="p-5 flex-grow">
+          <div className="space-y-4">
+            {/* Registration Progress */}
+            <div className="mb-4">
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-gray-400">Teams</span>
+                <span className="text-white font-medium">{league.teams.length} / {league.maxTeams}</span>
+              </div>
+              <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full bg-gradient-to-r ${getStatusColor(league.status, league.isPublic)}`} 
+                  style={{ width: `${teamsPercentage}%` }}
+                ></div>
+              </div>
+            </div>
+            
+            {/* League Info Cards */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="flex items-center text-gray-400 mb-1 text-xs">
+                  <Calendar className="h-3 w-3 mr-1.5" />
+                  Schedule
+                </div>
+                <div className="text-white text-sm">
+                  {new Date(league.startDate).toLocaleDateString()} - {new Date(league.endDate).toLocaleDateString()}
+                </div>
+              </div>
+              
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="flex items-center text-gray-400 mb-1 text-xs">
+                  <Tag className="h-3 w-3 mr-1.5" />
+                  Format
+                </div>
+                <div className="text-white text-sm">
+                  {formatMatchType(league.matchFormat)}
+                </div>
+              </div>
+              
+              {league.status === 'registration' && league.registrationDeadline && (
+                <div className="bg-gray-800/50 rounded-lg p-3 col-span-2">
+                  <div className="flex items-center text-gray-400 mb-1 text-xs">
+                    <Clock className="h-3 w-3 mr-1.5" />
+                    Registration Deadline
+                  </div>
+                  <div className={cn(
+                    "text-sm font-medium", 
+                    new Date(league.registrationDeadline) < new Date() 
+                      ? "text-red-400" 
+                      : "text-teal-400"
+                  )}>
+                    {formattedDeadline}
+                  </div>
+                </div>
+              )}
+              
+              {league.venue && (
+                <div className="bg-gray-800/50 rounded-lg p-3 col-span-2">
+                  <div className="flex items-center text-gray-400 mb-1 text-xs">
+                    <MapPin className="h-3 w-3 mr-1.5" />
+                    Venue
+                  </div>
+                  <div className="text-white text-sm">
+                    {league.venue}
+                  </div>
+                </div>
+              )}
+              
+              {userTeam && (
+                <div className="bg-gray-800/50 rounded-lg p-3 col-span-2">
+                  <div className="flex items-center text-gray-400 mb-1 text-xs">
+                    <Users className="h-3 w-3 mr-1.5" />
+                    Your Team
+                  </div>
+                  <div className="text-white text-sm font-medium">
+                    {userTeam.name}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        {/* Actions Section */}
+        <div className="p-5 border-t border-gray-800/60 flex flex-wrap gap-2 justify-between items-center">
+          <Link 
+            href={`/dashboard/leagues/${leagueId}`}
+            className={cn(
+              "py-1.5 px-3 rounded-md text-sm font-medium flex items-center",
+              "bg-gray-800/80 text-gray-300 hover:bg-gray-700/80 transition-all",
+              "group-hover:text-white"
+            )}
+          >
+            View Details
+            <ChevronRight className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+          
+          <div className="flex gap-2">
+            {isRegistrationOpen && selectedTeamId && !userTeamInLeague && !isLeagueFull && (
+              <Link 
+                href={`/dashboard/leagues/${leagueId}/join?teamId=${selectedTeamId}`}
+                className={cn(
+                  "py-1.5 px-3 rounded-md text-sm font-medium inline-flex items-center",
+                  "bg-gradient-to-r from-padeliga-teal to-padeliga-blue text-white",
+                  "shadow-md hover:shadow-lg transition-all"
+                )}
+              >
                 Join League
               </Link>
-            </Button>
-          )}
-          
-          {(userTeamInLeague || userTeam) && (
-            <Button 
-              size="sm"
-              variant="outline"
-              asChild
-            >
-              <Link href={`/dashboard/leagues/${leagueId}/schedule`}>
-                <Calendar className="w-4 h-4 mr-1" />
+            )}
+            
+            {(userTeamInLeague || userTeam) && (
+              <Link 
+                href={`/dashboard/leagues/${leagueId}/schedule`}
+                className={cn(
+                  "py-1.5 px-3 rounded-md text-sm font-medium inline-flex items-center",
+                  "bg-gray-800/80 text-gray-300 hover:bg-gray-700/80 transition-all"
+                )}
+              >
+                <Calendar className="w-4 h-4 mr-1.5" />
                 Schedule
               </Link>
-            </Button>
-          )}
-          
-          {isUserOrganizer && (
-            <>
-              <Button 
-                size="sm"
-                variant="outline"
-                asChild
-              >
-                <Link href={`/dashboard/leagues/${leagueId}/manage`}>
+            )}
+            
+            {isUserOrganizer && (
+              <>
+                <Link 
+                  href={`/dashboard/leagues/${leagueId}/manage`}
+                  className={cn(
+                    "py-1.5 px-3 rounded-md text-sm font-medium inline-flex items-center",
+                    "bg-gradient-to-r from-amber-600 to-orange-500 text-white",
+                    "shadow-md hover:shadow-lg transition-all"
+                  )}
+                >
                   Manage
                 </Link>
-              </Button>
-              
-              {/* Add Share League Button */}
-              <ShareLeagueButton 
-                leagueId={leagueId.toString()} 
-                isPublic={league.isPublic !== false}
-              />
-            </>
-          )}
-        </CardFooter>
-      </Card>
+                
+                <div className="transform scale-90 origin-right">
+                  <ShareLeagueButton 
+                    leagueId={leagueId.toString()} 
+                    isPublic={league.isPublic !== false}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
     );
   }
   
@@ -408,14 +532,95 @@ function LeaguesPage() {
         return matchFormat;
     }
   }
+
+  // Enhanced Empty State Component
+  function EmptyState({ 
+    title, 
+    description, 
+    actionText, 
+    actionLink, 
+    icon = <Trophy className="w-8 h-8 text-padeliga-purple" /> 
+  }) {
+    return (
+      <div className="relative overflow-hidden rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-800/60 shadow-xl p-8 text-center">
+        {/* Decorative background elements */}
+        <div className="absolute -right-20 -top-20 w-40 h-40 rounded-full bg-padeliga-purple/10 blur-xl"></div>
+        <div className="absolute -left-20 -bottom-20 w-40 h-40 rounded-full bg-padeliga-teal/10 blur-xl"></div>
+        
+        <div className="relative z-10">
+          <div className="mx-auto w-20 h-20 rounded-full flex items-center justify-center bg-gray-800/50 mb-6 backdrop-blur-sm">
+            {icon}
+          </div>
+          
+          <h3 className="text-2xl font-bold mb-3 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            {title}
+          </h3>
+          
+          <p className="text-gray-400 mb-8 max-w-md mx-auto">
+            {description}
+          </p>
+          
+          {actionText && actionLink && (
+            <SkewedButton
+              buttonVariant="teal"
+              buttonSize="lg"
+              className="mx-auto"
+              asChild
+            >
+              <Link href={actionLink}>
+                <Plus className="w-4 h-4 mr-2" />
+                {actionText}
+              </Link>
+            </SkewedButton>
+          )}
+        </div>
+      </div>
+    );
+  }
+  
+  // Enhanced Skeleton Loading
+  function LoadingSkeleton() {
+    return (
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="relative overflow-hidden rounded-lg bg-gray-900/60 border border-gray-800/40 shadow-xl h-[360px] animate-pulse">
+            <div className="h-1 bg-gradient-to-r from-gray-600 to-gray-500 w-full"></div>
+            
+            <div className="p-5 border-b border-gray-800/40">
+              <div className="h-6 bg-gray-800 rounded-md w-2/3 mb-3"></div>
+              <div className="h-4 bg-gray-800 rounded-md w-full"></div>
+            </div>
+            
+            <div className="p-5">
+              <div className="h-4 bg-gray-800 rounded-md w-full mb-2"></div>
+              <div className="h-2 bg-gray-800 rounded-full w-full mb-6"></div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="h-16 bg-gray-800/50 rounded-lg"></div>
+                <div className="h-16 bg-gray-800/50 rounded-lg"></div>
+                <div className="h-16 bg-gray-800/50 rounded-lg col-span-2"></div>
+              </div>
+            </div>
+            
+            <div className="absolute bottom-0 w-full p-5 border-t border-gray-800/40">
+              <div className="flex justify-between">
+                <div className="h-8 bg-gray-800 rounded-md w-24"></div>
+                <div className="h-8 bg-gray-800 rounded-md w-24"></div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
   
   if (sessionStatus === "loading") {
     return (
       <div className="container mx-auto px-4 py-12">
         <div className="animate-pulse text-center">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto mb-8"></div>
-          <div className="h-32 bg-gray-200 rounded w-full max-w-3xl mx-auto"></div>
+          <div className="h-8 bg-gray-800 rounded w-1/3 mx-auto mb-4"></div>
+          <div className="h-4 bg-gray-800 rounded w-1/2 mx-auto mb-8"></div>
+          <div className="h-32 bg-gray-800 rounded w-full max-w-3xl mx-auto"></div>
         </div>
       </div>
     );
@@ -423,72 +628,210 @@ function LeaguesPage() {
   
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">{isAdmin ? "All Leagues" : "My Leagues"}</h1>
-        {isAdmin && (
-          <Button asChild>
-            <Link href="/dashboard/leagues/create">
-              <Plus className="w-4 h-4 mr-2" />
-              Create League
-            </Link>
-          </Button>
-        )}
-        {!isAdmin && (
-          <Button asChild variant="outline">
-            <Link href="/dashboard/teams">
-              <Users className="w-4 h-4 mr-2" />
-              My Teams
-            </Link>
-          </Button>
+      {/* Geometric background elements */}
+      <div className="fixed inset-0 -z-10 opacity-5 overflow-hidden pointer-events-none">
+        <div className="absolute -top-10 -right-10 w-64 h-64 bg-padeliga-purple rounded-full blur-3xl"></div>
+        <div className="absolute top-1/3 -left-12 w-72 h-72 bg-padeliga-teal rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-padeliga-orange rounded-full blur-3xl"></div>
+      </div>
+      
+      {/* Header with skewed background */}
+      <div className="relative mb-8 overflow-hidden rounded-md">
+        <div 
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-padeliga-teal to-padeliga-blue opacity-20"
+          style={{ transform: 'skew(-4deg) scale(1.1)' }}
+        />
+        <div className="py-8 px-8">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold heading-accent mb-2">
+                {isAdmin ? "Leagues Management" : "My Leagues"}
+              </h1>
+              <p className="text-muted-foreground">
+                {isAdmin 
+                  ? "Create, manage and track all your padel leagues in one place" 
+                  : "Join leagues, track your matches and follow the rankings"
+                }
+              </p>
+            </div>
+            
+            <div>
+              {isAdmin ? (
+                <SkewedButton
+                  buttonVariant="teal"
+                  buttonSize="lg"
+                  hoverEffectColor="teal"
+                  className="relative"
+                  asChild
+                >
+                  <Link href="/dashboard/leagues/create">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create League
+                  </Link>
+                </SkewedButton>
+              ) : (
+                <SkewedButton
+                  buttonVariant="outline"
+                  buttonSize="lg"
+                  hoverEffectColor="teal"
+                  hoverEffectVariant="outline"
+                  className="border-2 border-padeliga-teal text-padeliga-teal"
+                  asChild
+                >
+                  <Link href="/dashboard/teams">
+                    <Users className="w-4 h-4 mr-2" />
+                    My Teams
+                  </Link>
+                </SkewedButton>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Enhanced Tabs Section */}
+      <div className="relative overflow-hidden rounded-lg bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 shadow-xl mb-6">
+        {/* Admin specific tabs */}
+        {isAdmin ? (
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="p-1">
+            <TabsList className="grid w-full grid-cols-3 bg-gray-800/50 p-1 rounded-md">
+              <TabsTrigger 
+                value="my"
+                className={cn(
+                  "rounded-md data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:shadow-md",
+                  "transition-all p-3"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Trophy className="h-4 w-4" />
+                  <span>My Leagues</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="active"
+                className={cn(
+                  "rounded-md data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:shadow-md",
+                  "transition-all p-3"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>Active Leagues</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="past"
+                className={cn(
+                  "rounded-md data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:shadow-md",
+                  "transition-all p-3"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Medal className="h-4 w-4" />
+                  <span>Past Leagues</span>
+                </div>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        ) : (
+          /* Player specific tabs */
+          <Tabs defaultValue="active" className="p-1">
+            <TabsList className="grid w-full grid-cols-2 bg-gray-800/50 p-1 rounded-md">
+              <TabsTrigger 
+                value="active"
+                className={cn(
+                  "rounded-md data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:shadow-md",
+                  "transition-all p-3"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>Active Leagues</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="past"
+                className={cn(
+                  "rounded-md data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:shadow-md",
+                  "transition-all p-3"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Medal className="h-4 w-4" />
+                  <span>Past Leagues</span>
+                </div>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         )}
       </div>
       
-      {/* Admin specific tabs */}
-      {isAdmin ? (
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="my">My Leagues</TabsTrigger>
-            <TabsTrigger value="active">Active Leagues</TabsTrigger>
-            <TabsTrigger value="past">Past Leagues</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="my">
-            {isLoading ? (
-              <div className="py-12 text-center">
-                <div className="animate-pulse text-muted-foreground">Loading leagues...</div>
-              </div>
-            ) : myLeagues.length > 0 ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {myLeagues.map(league => (
-                  <LeagueCard key={league.id || league._id} league={league} />
-                ))}
-              </div>
-            ) : (
-              <Card className="text-center py-12">
-                <CardContent>
-                  <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                    <Trophy className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-medium mb-2">No Leagues Created</h3>
-                  <p className="text-muted-foreground mb-6">
-                    You haven't created any leagues yet.
-                  </p>
-                  <Button asChild>
-                    <Link href="/dashboard/leagues/create">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Your First League
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
+      {/* Tab contents */}
+      <div className="mt-6">
+        {isAdmin ? (
+          <>
+            {activeTab === "my" && (
+              isLoading ? (
+                <LoadingSkeleton />
+              ) : myLeagues.length > 0 ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {myLeagues.map(league => (
+                    <LeagueCard key={league.id || league._id} league={league} />
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  title="No Leagues Created"
+                  description="You haven't created any leagues yet. Start by creating your first padel league."
+                  actionText="Create Your First League"
+                  actionLink="/dashboard/leagues/create"
+                  icon={<Trophy className="w-8 h-8 text-padeliga-teal" />}
+                />
+              )
             )}
-          </TabsContent>
-          
-          <TabsContent value="active">
+            
+            {activeTab === "active" && (
+              isLoading ? (
+                <LoadingSkeleton />
+              ) : activeLeagues.length > 0 ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {activeLeagues.map(league => (
+                    <LeagueCard key={league.id || league._id} league={league} />
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  title="No Active Leagues"
+                  description="There are currently no active leagues available to join."
+                  actionText="Create a League"
+                  actionLink="/dashboard/leagues/create"
+                  icon={<AlertCircle className="w-8 h-8 text-padeliga-orange" />}
+                />
+              )
+            )}
+            
+            {activeTab === "past" && (
+              isLoading ? (
+                <LoadingSkeleton />
+              ) : pastLeagues.length > 0 ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {pastLeagues.map(league => (
+                    <LeagueCard key={league.id || league._id} league={league} />
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  title="No Past Leagues"
+                  description="There are no completed leagues in your history."
+                  icon={<Medal className="w-8 h-8 text-gray-500" />}
+                />
+              )
+            )}
+          </>
+        ) : (
+          <Tabs.Content value="active">
             {isLoading ? (
-              <div className="py-12 text-center">
-                <div className="animate-pulse text-muted-foreground">Loading leagues...</div>
-              </div>
+              <LoadingSkeleton />
             ) : activeLeagues.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {activeLeagues.map(league => (
@@ -496,119 +839,17 @@ function LeaguesPage() {
                 ))}
               </div>
             ) : (
-              <Card className="text-center py-12">
-                <CardContent>
-                  <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                    <Trophy className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-medium mb-2">No Active Leagues</h3>
-                  <p className="text-muted-foreground mb-6">
-                    There are currently no active leagues available to join.
-                  </p>
-                  <Button asChild>
-                    <Link href="/dashboard/leagues/create">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create a League
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
+              <EmptyState
+                title="No Active Leagues"
+                description="You're not currently participating in any active leagues."
+                actionText="Create or Join a Team"
+                actionLink="/dashboard/teams"
+                icon={<Users className="w-8 h-8 text-padeliga-teal" />}
+              />
             )}
-          </TabsContent>
-          
-          <TabsContent value="past">
-            {isLoading ? (
-              <div className="py-12 text-center">
-                <div className="animate-pulse text-muted-foreground">Loading leagues...</div>
-              </div>
-            ) : pastLeagues.length > 0 ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {pastLeagues.map(league => (
-                  <LeagueCard key={league.id || league._id} league={league} />
-                ))}
-              </div>
-            ) : (
-              <Card className="text-center py-12">
-                <CardContent>
-                  <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                    <Trophy className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-medium mb-2">No Past Leagues</h3>
-                  <p className="text-muted-foreground mb-6">
-                    There are no completed leagues in your history.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-        </Tabs>
-      ) : (
-        /* Player specific tabs */
-        <Tabs defaultValue="active">
-          <TabsList className="mb-4">
-            <TabsTrigger value="active">Active Leagues</TabsTrigger>
-            <TabsTrigger value="past">Past Leagues</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="active">
-            {isLoading ? (
-              <div className="py-12 text-center">
-                <div className="animate-pulse text-muted-foreground">Loading leagues...</div>
-              </div>
-            ) : activeLeagues.length > 0 ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {activeLeagues.map(league => (
-                  <LeagueCard key={league.id || league._id} league={league} />
-                ))}
-              </div>
-            ) : (
-              <Card className="text-center py-12">
-                <CardContent>
-                  <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                    <Trophy className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-medium mb-2">No Active Leagues</h3>
-                  <p className="text-muted-foreground mb-6">
-                    You're not currently participating in any active leagues.
-                  </p>
-                  <Button asChild>
-                    <Link href="/dashboard/teams">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create or Join a Team
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="past">
-            {isLoading ? (
-              <div className="py-12 text-center">
-                <div className="animate-pulse text-muted-foreground">Loading leagues...</div>
-              </div>
-            ) : pastLeagues.length > 0 ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {pastLeagues.map(league => (
-                  <LeagueCard key={league.id || league._id} league={league} />
-                ))}
-              </div>
-            ) : (
-              <Card className="text-center py-12">
-                <CardContent>
-                  <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                    <Trophy className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-medium mb-2">No Past Leagues</h3>
-                  <p className="text-muted-foreground mb-6">
-                    You haven't participated in any completed leagues yet.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-        </Tabs>
-      )}
+          </Tabs.Content>
+        )}
+      </div>
     </div>
   );
 }
