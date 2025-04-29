@@ -15,7 +15,7 @@ interface ShareLeagueButtonProps {
   isPublic?: boolean;
 }
 
-export default function ShareLeagueButton({ leagueId, isPublic = true }: ShareLeagueButtonProps) {
+export function ShareLeagueButton({ leagueId, isPublic = true }: ShareLeagueButtonProps) {
   const [copied, setCopied] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   
@@ -81,3 +81,6 @@ export default function ShareLeagueButton({ leagueId, isPublic = true }: ShareLe
     </div>
   );
 }
+
+// Add this line for backwards compatibility with any direct default imports
+export default ShareLeagueButton;
