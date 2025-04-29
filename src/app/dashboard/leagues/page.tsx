@@ -54,6 +54,7 @@ function LeaguesPage() {
   const [myTeams, setMyTeams] = useState<Team[]>([]);
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("my");
+  const [playerActiveTab, setPlayerActiveTab] = useState("active");
   
   // Initialize selectedTeamId from URL if present
   useEffect(() => {
@@ -732,10 +733,69 @@ function LeaguesPage() {
                 </div>
               </TabsTrigger>
             </TabsList>
+
+            {/* Tab content for admin view */}
+            <TabsContent value="my">
+              {isLoading ? (
+                <LoadingSkeleton />
+              ) : myLeagues.length > 0 ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {myLeagues.map(league => (
+                    <LeagueCard key={league.id || league._id} league={league} />
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  title="No Leagues Created"
+                  description="You haven't created any leagues yet. Start by creating your first padel league."
+                  actionText="Create Your First League"
+                  actionLink="/dashboard/leagues/create"
+                  icon={<Trophy className="w-8 h-8 text-padeliga-teal" />}
+                />
+              )}
+            </TabsContent>
+            
+            <TabsContent value="active">
+              {isLoading ? (
+                <LoadingSkeleton />
+              ) : activeLeagues.length > 0 ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {activeLeagues.map(league => (
+                    <LeagueCard key={league.id || league._id} league={league} />
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  title="No Active Leagues"
+                  description="There are currently no active leagues available to join."
+                  actionText="Create a League"
+                  actionLink="/dashboard/leagues/create"
+                  icon={<AlertCircle className="w-8 h-8 text-padeliga-orange" />}
+                />
+              )}
+            </TabsContent>
+            
+            <TabsContent value="past">
+              {isLoading ? (
+                <LoadingSkeleton />
+              ) : pastLeagues.length > 0 ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {pastLeagues.map(league => (
+                    <LeagueCard key={league.id || league._id} league={league} />
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  title="No Past Leagues"
+                  description="There are no completed leagues in your history."
+                  icon={<Medal className="w-8 h-8 text-gray-500" />}
+                />
+              )}
+            </TabsContent>
           </Tabs>
         ) : (
-          /* Player specific tabs */
-          <Tabs defaultValue="active" className="p-1">
+          /* Player specific tabs - FIXED: Reorganized tabs content */
+          <Tabs value={playerActiveTab} onValueChange={setPlayerActiveTab} className="p-1">
             <TabsList className="grid w-full grid-cols-2 bg-gray-800/50 p-1 rounded-md">
               <TabsTrigger 
                 value="active"
@@ -762,36 +822,10 @@ function LeaguesPage() {
                 </div>
               </TabsTrigger>
             </TabsList>
-          </Tabs>
-        )}
-      </div>
-      
-      {/* Tab contents */}
-      <div className="mt-6">
-        {isAdmin ? (
-          <>
-            {activeTab === "my" && (
-              isLoading ? (
-                <LoadingSkeleton />
-              ) : myLeagues.length > 0 ? (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {myLeagues.map(league => (
-                    <LeagueCard key={league.id || league._id} league={league} />
-                  ))}
-                </div>
-              ) : (
-                <EmptyState
-                  title="No Leagues Created"
-                  description="You haven't created any leagues yet. Start by creating your first padel league."
-                  actionText="Create Your First League"
-                  actionLink="/dashboard/leagues/create"
-                  icon={<Trophy className="w-8 h-8 text-padeliga-teal" />}
-                />
-              )
-            )}
             
-            {activeTab === "active" && (
-              isLoading ? (
+            {/* TabsContent must be direct children of Tabs */}
+            <TabsContent value="active">
+              {isLoading ? (
                 <LoadingSkeleton />
               ) : activeLeagues.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -802,16 +836,16 @@ function LeaguesPage() {
               ) : (
                 <EmptyState
                   title="No Active Leagues"
-                  description="There are currently no active leagues available to join."
-                  actionText="Create a League"
-                  actionLink="/dashboard/leagues/create"
-                  icon={<AlertCircle className="w-8 h-8 text-padeliga-orange" />}
+                  description="You're not currently participating in any active leagues."
+                  actionText="Create or Join a Team"
+                  actionLink="/dashboard/teams"
+                  icon={<Users className="w-8 h-8 text-padeliga-teal" />}
                 />
-              )
-            )}
+              )}
+            </TabsContent>
             
-            {activeTab === "past" && (
-              isLoading ? (
+            <TabsContent value="past">
+              {isLoading ? (
                 <LoadingSkeleton />
               ) : pastLeagues.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -822,33 +856,12 @@ function LeaguesPage() {
               ) : (
                 <EmptyState
                   title="No Past Leagues"
-                  description="There are no completed leagues in your history."
+                  description="You have no completed leagues in your history."
                   icon={<Medal className="w-8 h-8 text-gray-500" />}
                 />
-              )
-            )}
-          </>
-        ) : (
-          /* FIXED: Changed Tabs.Content to TabsContent */
-          <TabsContent value="active">
-            {isLoading ? (
-              <LoadingSkeleton />
-            ) : activeLeagues.length > 0 ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {activeLeagues.map(league => (
-                  <LeagueCard key={league.id || league._id} league={league} />
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                title="No Active Leagues"
-                description="You're not currently participating in any active leagues."
-                actionText="Create or Join a Team"
-                actionLink="/dashboard/teams"
-                icon={<Users className="w-8 h-8 text-padeliga-teal" />}
-              />
-            )}
-          </TabsContent>
+              )}
+            </TabsContent>
+          </Tabs>
         )}
       </div>
     </div>
