@@ -87,6 +87,26 @@ const AwardBadgeIcon = () => (
   </svg>
 );
 
+// Stats icon
+const StatsIcon = () => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="12" 
+    height="12" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className="text-white"
+  >
+    <path d="M12 20v-6"></path>
+    <path d="M6 20V10"></path>
+    <path d="M18 20V4"></path>
+  </svg>
+);
+
 function PlayerProfilePage() {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
@@ -289,148 +309,192 @@ function PlayerProfilePage() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Left column with profile status card */}
+          {/* Left column with profile status card - ENHANCED VERSION */}
           <div className="md:col-span-1">
-            <Card className="relative overflow-hidden border-none shadow-lg h-full">
-              <div 
-                className="absolute left-0 top-0 bottom-0 w-1.5"
-                style={{ background: `hsl(var(--purple))` }}
-              />
-              <div 
-                className="absolute inset-0 -z-10 bg-card/95 backdrop-blur-sm dark:bg-card/90"
-              />
-              <CardHeader className="pb-4 border-b">
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5 text-padeliga-purple" />
-                  Profile Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6 flex flex-col justify-between h-[calc(100%-72px)]">
-                <div className="space-y-6">
-                  {/* Profile avatar and name with badge repositioned */}
-                  <div className="flex flex-col items-center">
-                    <div className="relative">
-                      <div className="w-20 h-20 rounded-full flex items-center justify-center bg-padeliga-purple/10 relative">
-                        <div className="text-padeliga-purple text-4xl font-bold">
-                          {hasProfile ? nickname.charAt(0).toUpperCase() : (session?.user?.name || "P").charAt(0)}
+            {/* Enhanced Profile Status Card */}
+            <div className="relative overflow-hidden rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-800/60 shadow-xl">
+              {/* Gradient accent line at top */}
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-padeliga-purple to-padeliga-teal"></div>
+              
+              {/* Decorative background elements */}
+              <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-padeliga-purple/10 blur-xl"></div>
+              <div className="absolute -left-10 -bottom-10 w-32 h-32 rounded-full bg-padeliga-teal/10 blur-xl"></div>
+              
+              <div className="p-6">
+                {/* Header */}
+                <div className="flex items-center gap-2 border-b border-gray-800/60 pb-3 mb-5">
+                  <div className="w-8 h-8 rounded flex items-center justify-center bg-padeliga-purple/20">
+                    <User className="h-5 w-5 text-padeliga-purple" />
+                  </div>
+                  <h3 className="font-semibold text-gray-100">Profile Status</h3>
+                </div>
+                
+                {/* Avatar with glowing effect and integrated badge */}
+                <div className="flex flex-col items-center">
+                  <div className="relative">
+                    {/* Pulsing background glow */}
+                    <div className="absolute inset-0 rounded-full bg-padeliga-purple/40 blur-md animate-pulse"></div>
+                    
+                    {/* Avatar circle with 3D appearance */}
+                    <div className="relative w-24 h-24 rounded-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-padeliga-purple/40 shadow-lg">
+                      {/* Subtle inner highlight */}
+                      <div className="absolute inset-1.5 rounded-full bg-gradient-to-br from-gray-700/20 to-transparent"></div>
+                      
+                      {/* Letter */}
+                      <div className="relative text-padeliga-purple text-5xl font-bold drop-shadow-md">
+                        {hasProfile ? nickname.charAt(0).toUpperCase() : (session?.user?.name || "P").charAt(0)}
+                      </div>
+                    </div>
+                    
+                    {/* Positioned badge with improved styling */}
+                    {hasProfile && (
+                      <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 z-10">
+                        <div className="flex items-center bg-gradient-to-r from-padeliga-purple to-padeliga-purple/80 text-white font-medium px-3 py-1.5 text-sm rounded-full border border-padeliga-purple/90 shadow-lg">
+                          <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
+                          Complete
                         </div>
                       </div>
-                      {/* Positioned badge that overlaps the bottom of the avatar for better visual connection */}
-                      {hasProfile && (
-                        <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2">
-                          <Badge className="bg-padeliga-purple text-white font-medium px-3 py-1.5 text-sm border border-gray-800 shadow-md">
-                            <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
-                            Complete
-                          </Badge>
-                        </div>
-                      )}
-                    </div>
-                    <h3 className="font-medium text-xl mt-5">
-                      {hasProfile ? nickname : session?.user?.name || "Player"}
-                    </h3>
+                    )}
                   </div>
-                
-                {hasProfile && (
-                  <div className="space-y-4 mt-6">
-                    {/* REDESIGNED: Skill Level Card with fixed spacing */}
-                    <div className="relative overflow-hidden rounded-lg bg-gray-900">
-                      {/* Gradient accent */}
-                      <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${getSkillLevelColor(skillLevel)}`}></div>
-                      
-                      <div className="p-4">
-                        {/* Header with icon and title */}
-                        <div className="flex items-center mb-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-500/10 mr-3">
-                            <Star className="h-5 w-5 text-amber-400" />
-                          </div>
-                          <h3 className="font-semibold text-white">Skill Level</h3>
+                  
+                  {/* Name with better typography and subtle highlight */}
+                  <h3 className="font-medium text-xl mt-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                    {hasProfile ? nickname : session?.user?.name || "Player"}
+                  </h3>
+                  
+                  {hasProfile && (
+                    <>
+                      {/* Additional player information - can be conditionally rendered */}
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-4 w-full">
+                        <div className="flex items-center text-sm text-gray-400">
+                          <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            width="12" 
+                            height="12" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            className="mr-1.5 text-padeliga-purple/70"
+                          >
+                            <circle cx="12" cy="8" r="6"></circle>
+                            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
+                          </svg>
+                          <span>Level {skillLevel}</span>
                         </div>
-                        
-                        {/* Value display - FIXED: Added flex-col to ensure vertical stacking and prevent overlap */}
-                        <div className="flex flex-col space-y-2">
-                          {/* Stars row */}
-                          <div className="flex">
-                            {getSkillLevelStars(skillLevel)}
-                          </div>
-                          {/* Text row - separately positioned */}
-                          <div className="flex justify-end">
-                            <div className={`px-3 py-1 rounded-md bg-gray-800 ${getSkillLevelTextColor(skillLevel)} font-semibold`}>
+                        <div className="flex items-center text-sm text-gray-400">
+                          <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            width="12" 
+                            height="12" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            className="mr-1.5 text-padeliga-teal/70"
+                          >
+                            <rect width="8" height="14" x="8" y="5" rx="1"></rect>
+                            <path d="m4 9 4-4v6"></path>
+                            <path d="m4 15 4 4v-6"></path>
+                          </svg>
+                          <span>{getHandednessDisplay(handedness).split('-')[0]}</span>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-400">
+                          <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            width="12" 
+                            height="12" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            className="mr-1.5 text-padeliga-orange/70"
+                          >
+                            <circle cx="12" cy="5" r="3"></circle>
+                            <path d="M12 8v3"></path>
+                            <path d="m9 11 1.5 1.5"></path>
+                            <path d="M12 11c-1.7 1-3 3.4-3 5.5 0 1.7.9 2.5 2 2.5s2 .8 2 2.5c0 2.1-1.3 4.5-3 5.5"></path>
+                            <path d="m15 11-1.5 1.5"></path>
+                          </svg>
+                          <span>{getPositionDisplay(preferredPosition)}</span>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-400">
+                          <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            width="12" 
+                            height="12" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            className="mr-1.5 text-padeliga-green/70"
+                          >
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                          </svg>
+                          <span>0 matches</span>
+                        </div>
+                      </div>
+
+                      {/* Skill level visual representation */}
+                      <div className="mt-6 w-full">
+                        <div className="relative overflow-hidden rounded-lg bg-gray-800/50 p-4">
+                          <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${getSkillLevelColor(skillLevel)}`}></div>
+                          
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="flex items-center">
+                              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-amber-500/10 mr-2">
+                                <Star className="h-4 w-4 text-amber-400" />
+                              </div>
+                              <span className="text-sm font-medium text-gray-300">Skill Level</span>
+                            </div>
+                            <div className={`px-2 py-0.5 rounded-md bg-gray-800 ${getSkillLevelTextColor(skillLevel)} text-xs font-semibold`}>
                               {getSkillLevelText(skillLevel)}
                             </div>
                           </div>
+                          
+                          <div className="flex justify-between items-center">
+                            <div className="text-gray-400 text-xs">1</div>
+                            <div className="w-full mx-2 my-1">
+                              <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                                <div 
+                                  className={`h-full bg-gradient-to-r ${getSkillLevelColor(skillLevel)}`} 
+                                  style={{ width: `${parseInt(skillLevel) * 10}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                            <div className="text-gray-400 text-xs">10</div>
+                          </div>
+                          
+                          {getSkillLevelStars(skillLevel)}
                         </div>
                       </div>
-                    </div>
-                    
-                    {/* REDESIGNED: Handedness Card */}
-                    <div className="relative overflow-hidden rounded-lg bg-gray-900">
-                      {/* Accent line */}
-                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-blue-400"></div>
                       
-                      <div className="p-4">
-                        {/* Header with icon and title */}
-                        <div className="flex items-center mb-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-500/10 mr-3">
-                            <HandIcon />
-                          </div>
-                          <h3 className="font-semibold text-white">Handedness</h3>
+                      {/* View Stats Button - with hover effect */}
+                      <button 
+                        onClick={() => toast.info("Player stats coming soon!")}
+                        className="w-full mt-6 py-2 px-4 rounded-md bg-gray-800/70 hover:bg-gray-800 transition-colors group flex items-center justify-center space-x-2"
+                      >
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-500/20 group-hover:bg-purple-500/30 transition-colors">
+                          <StatsIcon />
                         </div>
-                        
-                        {/* Value display */}
-                        <div className="flex justify-end">
-                          <div className="px-3 py-1 bg-blue-500/10 rounded-md">
-                            <span className="text-blue-400 font-medium">
-                              {getHandednessDisplay(handedness)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* REDESIGNED: Position Card */}
-                    <div className="relative overflow-hidden rounded-lg bg-gray-900">
-                      {/* Accent line */}
-                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-blue-400"></div>
-                      
-                      <div className="p-4">
-                        {/* Header with icon and title */}
-                        <div className="flex items-center mb-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-500/10 mr-3">
-                            <PositionIcon />
-                          </div>
-                          <h3 className="font-semibold text-white">Position</h3>
-                        </div>
-                        
-                        {/* Value display */}
-                        <div className="flex justify-end">
-                          <div className="px-3 py-1 bg-blue-500/10 rounded-md">
-                            <span className="text-blue-400 font-medium">
-                              {getPositionDisplay(preferredPosition)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                        <span className="text-purple-300 text-sm font-medium group-hover:text-purple-200 transition-colors">
+                          View detailed stats
+                        </span>
+                      </button>
+                    </>
+                  )}
                 </div>
-                
-                {/* Moved View Stats to the footer area */}
-                {hasProfile && (
-                  <div className="mt-auto pt-5">
-                    <div 
-                      onClick={() => toast.info("Player stats coming soon!")}
-                      className="cursor-pointer px-3 py-2 rounded-md bg-gray-800/50 hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2 group"
-                    >
-                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500/20 group-hover:bg-purple-500/30 transition-colors">
-                        <AwardBadgeIcon />
-                      </div>
-                      <span className="text-purple-300 text-sm font-medium group-hover:text-purple-200 transition-colors">View detailed stats</span>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
             
             {/* Player benefits card */}
             {!hasProfile && (
