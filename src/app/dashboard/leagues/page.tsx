@@ -829,7 +829,8 @@ function LeaguesPage() {
             )}
           </>
         ) : (
-          <Tabs.Content value="active">
+          /* FIXED: Changed Tabs.Content to TabsContent */
+          <TabsContent value="active">
             {isLoading ? (
               <LoadingSkeleton />
             ) : activeLeagues.length > 0 ? (
@@ -847,7 +848,7 @@ function LeaguesPage() {
                 icon={<Users className="w-8 h-8 text-padeliga-teal" />}
               />
             )}
-          </Tabs.Content>
+          </TabsContent>
         )}
       </div>
     </div>
