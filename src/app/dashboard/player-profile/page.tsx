@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { User, Award, Smartphone, Save, CheckCircle, CheckCircle2, Star } from "lucide-react";
+import { User, Award, Smartphone, Save, CheckCircle, CheckCircle2, Star, ChevronRight, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { SkewedActionButton } from "@/components/dashboard/SkewedActionButton";
@@ -116,10 +116,14 @@ function PlayerProfilePage() {
   
   // Form state
   const [nickname, setNickname] = useState("");
+  const [nicknameTouched, setNicknameTouched] = useState(false);
   const [skillLevel, setSkillLevel] = useState("5");
   const [handedness, setHandedness] = useState("right");
   const [preferredPosition, setPreferredPosition] = useState("both");
   const [contactPhone, setContactPhone] = useState("");
+
+  // Validation states
+  const isNicknameValid = nickname.length >= 2;
   
   // Fetch player profile data
   useEffect(() => {
@@ -166,6 +170,13 @@ function PlayerProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaveSuccess(false);
+    setNicknameTouched(true);
+    
+    // Validate form before submission
+    if (!isNicknameValid) {
+      toast.error("Please enter a valid nickname (at least 2 characters)");
+      return;
+    }
     
     try {
       setIsLoading(true);
@@ -532,24 +543,20 @@ function PlayerProfilePage() {
             )}
           </div>
           
-          {/* Right column with form */}
+          {/* Right column with ENHANCED form */}
           <div className="md:col-span-2">
-            <Card className="relative overflow-hidden border-none shadow-lg h-full">
-              {/* Left accent border */}
-              <div 
-                className="absolute left-0 top-0 bottom-0 w-1.5"
-                style={{ background: `hsl(var(--teal))` }}
-              />
+            <div className="relative overflow-hidden rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-800/60 shadow-xl h-full">
+              {/* Gradient accent line at top */}
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-padeliga-teal to-padeliga-blue"></div>
               
-              {/* Background with blur */}
-              <div 
-                className="absolute inset-0 -z-10 bg-card/95 backdrop-blur-sm dark:bg-card/90"
-              />
+              {/* Decorative background elements */}
+              <div className="absolute -right-20 -bottom-20 w-40 h-40 rounded-full bg-padeliga-teal/10 blur-xl"></div>
+              <div className="absolute -left-10 -top-10 w-32 h-32 rounded-full bg-padeliga-blue/10 blur-xl"></div>
               
               {/* Success indicator that slides in when save is successful */}
               <div 
                 className={cn(
-                  "absolute right-4 top-4 flex items-center transition-all duration-300 ease-in-out bg-padeliga-green/10 py-1.5 px-4 rounded-full",
+                  "absolute right-4 top-4 z-10 flex items-center transition-all duration-300 ease-in-out bg-padeliga-green/10 py-1.5 px-4 rounded-full",
                   saveSuccess ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10"
                 )}
               >
@@ -557,157 +564,323 @@ function PlayerProfilePage() {
                 <span className="text-sm text-padeliga-green font-medium">Saved successfully</span>
               </div>
               
-              <CardHeader className="pb-4 border-b">
-                <div className="flex items-center gap-2 mb-1">
-                  <Award className="h-5 w-5 text-padeliga-teal" />
-                  <CardTitle>{hasProfile ? "Edit Your Profile" : "Create Your Player Profile"}</CardTitle>
+              <div className="p-6">
+                {/* Header */}
+                <div className="flex items-center justify-between border-b border-gray-800/60 pb-4 mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded flex items-center justify-center bg-padeliga-teal/20 relative">
+                      <Award className="h-5 w-5 text-padeliga-teal" />
+                      {/* Subtle glow effect */}
+                      <div className="absolute inset-0 bg-padeliga-teal/20 rounded-full blur-md animate-pulse-slow"></div>
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-white">
+                        {hasProfile ? "Edit Your Profile" : "Create Your Player Profile"}
+                      </h2>
+                      <p className="text-sm text-gray-400 mt-0.5">
+                        Fill in your padel player details to help teammates and opponents know more about you.
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <CardDescription>
-                  Fill in your padel player details to help teammates and opponents know more about you.
-                </CardDescription>
-              </CardHeader>
-              
-              <form onSubmit={handleSubmit} className="h-[calc(100%-100px)] flex flex-col">
-                <CardContent className="space-y-6 pt-6 flex-grow">
-                  <div>
-                    <Label htmlFor="nickname" className="flex items-center text-base mb-2">
-                      <User className="h-4 w-4 mr-2 text-padeliga-teal" />
-                      Nickname
-                      <span className="text-padeliga-red ml-1">*</span>
-                    </Label>
+                
+                <form onSubmit={handleSubmit} className="flex flex-col h-[calc(100%-100px)]">
+                  <div className="space-y-8 flex-grow">
+                    {/* Nickname Field - Enhanced */}
                     <div className="relative">
-                      <Input
-                        id="nickname"
-                        placeholder="Your padel nickname"
-                        value={nickname}
-                        onChange={(e) => setNickname(e.target.value)}
-                        required
-                        className="border-input/50 focus:border-padeliga-teal pl-4"
-                      />
-                      {nickname && (
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                          <CheckCircle className="h-4 w-4 text-padeliga-green" />
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-padeliga-teal/10 mr-2">
+                          <User className="h-4 w-4 text-padeliga-teal" />
                         </div>
+                        <label htmlFor="nickname" className="text-lg font-medium text-white">
+                          Nickname <span className="text-red-500">*</span>
+                        </label>
+                      </div>
+                      
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-gradient-to-r from-padeliga-teal/20 to-transparent rounded-md blur-sm opacity-50"></div>
+                        <div className="relative">
+                          <Input
+                            id="nickname"
+                            placeholder="Your padel nickname"
+                            value={nickname}
+                            onChange={(e) => {
+                              setNickname(e.target.value);
+                              setNicknameTouched(true);
+                            }}
+                            required
+                            className={cn(
+                              "pl-4 py-6 text-base bg-gray-800/70 border-gray-700 focus:border-padeliga-teal transition-all duration-300",
+                              "placeholder:text-gray-500 font-medium",
+                              nickname && isNicknameValid && "border-padeliga-green/50 focus:border-padeliga-green",
+                              nicknameTouched && !isNicknameValid && "border-red-500/70 focus:border-red-500"
+                            )}
+                          />
+                          
+                          {/* Validation icon */}
+                          {nicknameTouched && (
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              {isNicknameValid ? (
+                                <div className="bg-padeliga-green/10 p-1 rounded-full">
+                                  <CheckCircle className="h-5 w-5 text-padeliga-green" />
+                                </div>
+                              ) : (
+                                <div className="bg-red-500/10 p-1 rounded-full">
+                                  <AlertCircle className="h-5 w-5 text-red-500" />
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <p className="text-sm text-gray-400 mt-2 ml-10">
+                        This is how you'll be known to other players in the league.
+                      </p>
+                      
+                      {/* Validation message */}
+                      {nicknameTouched && !isNicknameValid && (
+                        <p className="text-sm text-red-500 mt-1 ml-10 flex items-center">
+                          <AlertCircle className="h-3 w-3 mr-1" />
+                          Nickname must be at least 2 characters
+                        </p>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      This is how you'll be known to other players in the league.
-                    </p>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="skillLevel" className="flex items-center text-base mb-2">
-                        <Star className="h-4 w-4 mr-2 text-padeliga-teal" />
-                        Skill Level
-                        <span className="text-padeliga-red ml-1">*</span>
-                      </Label>
-                      <Select
-                        value={skillLevel}
-                        onValueChange={setSkillLevel}
-                      >
-                        <SelectTrigger id="skillLevel" className="border-input/50 focus:border-padeliga-teal">
-                          <SelectValue placeholder="Select your skill level" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
-                            <SelectItem key={level} value={level.toString()}>
-                              {level} - {level < 4 ? "Beginner" : level < 7 ? "Intermediate" : "Advanced"}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <div className="mt-1 flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">Beginner</span>
-                        <span className="text-xs text-muted-foreground">Advanced</span>
+                    
+                    {/* Two columns layout for skill level and handedness */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Skill Level - Enhanced */}
+                      <div>
+                        <div className="flex items-center mb-2">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-amber-500/10 mr-2">
+                            <Star className="h-4 w-4 text-amber-400" />
+                          </div>
+                          <label htmlFor="skillLevel" className="text-lg font-medium text-white">
+                            Skill Level <span className="text-red-500">*</span>
+                          </label>
+                        </div>
+                        
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-transparent rounded-md blur-sm opacity-50"></div>
+                          <Select
+                            value={skillLevel}
+                            onValueChange={setSkillLevel}
+                          >
+                            <SelectTrigger 
+                              id="skillLevel" 
+                              className="py-6 bg-gray-800/70 border-gray-700 focus:border-amber-500 text-base"
+                            >
+                              <div className="flex items-center">
+                                <span className="text-lg font-medium mr-2">{skillLevel}</span>
+                                <span className="text-sm text-gray-400">- {getSkillLevelText(skillLevel)}</span>
+                              </div>
+                            </SelectTrigger>
+                            <SelectContent className="bg-gray-800 border-gray-700">
+                              {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
+                                <SelectItem key={level} value={level.toString()} className="text-base">
+                                  <div className="flex items-center">
+                                    <span className="text-lg font-medium mr-2">{level}</span>
+                                    <span className="text-sm text-gray-400">- {level < 4 ? "Beginner" : level < 7 ? "Intermediate" : "Advanced"}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="mt-2 flex items-center justify-between px-1">
+                          <span className="text-xs text-gray-500">Beginner</span>
+                          <div className="w-full mx-2 h-1 bg-gray-700 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full bg-gradient-to-r ${getSkillLevelColor(skillLevel)}`} 
+                              style={{ width: `${parseInt(skillLevel) * 10}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-xs text-gray-500">Advanced</span>
+                        </div>
+                      </div>
+                      
+                      {/* Handedness - Enhanced */}
+                      <div>
+                        <div className="flex items-center mb-2">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-500/10 mr-2">
+                            <HandIcon />
+                          </div>
+                          <label htmlFor="handedness" className="text-lg font-medium text-white">
+                            Handedness <span className="text-red-500">*</span>
+                          </label>
+                        </div>
+                        
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-transparent rounded-md blur-sm opacity-50"></div>
+                          <Select
+                            value={handedness}
+                            onValueChange={setHandedness}
+                          >
+                            <SelectTrigger 
+                              id="handedness" 
+                              className="py-6 bg-gray-800/70 border-gray-700 focus:border-blue-400 text-base"
+                            >
+                              <div className="flex items-center">
+                                <span className="font-medium">{getHandednessDisplay(handedness)}</span>
+                              </div>
+                            </SelectTrigger>
+                            <SelectContent className="bg-gray-800 border-gray-700">
+                              <SelectItem value="right" className="text-base">Right-handed</SelectItem>
+                              <SelectItem value="left" className="text-base">Left-handed</SelectItem>
+                              <SelectItem value="ambidextrous" className="text-base">Ambidextrous</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="flex justify-center mt-2">
+                          <div 
+                            className={cn(
+                              "px-3 py-1 rounded-full text-xs font-medium", 
+                              handedness === "right" ? "bg-blue-500/20 text-blue-400" : 
+                              handedness === "left" ? "bg-green-500/20 text-green-400" : 
+                              "bg-purple-500/20 text-purple-400"
+                            )}
+                          >
+                            {handedness === "right" ? "Primary hand: Right" : 
+                             handedness === "left" ? "Primary hand: Left" : 
+                             "Uses both hands equally"}
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
-                    <div>
-                      <Label htmlFor="handedness" className="flex items-center text-base mb-2">
-                        <HandIcon />
-                        <span className="ml-2">Handedness</span>
-                        <span className="text-padeliga-red ml-1">*</span>
-                      </Label>
-                      <Select
-                        value={handedness}
-                        onValueChange={setHandedness}
-                      >
-                        <SelectTrigger id="handedness" className="border-input/50 focus:border-padeliga-teal">
-                          <SelectValue placeholder="Select your handedness" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="right">Right-handed</SelectItem>
-                          <SelectItem value="left">Left-handed</SelectItem>
-                          <SelectItem value="ambidextrous">Ambidextrous</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    {/* Two columns layout for position and contact */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Preferred Position - Enhanced */}
+                      <div>
+                        <div className="flex items-center mb-2">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-orange-500/10 mr-2">
+                            <PositionIcon />
+                          </div>
+                          <label htmlFor="preferredPosition" className="text-lg font-medium text-white">
+                            Preferred Position <span className="text-red-500">*</span>
+                          </label>
+                        </div>
+                        
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-transparent rounded-md blur-sm opacity-50"></div>
+                          <Select
+                            value={preferredPosition}
+                            onValueChange={setPreferredPosition}
+                          >
+                            <SelectTrigger 
+                              id="preferredPosition" 
+                              className="py-6 bg-gray-800/70 border-gray-700 focus:border-orange-400 text-base"
+                            >
+                              <div className="flex items-center font-medium">
+                                {getPositionDisplay(preferredPosition)}
+                                {preferredPosition === "forehand" && " (Right)"}
+                                {preferredPosition === "backhand" && " (Left)"}
+                              </div>
+                            </SelectTrigger>
+                            <SelectContent className="bg-gray-800 border-gray-700">
+                              <SelectItem value="forehand" className="text-base">Forehand (Right)</SelectItem>
+                              <SelectItem value="backhand" className="text-base">Backhand (Left)</SelectItem>
+                              <SelectItem value="both" className="text-base">Both Positions</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="flex justify-center mt-2">
+                          <div 
+                            className={cn(
+                              "px-3 py-1 rounded-full text-xs font-medium", 
+                              preferredPosition === "forehand" ? "bg-orange-500/20 text-orange-400" : 
+                              preferredPosition === "backhand" ? "bg-green-500/20 text-green-400" : 
+                              "bg-purple-500/20 text-purple-400"
+                            )}
+                          >
+                            {preferredPosition === "forehand" ? "Right side of court" : 
+                             preferredPosition === "backhand" ? "Left side of court" : 
+                             "Comfortable on both sides"}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Contact Phone - Enhanced */}
+                      <div>
+                        <div className="flex items-center mb-2">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-padeliga-teal/10 mr-2">
+                            <Smartphone className="h-4 w-4 text-padeliga-teal" />
+                          </div>
+                          <label htmlFor="contactPhone" className="text-lg font-medium text-white">
+                            Contact Phone <span className="text-gray-500 text-sm">(optional)</span>
+                          </label>
+                        </div>
+                        
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-gradient-to-r from-padeliga-teal/20 to-transparent rounded-md blur-sm opacity-50"></div>
+                          <Input
+                            id="contactPhone"
+                            placeholder="Your phone number (optional)"
+                            value={contactPhone}
+                            onChange={(e) => setContactPhone(e.target.value)}
+                            className="pl-4 py-6 text-base bg-gray-800/70 border-gray-700 focus:border-padeliga-teal transition-all duration-300 placeholder:text-gray-500"
+                          />
+                        </div>
+                        
+                        <p className="text-sm text-gray-400 mt-2">
+                          Used only for league communications. Never shared publicly.
+                        </p>
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="preferredPosition" className="flex items-center text-base mb-2">
-                        <PositionIcon />
-                        <span className="ml-2">Preferred Position</span>
-                        <span className="text-padeliga-red ml-1">*</span>
-                      </Label>
-                      <Select
-                        value={preferredPosition}
-                        onValueChange={setPreferredPosition}
+                  {/* Submit Button Section - Enhanced */}
+                  <div className="mt-10 pt-6 border-t border-gray-800/50">
+                    <div className="flex justify-center">
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className={cn(
+                          "relative overflow-hidden group px-8 py-4 min-w-[200px]",
+                          "bg-gradient-to-r from-padeliga-teal to-padeliga-blue rounded-md",
+                          "shadow-lg shadow-padeliga-teal/20",
+                          "transform transition-all duration-300",
+                          "hover:scale-[1.02] active:scale-[0.98]",
+                          "disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        )}
                       >
-                        <SelectTrigger id="preferredPosition" className="border-input/50 focus:border-padeliga-teal">
-                          <SelectValue placeholder="Select your preferred position" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="forehand">Forehand (Right)</SelectItem>
-                          <SelectItem value="backhand">Backhand (Left)</SelectItem>
-                          <SelectItem value="both">Both Positions</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="contactPhone" className="flex items-center text-base mb-2">
-                        <Smartphone className="h-4 w-4 mr-2 text-padeliga-teal" />
-                        Contact Phone
-                      </Label>
-                      <Input
-                        id="contactPhone"
-                        placeholder="Your phone number (optional)"
-                        value={contactPhone}
-                        onChange={(e) => setContactPhone(e.target.value)}
-                        className="border-input/50 focus:border-padeliga-teal"
-                      />
+                        {/* Background effect */}
+                        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                        
+                        {/* Shine effect */}
+                        <div 
+                          className="absolute -inset-full top-0 block w-1/2 h-full z-5 transform -skew-x-20 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine"
+                        ></div>
+                        
+                        {/* Button content */}
+                        <div className="relative z-10 flex items-center justify-center">
+                          {isLoading ? (
+                            <div className="flex items-center">
+                              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              <span className="text-white font-semibold">Processing...</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center">
+                              <Save className="h-5 w-5 mr-2 text-white" />
+                              <span className="text-white font-semibold">
+                                {hasProfile ? "Update Profile" : "Create Profile"}
+                              </span>
+                              <ChevronRight className="h-5 w-5 ml-1 text-white/80 transition-transform group-hover:translate-x-1" />
+                            </div>
+                          )}
+                        </div>
+                      </button>
                     </div>
                   </div>
-                </CardContent>
-                
-                <CardFooter className="flex justify-center py-8 border-t mt-auto">
-                  <SkewedButton
-                    type="submit"
-                    buttonVariant="outline"
-                    buttonSize="lg"
-                    hoverEffectColor="teal"
-                    hoverEffectVariant="outline"
-                    className="border-2 border-padeliga-teal text-padeliga-teal hover:bg-padeliga-teal/10 min-w-[200px] relative"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <span className="flex items-center justify-center">
-                        <span className="animate-spin mr-2">⟳</span> 
-                        Saving...
-                      </span>
-                    ) : (
-                      <span className="flex items-center justify-center font-medium tracking-wide">
-                        <Save className="h-4 w-4 mr-2" />
-                        {hasProfile ? "Update Profile" : "Create Profile"}
-                      </span>
-                    )}
-                  </SkewedButton>
-                </CardFooter>
-              </form>
-            </Card>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       </div>
