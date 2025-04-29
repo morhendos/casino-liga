@@ -9,6 +9,7 @@ import { AlertCircle, Loader2, ArrowRight, Mail, Lock, LogIn, UserPlus } from "l
 import PadeligaLogo from "@/components/PadeligaLogo";
 import { SkewedButton } from "@/components/ui/SkewedButton";
 import { cn } from "@/lib/utils";
+import GeometricBackground from "@/components/ui/GeometricBackground";
 
 interface FormErrors {
   email?: string;
@@ -148,15 +149,8 @@ function LoginPageContent() {
     <div className={`relative min-h-screen transition-all duration-500 ${
       isRedirecting ? "opacity-50 blur-sm" : ""
     }`}>
-      {/* Animated Gradient Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 -z-10"></div>
-      
-      {/* Geometric background elements */}
-      <div className="fixed inset-0 -z-9 overflow-hidden pointer-events-none">
-        <div className="absolute -top-10 -right-10 w-64 h-64 bg-padeliga-purple rounded-full blur-3xl opacity-10"></div>
-        <div className="absolute top-1/3 -left-12 w-72 h-72 bg-padeliga-teal rounded-full blur-3xl opacity-10"></div>
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-padeliga-orange rounded-full blur-3xl opacity-10"></div>
-      </div>
+      {/* Replace gradient background with GeometricBackground */}
+      <GeometricBackground variant="subtle" animated={true} />
 
       <main className="container mx-auto min-h-screen px-4 py-8 sm:px-6 max-w-screen-xl relative z-10 flex flex-col lg:flex-row items-center justify-center">
         {/* Left side: Branding and info */}
