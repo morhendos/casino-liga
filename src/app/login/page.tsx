@@ -299,21 +299,22 @@ function LoginPageContent() {
                   <FormError message={errors.password} />
                 </div>
                 
-                {/* Login button */}
-                <button
+                {/* Login button - REPLACED WITH SKEWED BUTTON */}
+                <SkewedButton
                   type="submit"
                   disabled={isLoading || isRedirecting}
+                  buttonVariant="cta"
+                  buttonSize="lg"
+                  hoverEffectColor="teal"
+                  hoverEffectVariant="solid"
+                  fullWidth
                   className={cn(
-                    "relative w-full overflow-hidden group bg-gradient-to-r from-padeliga-teal to-padeliga-blue",
-                    "rounded-md px-4 py-3 text-white font-medium shadow-lg",
-                    "transition-all duration-200 transform hover:translate-y-[-2px]",
-                    "disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                    "bg-gradient-to-r from-padeliga-teal to-padeliga-blue",
+                    "text-white font-medium",
+                    "disabled:opacity-70 disabled:cursor-not-allowed"
                   )}
                 >
-                  {/* Shine effect */}
-                  <div className="absolute -inset-full top-0 block w-1/2 h-full z-5 transform -skew-x-20 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
-                  
-                  <div className="relative z-10 flex items-center justify-center">
+                  <div className="flex items-center justify-center">
                     {isLoading ? (
                       <>
                         <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
@@ -326,7 +327,7 @@ function LoginPageContent() {
                       </>
                     )}
                   </div>
-                </button>
+                </SkewedButton>
                 
                 {/* Forgot password and register links */}
                 <div className="mt-6 pt-6 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
