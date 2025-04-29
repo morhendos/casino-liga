@@ -299,35 +299,35 @@ function LoginPageContent() {
                   <FormError message={errors.password} />
                 </div>
                 
-                {/* Login button - REPLACED WITH SKEWED BUTTON */}
-                <SkewedButton
-                  type="submit"
-                  disabled={isLoading || isRedirecting}
-                  buttonVariant="cta"
-                  buttonSize="lg"
-                  hoverEffectColor="teal"
-                  hoverEffectVariant="solid"
-                  fullWidth
-                  className={cn(
-                    "bg-gradient-to-r from-padeliga-teal to-padeliga-blue",
-                    "text-white font-medium",
-                    "disabled:opacity-70 disabled:cursor-not-allowed"
-                  )}
-                >
-                  <div className="flex items-center justify-center">
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
-                        <span>Iniciando sesión...</span>
-                      </>
-                    ) : (
-                      <>
-                        <LogIn className="mr-2 h-4 w-4" />
-                        <span>Iniciar Sesión</span>
-                      </>
+                {/* Login button - REPLACED WITH THE EXACT STYLE FROM HEADER */}
+                <div className="w-full">
+                  <SkewedButton
+                    type="submit"
+                    disabled={isLoading || isRedirecting}
+                    buttonVariant="outline"
+                    hoverEffectColor="teal"
+                    hoverEffectVariant="outline"
+                    fullWidth
+                    className={cn(
+                      "text-padeliga-teal border border-padeliga-teal",
+                      "disabled:opacity-70 disabled:cursor-not-allowed"
                     )}
-                  </div>
-                </SkewedButton>
+                  >
+                    <div className="flex items-center justify-center">
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                          <span>Iniciando sesión...</span>
+                        </>
+                      ) : (
+                        <>
+                          <LogIn className="mr-2 h-4 w-4" />
+                          <span>Iniciar Sesión</span>
+                        </>
+                      )}
+                    </div>
+                  </SkewedButton>
+                </div>
                 
                 {/* Forgot password and register links */}
                 <div className="mt-6 pt-6 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
