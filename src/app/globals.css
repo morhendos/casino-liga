@@ -1,403 +1,160 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
-    --background: 210 40% 98%; /* Slightly blue-tinted white background */
-    --foreground: 222.2 84% 4.9%;
- 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
- 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
- 
-    --primary: 210 79% 46%; /* Teal color from logo */
-    --primary-foreground: 0 0% 100%;
- 
-    --secondary: 278 65% 56%; /* Purple color from logo */
-    --secondary-foreground: 0 0% 100%;
- 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
- 
-    --accent: 37 91% 55%; /* Orange color from logo */
-    --accent-foreground: 222.2 47.4% 11.2%;
- 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --background: 210 40% 98%;
+    --foreground: 222.2 47.4% 11.2%;
 
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 100%;
-    
-    /* Logo-inspired colors */
-    --orange: 37 91% 55%;
-    --teal: 210 79% 46%;
-    --purple: 278 65% 56%;
-    --green: 84 67% 58%;
-    --red: 350 73% 65%;
- 
+    --muted: 210 40% 90%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 210 79% 46%; /* Updated to match primary */
- 
-    --radius: 0; /* Removed border radius to match logo */
-  }
- 
-  .dark {
-    --background: 224 25% 14%; /* Lighter and more blue-tinted dark background */
-    --foreground: 210 40% 98%;
- 
-    --card: 225 25% 18%; /* Lighter card background for dark theme */
-    --card-foreground: 210 40% 98%;
- 
-    --popover: 224 25% 14%;
-    --popover-foreground: 210 40% 98%;
- 
-    --primary: 210 79% 46%; /* Teal color from logo */
-    --primary-foreground: 0 0% 100%;
- 
-    --secondary: 278 65% 56%; /* Purple color from logo */
-    --secondary-foreground: 0 0% 100%;
- 
-    --muted: 225 25% 26%; /* Lighter muted color */
-    --muted-foreground: 210 40% 80%;
- 
-    --accent: 37 91% 55%; /* Orange color from logo */
-    --accent-foreground: 0 0% 100%;
- 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
 
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 100%;
-    
-    /* Logo-inspired colors */
-    --orange: 37 91% 55%;
-    --teal: 210 79% 46%;
-    --purple: 278 65% 56%;
-    --green: 84 67% 58%;
-    --red: 350 73% 65%;
- 
-    --border: 225 25% 24%;
-    --input: 225 25% 24%;
-    --ring: 210 79% 46%; /* Updated to match primary */
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 90%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --accent: 210 40% 90%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --padeliga-purple: 272 32% 50%;
+    --padeliga-teal: 184 100% 40%;
+    --padeliga-orange: 25 100% 50%;
+    --padeliga-green: 120 100% 30%;
+    --padeliga-red: 0 100% 50%;
+    --padeliga-blue: 210 100% 50%;
+
+    --ring: 215 20.2% 65.1%;
+
+    --radius: 0.5rem;
+
+    --paper: 0 0% 100%;
+  }
+
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+
+    --popover: 224 71% 4%;
+    --popover-foreground: 215 20.2% 65.1%;
+
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
+
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 1.2%;
+
+    --secondary: 222.2 47.4% 11.2%;
+    --secondary-foreground: 210 40% 98%;
+
+    --accent: 216 34% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --ring: 216 34% 17%;
+
+    --radius: 0.5rem;
+
+    --paper: 226 71% 6%;
   }
 }
- 
+
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+
+  h1 {
+    @apply text-4xl font-bold tracking-tight;
+  }
+
+  h2 {
+    @apply text-3xl font-bold tracking-tight;
+  }
+
+  h3 {
+    @apply text-2xl font-bold tracking-tight;
+  }
+
+  h4 {
+    @apply text-xl font-bold tracking-tight;
+  }
+
+  .heading-accent {
+    @apply relative inline-block;
+  }
+
+  .heading-accent::after {
+    @apply content-[''] absolute bottom-0 left-0 h-1 w-1/3 bg-padeliga-teal rounded-full;
   }
 }
 
-.text-muted {
-  color: hsl(var(--muted-foreground));
+/* Custom animations */
+@keyframes shine {
+  from {
+    transform: translateX(-100%) skew(-20deg);
+  }
+  to {
+    transform: translateX(150%) skew(-20deg);
+  }
 }
 
-/* Light mode section backgrounds */
-.bg-paper {
-  background-color: rgba(250, 252, 255, 0.75);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
-/* Dark mode section backgrounds */
-.dark .bg-paper {
-  background-color: rgba(30, 35, 50, 0.6);
-  backdrop-filter: blur(8px);
+.animate-shine {
+  animation: shine 3s ease-in-out infinite;
 }
 
-.dark .bg-card {
-  background-color: rgba(30, 35, 50, 0.6);
-  backdrop-filter: blur(8px);
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
 }
 
-.dark .Section {
-  background-color: rgba(30, 35, 50, 0.6);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* Custom component styles */
+.glass-card {
+  @apply bg-white/10 dark:bg-gray-900/30 backdrop-blur-sm border border-white/20 dark:border-gray-800/60 shadow-xl;
 }
 
-/* Geometric decorative elements */
-.geometric-shape {
-  position: absolute;
-  z-index: -1;
-  opacity: 0.1;
-  transition: transform 0.3s ease;
+.gradient-border-t {
+  @apply relative overflow-hidden before:absolute before:top-0 before:left-0 before:w-full before:h-1 before:bg-gradient-to-r;
 }
 
-.geometric-shape-1 {
-  background-color: hsl(var(--orange));
-  width: 150px;
-  height: 150px;
-  transform: rotate(15deg);
-}
-
-.geometric-shape-2 {
-  background-color: hsl(var(--teal));
-  width: 120px;
-  height: 120px;
-  transform: rotate(45deg);
-}
-
-.geometric-shape-3 {
-  background-color: hsl(var(--purple));
-  width: 100px;
-  height: 100px;
-  transform: rotate(-15deg);
-}
-
-.geometric-shape-4 {
-  background-color: hsl(var(--green));
-  width: 80px;
-  height: 80px;
-  transform: rotate(30deg);
-}
-
-/* Card style enhancements */
-.card-highlight {
-  position: relative;
-  padding: 1px;
-  background: hsl(var(--teal));
-  overflow: hidden;
-}
-
-.card-highlight > div {
-  background: hsl(var(--card));
-  height: 100%;
-}
-
-/* Input styles */
-input,
-select,
-textarea {
-  border-color: hsl(var(--ring)) !important;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  border-color: hsl(var(--ring)) !important;
-  outline: none;
-  box-shadow: 0 0 0 1px hsl(var(--ring));
-}
-
-/* Dark mode input styles */
-.dark input,
-.dark select,
-.dark textarea {
-  background-color: rgba(30, 35, 50, 0.8) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
-.dark input:focus,
-.dark select:focus,
-.dark textarea:focus {
-  border-color: hsl(var(--ring)) !important;
-  outline: none;
-  box-shadow: 0 0 0 1px hsl(var(--ring));
-}
-
-/* Heading accents */
-.heading-accent {
-  position: relative;
-  display: inline-block;
-}
-
-.heading-accent::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  height: 3px;
-  width: 40%;
-  background: hsl(var(--teal));
-  border-radius: 0; /* No rounded corners */
-}
-
-/* Better card styling for light/dark modes */
-.card {
-  background-color: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(8px);
-}
-
-.dark .card {
-  background-color: rgba(30, 35, 50, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-}
-
-/* Dashboard card styles */
-.dashboard-card {
-  transition: all 0.3s ease;
-}
-
-.dashboard-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-}
-
-.dark .dashboard-card:hover {
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
-}
-
-/* Fix for popover components */
-[data-radix-popper-content-wrapper] {
-  z-index: 50 !important;
-  position: absolute !important;
-  pointer-events: auto !important;
-}
-
-/* Calendar styles for light and dark mode */
-.rdp {
-  position: relative;
-  z-index: 50;
-  background-color: white;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  color: #000;
-}
-
-.dark .rdp {
-  background-color: rgb(30, 35, 50);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-/* Select, dropdown, and popover styling */
-[role="listbox"],
-[role="menu"],
-.select-content,
-.dropdown-content,
-.popover-content,
-.dialog-content {
-  z-index: 50 !important;
-  background-color: white !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
-}
-
-.dark [role="listbox"],
-.dark [role="menu"],
-.dark .select-content,
-.dark .dropdown-content,
-.dark .popover-content,
-.dark .dialog-content {
-  background-color: rgb(30, 35, 50) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: white !important;
-}
-
-/* Fix for radix select content */
-[data-radix-select-content] {
-  background-color: white !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-  color: #000 !important;
-}
-
-.dark [data-radix-select-content] {
-  background-color: rgb(30, 35, 50) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: white !important;
-}
-
-/* Fix for radix popover content */
-[data-radix-popper-content-wrapper] > div {
-  background-color: white !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-}
-
-.dark [data-radix-popper-content-wrapper] > div {
-  background-color: rgb(30, 35, 50) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: white !important;
-}
-
-/* Direct styling for calendar-specific elements */
-.calendar-root,
-.calendar-content {
-  pointer-events: auto !important;
-  z-index: 50 !important;
-  position: relative !important;
-  background-color: white !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-}
-
-.dark .calendar-root,
-.dark .calendar-content {
-  background-color: rgb(30, 35, 50) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: white !important;
-}
-
-/* Stronger targeting for react-day-picker */
-.rdp-months {
-  background-color: white !important;
-}
-
-.dark .rdp-months {
-  background-color: rgb(30, 35, 50) !important;
-}
-
-/* Target all popover content with a stronger selector */
-div[data-radix-popper-content-wrapper] [role="dialog"],
-div[data-radix-popper-content-wrapper] [role="menu"],
-div[data-radix-popper-content-wrapper] [role="listbox"] {
-  background-color: white !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-}
-
-.dark div[data-radix-popper-content-wrapper] [role="dialog"],
-.dark div[data-radix-popper-content-wrapper] [role="menu"],
-.dark div[data-radix-popper-content-wrapper] [role="listbox"] {
-  background-color: rgb(30, 35, 50) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: white !important;
-}
-
-/* Better hover states for interactive elements */
-button:hover, 
-a:hover,
-.interactive:hover {
-  transition: all 0.2s ease;
-}
-
-/* Tab styles */
-.tabs-list {
-  background-color: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.dark .tabs-list {
-  background-color: rgba(30, 35, 50, 0.7);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* Active tab indicator */
-.tab[data-state="active"] {
-  position: relative;
-}
-
-.tab[data-state="active"]::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: hsl(var(--teal));
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r;
 }
