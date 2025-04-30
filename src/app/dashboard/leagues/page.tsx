@@ -245,7 +245,7 @@ function LeaguesPage() {
   };
   
   // Get appropriate color for league status
-  const getStatusColor = (status: string, isPublic: boolean = true) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
         return "from-green-600 to-emerald-500";
@@ -259,36 +259,38 @@ function LeaguesPage() {
   };
 
   // Get status badge content
-  const getStatusBadge = (status: string, isPublic: boolean = true) => {
-    let statusText, statusColor, statusIcon;
+  const getStatusBadge = (status: string) => {
+    let bgColor, textColor, icon;
     
     switch (status) {
       case 'active':
-        statusText = "Active";
-        statusColor = "bg-gradient-to-r from-green-600 to-emerald-500";
-        statusIcon = <Trophy className="h-3 w-3 mr-1" />;
+        bgColor = "bg-emerald-500/20";
+        textColor = "text-emerald-400";
+        icon = <Trophy className="h-3.5 w-3.5 mr-1.5" />;
         break;
       case 'registration':
-        statusText = "Registration Open";
-        statusColor = "bg-gradient-to-r from-blue-600 to-indigo-500";
-        statusIcon = <Users className="h-3 w-3 mr-1" />;
+        bgColor = "bg-blue-500/20";
+        textColor = "text-blue-400";
+        icon = <Users className="h-3.5 w-3.5 mr-1.5" />;
         break;
       case 'completed':
-        statusText = "Completed";
-        statusColor = "bg-gradient-to-r from-purple-600 to-violet-500";
-        statusIcon = <Medal className="h-3 w-3 mr-1" />;
+        bgColor = "bg-purple-500/20";
+        textColor = "text-purple-400";
+        icon = <Medal className="h-3.5 w-3.5 mr-1.5" />;
         break;
       default:
-        statusText = "Unknown";
-        statusColor = "bg-gradient-to-r from-gray-600 to-gray-500";
-        statusIcon = <Info className="h-3 w-3 mr-1" />;
+        bgColor = "bg-gray-500/20";
+        textColor = "text-gray-400";
+        icon = <Info className="h-3.5 w-3.5 mr-1.5" />;
     }
     
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white ${statusColor} shadow-sm`}>
-        {statusIcon}
-        {statusText}
-      </span>
+      <div className={`inline-flex items-center px-2.5 py-1 rounded-md ${bgColor} ${textColor} text-xs font-medium border border-${textColor}/30`}>
+        {icon}
+        {status === 'active' ? 'Active' : 
+         status === 'registration' ? 'Registration' : 
+         status === 'completed' ? 'Completed' : 'Unknown'}
+      </div>
     );
   };
 
@@ -297,10 +299,10 @@ function LeaguesPage() {
     if (!isPublic) return null;
     
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white bg-gradient-to-r from-fuchsia-600 to-pink-500 shadow-sm">
-        <Share2 className="h-3 w-3 mr-1" />
+      <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-pink-500/20 text-pink-400 text-xs font-medium border border-pink-400/30">
+        <Share2 className="h-3.5 w-3.5 mr-1.5" />
         Public
-      </span>
+      </div>
     );
   };
   
@@ -343,11 +345,34 @@ function LeaguesPage() {
 
     // Calculate percentage of teams registered
     const teamsPercentage = Math.min(100, Math.round((league.teams.length / league.maxTeams) * 100));
+
+    // Format date safely
+    const formatDateSafely = (dateString: string) => {
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return "Invalid Date";
+        return date.toLocaleDateString();
+      } catch (error) {
+        return "Invalid Date";
+      }
+    };
+    
+    // Format date range
+    const formatDateRange = () => {
+      const startDateStr = formatDateSafely(league.startDate);
+      const endDateStr = formatDateSafely(league.endDate);
+      
+      if (startDateStr === "Invalid Date" || endDateStr === "Invalid Date") {
+        return "Invalid Date - Invalid Date";
+      }
+      
+      return `${startDateStr} - ${endDateStr}`;
+    };
     
     return (
-      <div className="relative overflow-hidden rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-800/60 shadow-xl group hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
+      <div className="relative overflow-hidden rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-800/60 shadow-xl transition-all duration-300 h-full flex flex-col">
         {/* Gradient accent line at top */}
-        <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${getStatusColor(league.status, league.isPublic)}`}></div>
+        <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${getStatusColor(league.status)}`}></div>
         
         {/* Decorative background elements */}
         <div className="absolute -right-16 -top-16 w-32 h-32 rounded-full bg-blue-500/5 blur-xl"></div>
@@ -355,11 +380,11 @@ function LeaguesPage() {
         
         {/* Header Section */}
         <div className="p-5 border-b border-gray-800/60">
-          <div className="flex justify-between items-start mb-2">
+          <div className="flex justify-between items-start mb-3">
             <h3 className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
               {league.name}
             </h3>
-            <div className="flex gap-1.5">
+            <div className="flex gap-2">
               {getStatusBadge(league.status)}
               {league.isPublic && getPublicBadge(true)}
             </div>
@@ -372,166 +397,109 @@ function LeaguesPage() {
         
         {/* Content Section */}
         <div className="p-5 flex-grow">
-          <div className="space-y-4">
-            {/* Registration Progress */}
-            <div className="mb-4">
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-400">Teams</span>
-                <span className="text-white font-medium">{league.teams.length} / {league.maxTeams}</span>
+          {/* Teams progress */}
+          <div className="mb-4">
+            <div className="flex justify-between text-sm mb-2">
+              <span className="text-gray-400 flex items-center">
+                <Users className="h-4 w-4 mr-1.5 text-gray-500" />
+                Teams
+              </span>
+              <span className="text-white font-medium">{league.teams.length} / {league.maxTeams}</span>
+            </div>
+            <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+              <div 
+                className={`h-full bg-gradient-to-r ${getStatusColor(league.status)}`} 
+                style={{ width: `${teamsPercentage}%` }}
+              ></div>
+            </div>
+          </div>
+          
+          {/* League Info Cards */}
+          <div className="grid grid-cols-2 gap-3 mt-4">
+            <div className="bg-gray-800/50 rounded-lg p-3">
+              <div className="flex items-center text-gray-400 mb-1 text-xs">
+                <Calendar className="h-3 w-3 mr-1.5 text-blue-400" />
+                Schedule
               </div>
-              <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                <div 
-                  className={`h-full bg-gradient-to-r ${getStatusColor(league.status, league.isPublic)}`} 
-                  style={{ width: `${teamsPercentage}%` }}
-                ></div>
+              <div className="text-white text-sm font-medium">
+                {formatDateRange()}
               </div>
             </div>
             
-            {/* League Info Cards */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-gray-800/50 rounded-lg p-3">
-                <div className="flex items-center text-gray-400 mb-1 text-xs">
-                  <Calendar className="h-3 w-3 mr-1.5" />
-                  Schedule
-                </div>
-                <div className="text-white text-sm">
-                  {new Date(league.startDate).toLocaleDateString()} - {new Date(league.endDate).toLocaleDateString()}
-                </div>
+            <div className="bg-gray-800/50 rounded-lg p-3">
+              <div className="flex items-center text-gray-400 mb-1 text-xs">
+                <Tag className="h-3 w-3 mr-1.5 text-amber-400" />
+                Format
               </div>
-              
-              <div className="bg-gray-800/50 rounded-lg p-3">
-                <div className="flex items-center text-gray-400 mb-1 text-xs">
-                  <Tag className="h-3 w-3 mr-1.5" />
-                  Format
-                </div>
-                <div className="text-white text-sm">
-                  {formatMatchType(league.matchFormat)}
-                </div>
+              <div className="text-white text-sm font-medium">
+                {league.matchFormat === 'bestOf3' ? 'Best of 3 Sets' : 
+                 league.matchFormat === 'bestOf5' ? 'Best of 5 Sets' : 
+                 league.matchFormat === 'singleSet' ? 'Single Set' : 
+                 league.matchFormat}
               </div>
-              
-              {league.status === 'registration' && league.registrationDeadline && (
-                <div className="bg-gray-800/50 rounded-lg p-3 col-span-2">
-                  <div className="flex items-center text-gray-400 mb-1 text-xs">
-                    <Clock className="h-3 w-3 mr-1.5" />
-                    Registration Deadline
-                  </div>
-                  <div className={cn(
-                    "text-sm font-medium", 
-                    new Date(league.registrationDeadline) < new Date() 
-                      ? "text-red-400" 
-                      : "text-teal-400"
-                  )}>
-                    {formattedDeadline}
-                  </div>
-                </div>
-              )}
-              
-              {league.venue && (
-                <div className="bg-gray-800/50 rounded-lg p-3 col-span-2">
-                  <div className="flex items-center text-gray-400 mb-1 text-xs">
-                    <MapPin className="h-3 w-3 mr-1.5" />
-                    Venue
-                  </div>
-                  <div className="text-white text-sm">
-                    {league.venue}
-                  </div>
-                </div>
-              )}
-              
-              {userTeam && (
-                <div className="bg-gray-800/50 rounded-lg p-3 col-span-2">
-                  <div className="flex items-center text-gray-400 mb-1 text-xs">
-                    <Users className="h-3 w-3 mr-1.5" />
-                    Your Team
-                  </div>
-                  <div className="text-white text-sm font-medium">
-                    {userTeam.name}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
         
         {/* Actions Section */}
-        <div className="p-5 border-t border-gray-800/60 flex flex-wrap gap-2 justify-between items-center">
+        <div className="p-5 border-t border-gray-800/60 flex justify-between items-center">
           <Link 
             href={`/dashboard/leagues/${leagueId}`}
             className={cn(
-              "py-1.5 px-3 rounded-md text-sm font-medium flex items-center",
-              "bg-gray-800/80 text-gray-300 hover:bg-gray-700/80 transition-all",
-              "group-hover:text-white"
+              "flex items-center gap-1 text-gray-300 hover:text-white transition-colors"
             )}
           >
-            View Details
-            <ChevronRight className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            <span className="text-sm font-medium">View Details</span>
+            <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
           
           <div className="flex gap-2">
             {isRegistrationOpen && selectedTeamId && !userTeamInLeague && !isLeagueFull && (
-              <Link 
-                href={`/dashboard/leagues/${leagueId}/join?teamId=${selectedTeamId}`}
-                className={cn(
-                  "py-1.5 px-3 rounded-md text-sm font-medium inline-flex items-center",
-                  "bg-gradient-to-r from-padeliga-teal to-padeliga-blue text-white",
-                  "shadow-md hover:shadow-lg transition-all"
-                )}
-              >
-                Join League
+              <Link href={`/dashboard/leagues/${leagueId}/join?teamId=${selectedTeamId}`}>
+                <SkewedButton
+                  buttonVariant="teal"
+                  buttonSize="sm"
+                  hoverEffectColor="teal"
+                  hoverEffectVariant="solid"
+                  className="text-xs"
+                >
+                  Join League
+                </SkewedButton>
               </Link>
             )}
             
             {(userTeamInLeague || userTeam) && (
-              <Link 
-                href={`/dashboard/leagues/${leagueId}/schedule`}
-                className={cn(
-                  "py-1.5 px-3 rounded-md text-sm font-medium inline-flex items-center",
-                  "bg-gray-800/80 text-gray-300 hover:bg-gray-700/80 transition-all"
-                )}
-              >
-                <Calendar className="w-4 h-4 mr-1.5" />
-                Schedule
+              <Link href={`/dashboard/leagues/${leagueId}/schedule`}>
+                <SkewedButton
+                  buttonVariant="outline"
+                  buttonSize="sm"
+                  hoverEffectColor="blue"
+                  hoverEffectVariant="outline"
+                  className="text-xs"
+                >
+                  <Calendar className="w-3.5 h-3.5 mr-1" />
+                  Schedule
+                </SkewedButton>
               </Link>
             )}
             
             {isUserOrganizer && (
-              <>
-                <Link 
-                  href={`/dashboard/leagues/${leagueId}/manage`}
-                  className={cn(
-                    "py-1.5 px-3 rounded-md text-sm font-medium inline-flex items-center",
-                    "bg-gradient-to-r from-amber-600 to-orange-500 text-white",
-                    "shadow-md hover:shadow-lg transition-all"
-                  )}
+              <Link href={`/dashboard/leagues/${leagueId}/manage`}>
+                <SkewedButton
+                  buttonVariant="orange"
+                  buttonSize="sm"
+                  hoverEffectColor="orange"
+                  hoverEffectVariant="solid"
+                  className="text-xs"
                 >
                   Manage
-                </Link>
-                
-                <div className="transform scale-90 origin-right">
-                  <ShareLeagueButton 
-                    leagueId={leagueId.toString()} 
-                    isPublic={league.isPublic !== false}
-                  />
-                </div>
-              </>
+                </SkewedButton>
+              </Link>
             )}
           </div>
         </div>
       </div>
     );
-  }
-  
-  function formatMatchType(matchFormat: string): string {
-    switch (matchFormat) {
-      case 'bestOf3':
-        return 'Best of 3 Sets';
-      case 'bestOf5':
-        return 'Best of 5 Sets';
-      case 'singleSet':
-        return 'Single Set';
-      default:
-        return matchFormat;
-    }
   }
 
   // Enhanced Empty State Component
@@ -584,7 +552,7 @@ function LeaguesPage() {
     return (
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="relative overflow-hidden rounded-lg bg-gray-900/60 border border-gray-800/40 shadow-xl h-[360px] animate-pulse">
+          <div key={i} className="relative overflow-hidden rounded-lg bg-gray-900/60 border border-gray-800/40 shadow-xl h-[300px] animate-pulse">
             <div className="h-1 bg-gradient-to-r from-gray-600 to-gray-500 w-full"></div>
             
             <div className="p-5 border-b border-gray-800/40">
@@ -596,10 +564,9 @@ function LeaguesPage() {
               <div className="h-4 bg-gray-800 rounded-md w-full mb-2"></div>
               <div className="h-2 bg-gray-800 rounded-full w-full mb-6"></div>
               
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 mt-4">
                 <div className="h-16 bg-gray-800/50 rounded-lg"></div>
                 <div className="h-16 bg-gray-800/50 rounded-lg"></div>
-                <div className="h-16 bg-gray-800/50 rounded-lg col-span-2"></div>
               </div>
             </div>
             
@@ -690,8 +657,8 @@ function LeaguesPage() {
         </div>
       </div>
       
-      {/* Enhanced Tabs Section */}
-      <div className="relative overflow-hidden rounded-lg bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 shadow-xl mb-6">
+      {/* Enhanced Tabs Section with more spacing and better styling */}
+      <div className="relative overflow-hidden rounded-lg bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 shadow-xl mb-8">
         {/* Admin specific tabs */}
         {isAdmin ? (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="p-1">
@@ -735,7 +702,7 @@ function LeaguesPage() {
             </TabsList>
 
             {/* Tab content for admin view */}
-            <TabsContent value="my">
+            <TabsContent value="my" className="pt-3 px-1 pb-1">
               {isLoading ? (
                 <LoadingSkeleton />
               ) : myLeagues.length > 0 ? (
@@ -755,7 +722,7 @@ function LeaguesPage() {
               )}
             </TabsContent>
             
-            <TabsContent value="active">
+            <TabsContent value="active" className="pt-3 px-1 pb-1">
               {isLoading ? (
                 <LoadingSkeleton />
               ) : activeLeagues.length > 0 ? (
@@ -775,7 +742,7 @@ function LeaguesPage() {
               )}
             </TabsContent>
             
-            <TabsContent value="past">
+            <TabsContent value="past" className="pt-3 px-1 pb-1">
               {isLoading ? (
                 <LoadingSkeleton />
               ) : pastLeagues.length > 0 ? (
@@ -794,7 +761,7 @@ function LeaguesPage() {
             </TabsContent>
           </Tabs>
         ) : (
-          /* Player specific tabs - FIXED: Reorganized tabs content */
+          /* Player specific tabs */
           <Tabs value={playerActiveTab} onValueChange={setPlayerActiveTab} className="p-1">
             <TabsList className="grid w-full grid-cols-2 bg-gray-800/50 p-1 rounded-md">
               <TabsTrigger 
@@ -824,7 +791,7 @@ function LeaguesPage() {
             </TabsList>
             
             {/* TabsContent must be direct children of Tabs */}
-            <TabsContent value="active">
+            <TabsContent value="active" className="pt-3 px-1 pb-1">
               {isLoading ? (
                 <LoadingSkeleton />
               ) : activeLeagues.length > 0 ? (
@@ -844,7 +811,7 @@ function LeaguesPage() {
               )}
             </TabsContent>
             
-            <TabsContent value="past">
+            <TabsContent value="past" className="pt-3 px-1 pb-1">
               {isLoading ? (
                 <LoadingSkeleton />
               ) : pastLeagues.length > 0 ? (
