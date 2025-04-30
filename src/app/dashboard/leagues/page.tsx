@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Trophy, Calendar, Users, Share2, Clock, MapPin, Medal, Tag, AlertCircle, ChevronRight, Info } from "lucide-react";
@@ -44,6 +44,7 @@ interface Team {
 }
 
 function LeaguesPage() {
+  const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
@@ -369,19 +370,43 @@ function LeaguesPage() {
       return `${startDateStr} - ${endDateStr}`;
     };
     
+    // Handle click on the card (navigate to league details)
+    const handleCardClick = () => {
+      router.push(`/dashboard/leagues/${leagueId}`);
+    };
+
+    // Stop propagation on action buttons
+    const handleActionClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+    };
+    
     return (
-      <div className="relative overflow-hidden rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-800/60 shadow-xl transition-all duration-300 h-full flex flex-col">
+      <div 
+        onClick={handleCardClick}
+        className="relative overflow-hidden rounded-lg bg-gray-900/80 backdrop-blur-sm border border-gray-800/60 shadow-xl transition-all duration-300 h-full flex flex-col cursor-pointer 
+        hover:shadow-2xl hover:shadow-padeliga-teal/10 hover:scale-[1.02] hover:border-padeliga-teal/30 group"
+      >
         {/* Gradient accent line at top */}
         <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${getStatusColor(league.status)}`}></div>
+        
+        {/* Shine effect on hover */}
+        <div 
+          className="absolute -inset-full top-0 block w-1/3 h-full z-5 transform -skew-x-20 bg-gradient-to-r from-transparent to-white opacity-0 group-hover:opacity-5 group-hover:animate-shine"
+        ></div>
         
         {/* Decorative background elements */}
         <div className="absolute -right-16 -top-16 w-32 h-32 rounded-full bg-blue-500/5 blur-xl"></div>
         <div className="absolute -left-16 -bottom-16 w-32 h-32 rounded-full bg-purple-500/5 blur-xl"></div>
         
+        {/* Hint indicator on hover */}
+        <div className="absolute top-2 right-2 w-8 h-8 rounded-full bg-gradient-to-r from-padeliga-teal to-padeliga-blue opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <ChevronRight className="w-5 h-5 text-white" />
+        </div>
+        
         {/* Header Section */}
         <div className="p-5 border-b border-gray-800/60">
           <div className="flex justify-between items-start mb-3">
-            <h3 className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            <h3 className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent group-hover:from-white group-hover:to-white transition-all duration-300">
               {league.name}
             </h3>
             <div className="flex gap-2">
@@ -390,7 +415,7 @@ function LeaguesPage() {
             </div>
           </div>
           
-          <p className="text-gray-400 text-sm line-clamp-2">
+          <p className="text-gray-400 text-sm line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
             {league.description || "No description provided"}
           </p>
         </div>
@@ -400,8 +425,8 @@ function LeaguesPage() {
           {/* Teams progress */}
           <div className="mb-4">
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-400 flex items-center">
-                <Users className="h-4 w-4 mr-1.5 text-gray-500" />
+              <span className="text-gray-400 flex items-center group-hover:text-gray-300 transition-colors duration-300">
+                <Users className="h-4 w-4 mr-1.5 text-gray-500 group-hover:text-gray-400 transition-colors duration-300" />
                 Teams
               </span>
               <span className="text-white font-medium">{league.teams.length} / {league.maxTeams}</span>
@@ -416,7 +441,7 @@ function LeaguesPage() {
           
           {/* League Info Cards */}
           <div className="grid grid-cols-2 gap-3 mt-4">
-            <div className="bg-gray-800/50 rounded-lg p-3">
+            <div className="bg-gray-800/50 rounded-lg p-3 group-hover:bg-gray-800/70 transition-colors duration-300">
               <div className="flex items-center text-gray-400 mb-1 text-xs">
                 <Calendar className="h-3 w-3 mr-1.5 text-blue-400" />
                 Schedule
@@ -426,7 +451,7 @@ function LeaguesPage() {
               </div>
             </div>
             
-            <div className="bg-gray-800/50 rounded-lg p-3">
+            <div className="bg-gray-800/50 rounded-lg p-3 group-hover:bg-gray-800/70 transition-colors duration-300">
               <div className="flex items-center text-gray-400 mb-1 text-xs">
                 <Tag className="h-3 w-3 mr-1.5 text-amber-400" />
                 Format
@@ -442,9 +467,10 @@ function LeaguesPage() {
         </div>
         
         {/* Actions Section */}
-        <div className="p-5 border-t border-gray-800/60 flex justify-between items-center">
+        <div className="p-5 border-t border-gray-800/60 flex justify-between items-center group-hover:bg-gray-800/20 transition-colors duration-300">
           <Link 
             href={`/dashboard/leagues/${leagueId}`}
+            onClick={handleActionClick}
             className={cn(
               "flex items-center gap-1 text-gray-300 hover:text-white transition-colors"
             )}
@@ -455,7 +481,7 @@ function LeaguesPage() {
           
           <div className="flex gap-2">
             {isRegistrationOpen && selectedTeamId && !userTeamInLeague && !isLeagueFull && (
-              <Link href={`/dashboard/leagues/${leagueId}/join?teamId=${selectedTeamId}`}>
+              <Link href={`/dashboard/leagues/${leagueId}/join?teamId=${selectedTeamId}`} onClick={handleActionClick}>
                 <SkewedButton
                   buttonVariant="teal"
                   buttonSize="sm"
@@ -469,7 +495,7 @@ function LeaguesPage() {
             )}
             
             {(userTeamInLeague || userTeam) && (
-              <Link href={`/dashboard/leagues/${leagueId}/schedule`}>
+              <Link href={`/dashboard/leagues/${leagueId}/schedule`} onClick={handleActionClick}>
                 <SkewedButton
                   buttonVariant="outline"
                   buttonSize="sm"
@@ -484,7 +510,7 @@ function LeaguesPage() {
             )}
             
             {isUserOrganizer && (
-              <Link href={`/dashboard/leagues/${leagueId}/manage`}>
+              <Link href={`/dashboard/leagues/${leagueId}/manage`} onClick={handleActionClick}>
                 <SkewedButton
                   buttonVariant="orange"
                   buttonSize="sm"
